@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Montserrat } from "next/font/google"
 import "./globals.css";
 import { Header } from "@/components";
+import Providers from "../../providers"
 
 
 const montserrat = Montserrat({
@@ -26,7 +27,8 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <Header />
-        {children}</body>
+        <Providers>{children}</Providers>
+        </body>
     </html>
   );
 }
