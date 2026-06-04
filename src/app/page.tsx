@@ -1,11 +1,19 @@
+"use client";
+
+import { useState } from "react";
 import { FeaturesSection, MainPageSection, MainSection, ReviewsSection } from "@/components";
 import { sections } from "../../config"
 import { LinksSection } from "@/components/shared/LinksSection";
 import { Footer } from "@/components/Footer";
+import { SignUpModal } from "@/components/modals/SignUpModal";
 
 export default function Home() {
+
+  const [isOpenModal, setIsOpenModal] = useState(true)
+
   return (
-    <div className="flex-col gap-0 w-full">
+    <div className="flex-col gap-0 w-full relative z-10">
+      { isOpenModal && <SignUpModal /> }
       <MainSection />
 
       { sections.map((section, index) => (
