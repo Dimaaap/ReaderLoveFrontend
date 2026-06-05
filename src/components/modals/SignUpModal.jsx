@@ -67,6 +67,13 @@ export const SignUpModal = () => {
             <ContinueWithBtn icon={ <Image src="/icons/google.svg" width={20} height={ 20 } alt="Google" /> } text="Google" />
             <ContinueWithBtn icon={ <Image src="/icons/github.svg" width={20} height={ 20 } alt="GitHub" /> } text="GitHub" />
           </div>
+
+          <span className="flex items-center gap-2 text-sm font-semibold text-[#cecece] justify-center text-center cursor-pointer">
+            Вже маєте акаунт? 
+            <span className="text-pink-600 hover:underline transition-all ease-in-out duration-300">
+              Увійти
+            </span>
+          </span>
       </div>  
     </div>
    
