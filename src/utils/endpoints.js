@@ -8,7 +8,12 @@ const Reviews = {
     ALL_REVIEWS: `${BASE_BACKEND_URL}/reviews/`
 }
 
+const Users = {
+    REGISTER: `${BASE_BACKEND_URL}/users/auth/register`
+}
+
 export const AllLinks = {
     socialLinks: SocialLinks,
-    reviews: Reviews
+    reviews: Reviews,
+    users: Users
 }

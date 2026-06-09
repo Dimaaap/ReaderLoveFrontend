@@ -4,4 +4,6 @@ export * from "./MainPageSection"
 export * from "./ReviewsSection"
 export * from "./FeaturesSection"
 export * from "./PinkCheckbox"
-export * from "./ContinueWithBtn"
+export * from "./ContinueWithBtn";
+export * from "./ErrorMessage";
+export * from "./FormField";

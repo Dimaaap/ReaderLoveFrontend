@@ -3,7 +3,7 @@ import React from 'react'
 
 export const MainSection = () => {
   return (
-    <div className="w-full relative bg-[url(/main-page-background.jpeg)] h-[86vh] bg-no-repeat bg-cover">
+    <div className="w-full relative bg-[url(/main-page-background.jpeg)] h-[97vh] bg-no-repeat bg-cover">
         <div className="flex-col text-center content-center ml-[12%] w-[35%] p-0 h-full align-middle">
             <h1 className="text-4xl font-bold text-left leading-12">
                 Сучасний читацький щоденник
