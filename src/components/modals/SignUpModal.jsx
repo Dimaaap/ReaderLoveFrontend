@@ -3,19 +3,25 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import { useForm } from "react-hook-form"
-import { ContinueWithBtn, PinkCheckbox, ErrorMessage, FormField } from '../shared'
+import { PinkCheckbox, ErrorMessage, FormField, ContinueWithBlock } from '../shared'
 import { AllLinks } from '@/utils'
-import { useSendOtpModalStore } from "../../states"
+import { useSendOtpModalStore, useSignUpModalStore, useUserSignUpStatus } from "../../states"
+import { defaultValues, regexPatterns } from '../../../config'
 
 export const SignUpModal = () => {
 
-  const { register, handleSubmit, watch, setError, formState: { errors } } = useForm();
+  const { register, handleSubmit, watch, setError, formState: { errors } } = useForm({
+    defaultValues: defaultValues.signUpForm
+  }
+  );
   
   const [isLoading, setIsLoading] = useState(false)
   const [serverError, setServerError] = useState("")
   const [showPasswordAgain, setShowPasswordAgain] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const { setSendOtpModalStoreOpen } = useSendOtpModalStore();
+  const { setSignUpModalOpen } = useSignUpModalStore();
+  const { setNeedOtp } = useUserSignUpStatus();
 
   const onSubmit = async (data) => {
     setIsLoading(true);
@@ -42,7 +48,7 @@ export const SignUpModal = () => {
         if(result.detail){
           if(result.detail.toLowerCase().includes("email")) {
             setError("email", { type: "server", message: result.detail })
-          } else if (result.detail.toLowerCase().includes("user")) {
+          } else if (result.detail.toLowerCase().includes("username")) {
             setError("userName", { type: "server", message: result.detail })
           } else {
             setServerError(result.detail);
@@ -55,7 +61,9 @@ export const SignUpModal = () => {
 
       console.log("Successful: ", result)
       sessionStorage.setItem("registration_email", result.email)
+      setSignUpModalOpen(false)
       setSendOtpModalStoreOpen(true)
+      setNeedOtp()
     } catch(error){
       console.error("Network error: ", error);
       setServerError("Can`t connect with server")
@@ -71,14 +79,15 @@ export const SignUpModal = () => {
   {
     required: "Email обов'язковий",
     pattern: {
-      value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+      value: regexPatterns.EMAIL_VALIDATION,
       message: "Некоректний формат email"
     }
   }
 
   return (
-    <div className="w-full h-full top-0 left-0 pt-0 bottom-0 right-0 z-50 transparent absolute">
-      <div className="w-137.5 h-[97vh] m-auto p-3 flex flex-col gap-5 pt-7 z-50 rounded-xl bg-[#13141d]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={ () => setSignUpModalOpen(false)}>
+      <div className="w-137.5 h-[95vh] m-auto p-3 flex flex-col gap-5 pt-7 z-50 rounded-xl bg-[#13141d]"
+      onClick={(e) => e.stopPropagation()}>
           <div className="flex flex-col text-center text-white gap-1">
             <h4 className="text-2xl font-bold">
               Створи акаунт
@@ -89,7 +98,7 @@ export const SignUpModal = () => {
           </div>
 
           <form onSubmit={ handleSubmit(onSubmit) } className="flex flex-col gap-3 w-[85%] justify-center mx-auto">
-            <div className="flex-flex-col gap-2">
+            <div className="flex flex-col gap-1">
               <label htmlFor="userName" className="text-sm font-semibold text-[#cecece]">
                 Ім'я
               </label>
@@ -100,7 +109,7 @@ export const SignUpModal = () => {
               { errors.userName && <ErrorMessage message={errors.userName.message} /> }
             </div>
 
-            <div className="flex-flex-col gap-2">
+            <div className="flex-flex-col gap-1">
               <label htmlFor="email" className="text-sm font-semibold text-[#cecece]">
                 Email
               </label>
@@ -116,7 +125,7 @@ export const SignUpModal = () => {
               { errors.email && <ErrorMessage message={errors.email.message} /> }
             </div>
 
-            <div className="flex-flex-col gap-2 relative">
+            <div className="flex flex-col gap-1 relative">
               <label htmlFor="password" className="text-sm font-semibold text-[#cecece]">
                 Пароль
               </label>
@@ -140,7 +149,7 @@ export const SignUpModal = () => {
               { errors.password && <ErrorMessage message={errors.password.message} /> }
             </div>
 
-            <div className="flex-flex-col gap-2 relative">
+            <div className="flex flex-col gap-1 relative">
               <label htmlFor="passwordAgain" className="text-sm font-semibold text-[#cecece]">
                 Пароль повторно
               </label>
@@ -180,10 +189,7 @@ export const SignUpModal = () => {
             або продовжити з
           </span>
 
-          <div className="flex items-center w-full justify-center gap-7">
-            <ContinueWithBtn icon={ <Image src="/icons/google.svg" width={20} height={ 20 } alt="Google" /> } text="Google" />
-            <ContinueWithBtn icon={ <Image src="/icons/github.svg" width={20} height={ 20 } alt="GitHub" /> } text="GitHub" />
-          </div>
+          <ContinueWithBlock />
 
           <span className="flex items-center gap-2 text-sm font-semibold text-[#cecece] justify-center text-center cursor-pointer">
             Вже маєте акаунт? 

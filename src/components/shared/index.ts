@@ -7,3 +7,4 @@ export * from "./PinkCheckbox"
 export * from "./ContinueWithBtn";
 export * from "./ErrorMessage";
 export * from "./FormField";
+export * from "./ContinueWithBlock";

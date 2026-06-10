@@ -9,7 +9,8 @@ const Reviews = {
 }
 
 const Users = {
-    REGISTER: `${BASE_BACKEND_URL}/users/auth/register`
+    REGISTER: `${BASE_BACKEND_URL}/users/auth/register`,
+    VERIFY: `${BASE_BACKEND_URL}/users/auth/verify`
 }
 
 export const AllLinks = {
