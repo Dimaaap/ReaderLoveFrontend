@@ -10,7 +10,11 @@ const Reviews = {
 
 const Users = {
     REGISTER: `${BASE_BACKEND_URL}/users/auth/register`,
-    VERIFY: `${BASE_BACKEND_URL}/users/auth/verify`
+    VERIFY: `${BASE_BACKEND_URL}/users/auth/verify`,
+    ME: `${BASE_BACKEND_URL}/users/auth/me`,
+    LOGIN: `${BASE_BACKEND_URL}/users/auth/login`,
+    LOGIN_WITH_GOOGLE: "http://localhost:8030/api/v1/users/auth/google/callback",
+    LOGTIN_WITH_GITHUB: "http://localhost:8030/api/v1/users/auth/github/callback"
 }
 
 export const AllLinks = {

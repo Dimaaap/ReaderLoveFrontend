@@ -6,17 +6,20 @@ import { sections } from "../../config"
 import { LinksSection } from "@/components/shared/LinksSection";
 import { Footer } from "@/components/Footer";
 import { SignUpModal } from "@/components/modals/SignUpModal";
-import { useSendOtpModalStore, useSignUpModalStore, useUserSignUpStatus } from "@/states";
+import { useLoginModalStore, useSendOtpModalStore, useSignUpModalStore, useUserSignUpStatus } from "@/states";
 import { SendOtpModal } from "@/components/modals/SendOtpModal";
+import { LoginModal } from "@/components/modals/LoginModal";
 
 export default function Home() {
 
   const { signUpModalOpen } = useSignUpModalStore();
+  const { loginModalOpen } = useLoginModalStore();
   const { sendOtpModalStoreOpen } = useSendOtpModalStore();
   const { needRegister, needOtp } = useUserSignUpStatus();
 
   return (
     <div className="flex-col gap-0 w-full relative z-10">
+      { loginModalOpen && <LoginModal /> }
       { signUpModalOpen && needRegister && <SignUpModal /> }
       { sendOtpModalStoreOpen && needOtp && <SendOtpModal /> }
       <MainSection />

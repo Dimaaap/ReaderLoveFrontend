@@ -54,6 +54,7 @@ export const SendOtpModal = () => {
         try {
             const response = await fetch(AllLinks.users.VERIFY, {
                 method: "POST",
+                credentials: "include",
                 headers: {
                     "Content-Type": "application/json"
                 },

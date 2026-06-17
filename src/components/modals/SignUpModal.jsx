@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { useForm } from "react-hook-form"
 import { PinkCheckbox, ErrorMessage, FormField, ContinueWithBlock } from '../shared'
 import { AllLinks } from '@/utils'
-import { useSendOtpModalStore, useSignUpModalStore, useUserSignUpStatus } from "../../states"
+import { useLoginModalStore, useSendOtpModalStore, useSignUpModalStore, useUserSignUpStatus } from "../../states"
 import { defaultValues, regexPatterns } from '../../../config'
 
 export const SignUpModal = () => {
@@ -21,6 +21,7 @@ export const SignUpModal = () => {
   const [showPassword, setShowPassword] = useState(false)
   const { setSendOtpModalStoreOpen } = useSendOtpModalStore();
   const { setSignUpModalOpen } = useSignUpModalStore();
+  const { setLoginModalOpen } = useLoginModalStore();
   const { setNeedOtp } = useUserSignUpStatus();
 
   const onSubmit = async (data) => {
@@ -59,19 +60,21 @@ export const SignUpModal = () => {
         return;
       }
 
-      console.log("Successful: ", result)
       sessionStorage.setItem("registration_email", result.email)
       setSignUpModalOpen(false)
       setSendOtpModalStoreOpen(true)
       setNeedOtp()
     } catch(error){
-      console.error("Network error: ", error);
       setServerError("Can`t connect with server")
     } finally {
       setIsLoading(false)
     }
   }
 
+  const showLogin = () => {
+    setSignUpModalOpen(false)
+    setLoginModalOpen(true)
+  }
 
   const passwordValue = watch("password")
 
@@ -193,7 +196,8 @@ export const SignUpModal = () => {
 
           <span className="flex items-center gap-2 text-sm font-semibold text-[#cecece] justify-center text-center cursor-pointer">
             Вже маєте акаунт? 
-            <span className="text-pink-600 hover:underline transition-all ease-in-out duration-300">
+            <span className="text-pink-600 hover:underline transition-all ease-in-out duration-300"
+            onClick={ showLogin }>
               Увійти
             </span>
           </span>
