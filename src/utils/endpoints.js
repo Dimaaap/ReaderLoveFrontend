@@ -14,7 +14,8 @@ const Users = {
     ME: `${BASE_BACKEND_URL}/users/auth/me`,
     LOGIN: `${BASE_BACKEND_URL}/users/auth/login`,
     LOGIN_WITH_GOOGLE: "http://localhost:8030/api/v1/users/auth/google/callback",
-    LOGTIN_WITH_GITHUB: "http://localhost:8030/api/v1/users/auth/github/callback"
+    LOGTIN_WITH_GITHUB: "http://localhost:8030/api/v1/users/auth/github/callback",
+    FORGOT_PASSWORD: `${BASE_BACKEND_URL}/users/auth/forgot-password`
 }
 
 export const AllLinks = {

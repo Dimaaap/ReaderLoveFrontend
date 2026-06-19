@@ -1,11 +1,8 @@
 import { ContinueWithBtn } from './ContinueWithBtn'
 import Image from 'next/image'
 import { AllLinks } from '@/utils'
-import { useAuth } from '@/hooks/useAuth'
 
 export const ContinueWithBlock = () => {
-
-  const { isAuthenticated } = useAuth();
 
   const handleGoogleLogin = () => {
     const rootUrl = "https://accounts.google.com/o/oauth2/v2/auth";

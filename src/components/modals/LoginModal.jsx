@@ -1,4 +1,4 @@
-import { useLoginModalStore, useSignUpModalStore } from '@/states'
+import { useForgotPasswordModalState, useLoginModalStore, useSignUpModalStore } from '@/states'
 import { useState } from 'react'
 import { defaultValues, regexPatterns } from '../../../config';
 import { ContinueWithBlock, ErrorMessage, FormField, LoadingSpinner } from '../shared';
@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 
 export const LoginModal = () => {
 
-  const { register, handleSubmit, setError, formState: { errors } } = useForm({
+  const { register, handleSubmit, setError, getValues, trigger, formState: { errors } } = useForm({
     defaultValues: defaultValues.loginForm
   })
 
@@ -19,6 +19,7 @@ export const LoginModal = () => {
 
   const { setLoginModalOpen } = useLoginModalStore();
   const { setSignUpModalOpen } = useSignUpModalStore();
+  const { setForgotPasswordModalOpen } = useForgotPasswordModalState();
 
   const router = useRouter();
 
@@ -63,6 +64,35 @@ export const LoginModal = () => {
         setServerError("Can`t connect with server")
     } finally {
         setIsLoading(false);
+    }
+  }
+
+
+  const handleForgotPassword = async () => {
+    const isEmailValid = await trigger("email");
+
+    if(!isEmailValid){
+        return
+    }
+
+    const email = getValues("email")
+    
+    const requestBody = { email }
+
+    try {
+        const response = await fetch(AllLinks.users.FORGOT_PASSWORD, {
+            method: "POST",
+            credentials: "include",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(requestBody)
+        })
+
+        const result = await response.json();
+
+        console.log(result)
+        setForgotPasswordModalOpen(true)
+    } catch(err) {
+        console.error(err)
     }
   }
 
@@ -136,6 +166,11 @@ export const LoginModal = () => {
 
                     { errors.password && <ErrorMessage message={ errors.password.message } /> }
                 </div>
+
+                <button type="button" className="text-sm font-semibold cursor-pointer bg-transparent text-[#cecece] text-left"
+                onClick={ handleForgotPassword }>
+                    Забули пароль?
+                </button>
 
                 <button className={`relative overflow-hidden w-full h-13 text-lg font-semibold rounded-md 
                 text-white bg-pink-600 flex items-center justify-center disabled:hover:opacity-50 
