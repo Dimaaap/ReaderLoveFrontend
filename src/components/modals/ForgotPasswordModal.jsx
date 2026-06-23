@@ -2,20 +2,26 @@
 
 import { useForgotPasswordModalState, useSendOtpModalStore, useUserSignUpStatus } from '@/states'
 import { AllLinks } from '@/utils'
-import { useRef, useEffect, useState } from 'react'
+import { useRef, useState } from 'react'
 import { useForm, useWatch } from "react-hook-form"
+import { ErrorMessage, FormField } from '../shared'
+import Image from 'next/image'
 
 export const ForgotPasswordModal = () => {
-  const { register, handleSubmit, setValue, control } = useForm({
+  const { register, handleSubmit, setValue, control, watch, formState: { errors } } = useForm({
     defaultValues: {
       otp: Array(6).fill("")
     }
   })
 
-  const [secondsToReset, setSecondsToReset] = useState(90)
+  const [showPasswords, setShowPasswords] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { setForgotPasswordModalOpen } = useForgotPasswordModalState();
   const { setNeedOtp } = useUserSignUpStatus()
   const inputRefs = useRef([])
+
+  const passwordValue = watch("password")
+
 
   const otpValues = useWatch({
     control,
@@ -24,35 +30,25 @@ export const ForgotPasswordModal = () => {
 
   const isOtpComplete = otpValues.length === 6 && otpValues.every(val => /^\d$/.test(val))
 
-  const userEmail = sessionStorage.getItem("registration_email") || ""
+  const userEmail = sessionStorage.getItem("email") || ""
 
-  useEffect(() => {
-    if(secondsToReset <= 0) return;
+  const handleShowPasswordFields = () => {
+    setShowPasswords(true)
+  }
 
-    const intervalId = setInterval(() => {
-        setSecondsToReset((prev) => {
-            if(prev <= 1){
-                clearInterval(intervalId);
-                return 0;
-            }
-            return prev - 1;
-        })
-    }, 1000)
 
-    return () => clearInterval(intervalId)
-  }, [secondsToReset])
-
-    const onSubmit = async (data) => {
+  const onSubmit = async (data) => {
     
         const fullCode = data.otp.join("")
 
         const requestBody = {
             email: userEmail,
-            otp: fullCode
+            otp: fullCode,
+            new_password: data.password
         }
 
         try {
-            const response = await fetch(AllLinks.users.VERIFY, {
+            const response = await fetch(AllLinks.users.RESET_PASSWORD, {
                 method: "POST",
                 credentials: "include",
                 headers: {
@@ -64,9 +60,9 @@ export const ForgotPasswordModal = () => {
             const result = await response.json();
 
             if(!response.ok){
-
+              setForgotPasswordModalOpen(false)
+              sessionStorage.removeItem("email")
             } else {
-                console.log(response)
                 setForgotPasswordModalOpen(false)
                 setNeedOtp(false)
             }
@@ -108,11 +104,6 @@ export const ForgotPasswordModal = () => {
       inputRefs.current[5]?.focus()
     }
   }
-
-  const handleResendCode = () => {
-    console.log("Код надіслано повторно");
-    setSecondsToReset(90);
-  };
     
   return (
     <div 
@@ -120,7 +111,7 @@ export const ForgotPasswordModal = () => {
       onClick={() => setForgotPasswordModalOpen(false)}
     >
       <div 
-        className="w-137.5 h-[40vh] m-auto p-3 flex flex-col gap-5 pt-7 z-50 rounded-xl bg-[#13141d]"
+        className="w-137.5 h-[65vh] m-auto p-3 flex flex-col gap-5 pt-7 z-50 rounded-xl bg-[#13141d]"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex flex-col text-center text-white gap-1">
@@ -168,23 +159,66 @@ export const ForgotPasswordModal = () => {
             })}
           </div>
 
+          { showPasswords && (
+            <>
+              <div className="flex flex-col gap-1 relative">
+                <label htmlFor="password" className="text-sm font-semibold text-[#cecece]">
+                  Пароль
+                </label>
+              
+                <FormField 
+                  fieldName="password"
+                  register={ register }
+                  errors={ errors.password }
+                  type={`${showPassword ? "text": "password"}`}
+                  validation={{
+                    required: "Пароль обов'язковий",
+                    minLength: {value: 6, message: "Мінімум 6 символів"}}
+                  }
+                  />
+                  <button type="button" className="absolute right-3 top-8 z-50 cursor-pointer"
+                  onClick={ () => setShowPassword(prev => !prev) }>
+                    <Image src={`${showPassword ? "/icons/close-eye.svg" : "/icons/eye.svg"}`}
+                    width={ 25 } height={ 25 } alt="Eye" />
+                  </button>
+                  { errors.password && <ErrorMessage message={ errors.password.message } /> }
+              </div>
+
+              <div className="flex flex-col gap-1 relative">
+                <label htmlFor="passwordAgain" className="text-sm font-semibold text-[#cecece]">
+                  Пароль повторно
+                </label>
+              
+                <FormField 
+                  fieldName="passwordAgain"
+                  register={ register }
+                  errors={ errors.passwordAgain }
+                  type={`${showPassword ? "text": "password"}`}
+                  validation={{
+                    required: "Пароль обов'язковий",
+                    validate: value => value === passwordValue || "Паролі не збігаються"}
+                  }
+                  />
+                  <button type="button" className="absolute right-3 top-8 z-50 cursor-pointer"
+                  onClick={ () => setShowPassword(prev => !prev) }>
+                    <Image src={`${showPassword ? "/icons/close-eye.svg" : "/icons/eye.svg"}`}
+                    width={ 25 } height={ 25 } alt="Eye" />
+                  </button>
+                  { errors.passwordAgain && <ErrorMessage message={ errors.passwordAgain.message } /> }
+              </div>
+            </>
+            
+          ) }
+
           <button 
             className="w-full h-12 text-md font-semibold text-white bg-pink-600 rounded-md
               transition-all ease-in-out hover:opacity-80 duration-300 cursor-pointer 
               disabled:opacity-50 disabled:cursor-not-allowed mt-2"
-            type="submit"
+            type= {showPasswords ? "submit" : "button"}
+            onClick={ handleShowPasswordFields }
             disabled={!isOtpComplete}
           >
             Підтвердіть код
-          </button>
-
-          <button className="w-full text-sm font-semibold text-[#cecece] cursor-pointer
-          disabled:opacity-50 disabled:cursor-not-allowed" 
-          disabled={ secondsToReset > 0 } type="button"
-          onClick={ handleResendCode }>
-            Надіслати код повторно 
-            { secondsToReset > 0 && <span> (через {secondsToReset} c)</span> }
-           
           </button>
         </form>
       </div>

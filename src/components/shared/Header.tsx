@@ -23,34 +23,38 @@ export const Header = () => {
   }
 
   return (
-    <header className="w-full flex align-middle bg-white justify-between p-4 px-[10%]">
-        <Link className="w-1/5 flex items-center gap-4" href="/">
-            <Image src="/ReaderLoveLogo.png" alt="ReaderLove" width="80" height="80" />
-            <span className="tracking-tight leading-none">
-                мистецтво <br />
-                читати
+    <header className="w-full flex items-center bg-[#0D0B0C] justify-between p-4 px-[6%] border-b border-white/5 text-white z-50">
+        
+        <Link className="flex items-center gap-4 group" href="/">
+            <div className="relative transition-transform duration-300 group-hover:scale-105">
+                <Image src="/ReaderLoveLogo.png" alt="ReaderLove" width="50" height="50" className="object-contain" />
+            </div>
+            <span className="tracking-normal leading-none text-xs font-medium text-white/50 group-hover:text-white/80 transition-colors 
+            uppercase">
+                мистецтво <br /> 
+                <span className="text-white mt-1 font-semibold">читати</span>
             </span>
         </Link>
 
-        <ul className="flex items-center gap-10 content-end">
-            <li className="list-none p-4 cursor-pointer font-medium">
+        <ul className="flex items-center gap-6">
+            <li className="list-none py-2 px-4 cursor-pointer text-sm font-medium text-white/60 hover:text-white transition-colors tracking-wide">
                 ДОВІДКА
             </li>
 
             { !isAuthenticated ? (
-                <li className={`list-none p-4 cursor-pointer font-medium 
-                ${isLoading ? "bg-gray-200 animate-pulse w-20 h-20": ""}`} 
+                <li className={`list-none py-2 px-4 cursor-pointer text-sm font-medium text-white/60 hover:text-white transition-all 
+                ${isLoading ? "bg-white/5 animate-pulse w-24 h-9 rounded-lg": ""}`} 
                 onClick={() => handleProfileClick()}>
-                    { !isLoading ? "Профіль" : "" }
+                    { !isLoading ? "ПРОФІЛЬ" : "" }
                 </li>    
             ) : 
             (
-            <li className="list-none p-4 cursor-pointer font-medium">
-                <UserAccount username={ user?.username } isLoading={ isLoading } />
-            </li>
+                <li className="list-none cursor-pointer">
+                    <UserAccount username={ user?.username } isLoading={ isLoading } />
+                </li>
             ) }
 
-            <li className="list-none p-4 bg-[#DFDFDF] rounded-3xl font-medium">
+            <li className="list-none py-2 px-5 bg-[#F43F5E] hover:bg-[#E11D48] text-white rounded-full text-sm font-semibold tracking-wide shadow-lg shadow-stretch transition-all duration-200 cursor-pointer hover:-translate-y-0.5 active:translate-y-0">
                 Premium
             </li>
         </ul>

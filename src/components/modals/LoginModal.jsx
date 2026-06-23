@@ -89,7 +89,7 @@ export const LoginModal = () => {
 
         const result = await response.json();
 
-        console.log(result)
+        sessionStorage.setItem("email", email)
         setForgotPasswordModalOpen(true)
     } catch(err) {
         console.error(err)

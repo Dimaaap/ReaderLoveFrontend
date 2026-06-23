@@ -10,3 +10,4 @@ export * from "./FormField";
 export * from "./ContinueWithBlock";
 export * from "./UserAccount";
 export * from "./LoadingSpinner"
+export * from "./Sidebar"
