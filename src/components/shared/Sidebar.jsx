@@ -1,21 +1,28 @@
+"use client"
+
 import Image from "next/image"
 import Link from "next/link"
 
+import { usePathname } from "next/navigation"
+
 const sidebarLinks = [
-    { name: "Головна", icon: "home.svg" },
-    { name: "Бібліотека", icon: "library.svg", active: true },
-    { name: "Зараз читаю", icon: "book.svg" },
-    { name: "Статистика", icon: "stats.svg" },
-    { name: "Цілі", icon: "target.svg" },
-    { name: "Замітки", icon: "notes.svg" },
-    { name: "Цитати", icon: "quotes.svg" },
-    { name: "Друзі", icon: "friends.svg" }
+    { name: "Головна", icon: "home.svg", link: "" },
+    { name: "Бібліотека", icon: "library.svg", link: "library" },
+    { name: "Зараз читаю", icon: "book.svg", link: "now-reading" },
+    { name: "Статистика", icon: "stats.svg", link: "stats" },
+    { name: "Цілі", icon: "target.svg", link: "aims" },
+    { name: "Замітки", icon: "notes.svg", link: "notes" },
+    { name: "Цитати", icon: "quotes.svg", link: "quotes" },
+    { name: "Друзі", icon: "friends.svg", link: "friends" }
 ]
 
 export const Sidebar = ({ username }) => {
+    const pathname = usePathname();
+    const meSection = pathname.split('/')[2] || ""
+
   return (
     <div className="flex flex-col gap-6 w-[16%] border-r border-white/10 h-full bg-[#141113] p-4 text-white">
-        
+        { console.log(meSection) }
         <div className="flex items-center gap-2 px-2 py-3 text-center justify-center">
             <span className="text-xl font-bold tracking-wide">
                 Reader<span className="text-[#F43F5E]">Love</span>
@@ -27,10 +34,10 @@ export const Sidebar = ({ username }) => {
                 <Link 
                     key={item.name}
                     className={`flex items-center gap-3 w-full py-2 px-3 text-sm font-medium rounded-lg transition-all duration-200
-                        ${item.active 
+                        ${item.link === meSection
                             ? "bg-white/10 text-white font-semibold" 
                             : "text-white/60 hover:text-white hover:bg-white/5"}`} 
-                    href="#"
+                    href={`/me/${item.link}`}
                 >
                     <Image 
                         src={`/icons/${item.icon}`} 

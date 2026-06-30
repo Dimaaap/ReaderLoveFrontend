@@ -8,6 +8,10 @@ const Reviews = {
     ALL_REVIEWS: `${BASE_BACKEND_URL}/reviews/`
 }
 
+const Books = {
+    BOOK_BY_SLUG: (slug) => `${BASE_BACKEND_URL}/books/by-slug/${slug}`
+}
+
 const Users = {
     REGISTER: `${BASE_BACKEND_URL}/users/auth/register`,
     VERIFY: `${BASE_BACKEND_URL}/users/auth/verify`,
@@ -22,5 +26,6 @@ const Users = {
 export const AllLinks = {
     socialLinks: SocialLinks,
     reviews: Reviews,
-    users: Users
+    users: Users,
+    books: Books
 }
