@@ -89,7 +89,7 @@ export const SignUpModal = () => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={ () => setSignUpModalOpen(false)}>
-      <div className="w-137.5 h-[95vh] m-auto p-3 flex flex-col gap-5 pt-7 z-50 rounded-xl bg-[#13141d]"
+      <div className="w-137.5 h-[90vh] mt-20 m-auto p-3 flex flex-col gap-5 pt-7 z-50 rounded-xl bg-[#13141d]"
       onClick={(e) => e.stopPropagation()}>
           <div className="flex flex-col text-center text-white gap-1">
             <h4 className="text-2xl font-bold">

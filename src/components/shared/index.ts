@@ -11,3 +11,6 @@ export * from "./ContinueWithBlock";
 export * from "./UserAccount";
 export * from "./LoadingSpinner"
 export * from "./Sidebar"
+export * from "./Dashboard";
+export * from "./ReadingStats"
+export * from "./ChartCard"

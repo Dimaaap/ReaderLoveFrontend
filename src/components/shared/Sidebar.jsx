@@ -21,8 +21,7 @@ export const Sidebar = ({ username }) => {
     const meSection = pathname.split('/')[2] || ""
 
   return (
-    <div className="flex flex-col gap-6 w-[16%] border-r border-white/10 h-full bg-[#141113] p-4 text-white">
-        { console.log(meSection) }
+    <div className="flex flex-col gap-6 w-[16%] border-r border-white/10 h-full bg-[#141113] p-4 text-white sticky top-0">
         <div className="flex items-center gap-2 px-2 py-3 text-center justify-center">
             <span className="text-xl font-bold tracking-wide">
                 Reader<span className="text-[#F43F5E]">Love</span>

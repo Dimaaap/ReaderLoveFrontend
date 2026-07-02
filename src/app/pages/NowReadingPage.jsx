@@ -13,6 +13,10 @@ import Link from "next/link";
     }
   ]
 
+  const getReadingStats = (readCount, totalCount) => {
+    return (readCount / totalCount) * 100
+  }
+
   return (
       <div className="flex items-start gap-0 w-full bg-[#0D0B0C] flex-1 h-full overflow-hidden">
           <Sidebar username="Dima" />
@@ -22,7 +26,7 @@ import Link from "next/link";
                 Зараз читаю
               </h1>  
 
-              <div className="flex gap-5 items-start mt-2 p-6 w-full">
+              <div className="flex gap-5 items-start mt-2 p-6">
                     <div className="w-30 aspect-2/3 relative rounded-xl overflow-hidden shadow-lg border border-zinc-800/40 
                     shrink-0">
                         <Image
@@ -89,98 +93,170 @@ import Link from "next/link";
                         </div>
                     </div>
               </div>
+
+              <div className="flex flex-col gap-5">
+                <h2 className="text-2xl text-white font-bold">
+                  Ваш прогрес
+                </h2>
+
+                <div className="grid grid-cols-3 gap-10">
+                  <div className="w-full bg-[#141113] rounded-xl flex flex-col gap-2 p-4 relative h-[15vh]">
+                    <p className="text-zinc-200 font-semibold text-md">
+                      Ваша серія
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <span className="text-3xl text-white font-bold">
+                        12
+                      </span>
+                      <span className="text-zinc-200 font-semibold text-md">
+                        днів
+                      </span>
+                    </div>
+                    <Image src="/icons/fire.svg" alt="Fire" width="40" height="40" className="absolute bottom-1 right-5" />
+                  </div>
+
+                  <div className="w-full bg-[#141113] rounded-xl flex flex-col gap-2 p-4 relative h-[15vh]">
+                    <p className="text-zinc-200 font-semibold text-md">
+                      Цього тижня
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <span className="text-3xl text-white font-bold">
+                        124
+                      </span>
+                      <span className="text-zinc-200 font-semibold text-md">
+                        сторінки
+                      </span>
+                    </div>
+                    <Image src="/icons/stats-reading.svg" alt="Fire" width="40" height="40" className="absolute bottom-1 right-5" />
+                  </div>
+
+                  <div className="w-full bg-[#141113] rounded-xl flex flex-col gap-2 p-4 relative h-[15vh]">
+                    <p className="text-zinc-200 font-semibold text-md">
+                      Ваша ціль
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <span className="text-3xl text-white font-bold">
+                        22
+                      </span>
+                      <span className="text-zinc-200 font-semibold text-md">
+                        / 30 сторінок
+                      </span>
+                    </div>
+                    <div className="w-full h-2 bg-[#0D0B0C] rounded-full overflow-hidden">
+                      <div className="h-full bg-[#FF4B6B] rounded-full" style={{ width: `${getReadingStats(22, 30)}%` }}></div>
+                    </div>
+                  </div>
+                </div>  
+              </div>
             </div>
             
-            <div className="w-[30%] flex flex-col gap-5 bg-[#141113] h-fit p-2 px-4 rounded-lg">
-              <div className="flex items-center justify-between">
-                <h4 className="text-lg font-bold">
-                  Недавні сесії
-                </h4>
 
-                <span className="border border-zinc-900 p-2 rounded-2xl flex items-center gap-3 text-sm font-normal cursor-pointer 
-                transition-all duration-300 hover:opacity-80
-                ">
-                  Переглянути всі
-                  <Image src="/icons/right-chevron.svg" alt="Right" width="16" height="16" />
-                </span>
-              </div>
+            <div className="w-[30%] flex flex-col gap-25">
+              <div className="flex flex-col gap-5 bg-[#141113] h-fit p-2 px-4 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-lg font-bold">
+                    Недавні сесії
+                  </h4>
 
-              <div className="flex items-center gap-5">
-                <Image src="/icons/night.svg" alt="Night" width="30" height="30" />
-                <div className="flex flex-col align-start gap-0 text-md text-zinc-400 font-medium">
-                    <span>
-                      Сьогодні, 20:30
-                    </span>
-                    <span className="flex items-center gap-3">
-                      <span>
-                        22 хв      
-                      </span>
-                      <div className="w-0.75 h-0.75 rounded-full bg-zinc-400"></div>
-                      <span>
-                        23 сторінки
-                      </span>
-                    </span>
+                  <Link className="border border-zinc-900 p-2 rounded-2xl flex items-center gap-3 text-sm font-normal cursor-pointer 
+                  transition-all duration-300 hover:opacity-80" href="/reading-sessions">
+                    Переглянути всі
+                    <Image src="/icons/right-chevron.svg" alt="Right" width="16" height="16" />
+                  </Link>
                 </div>
-              </div>
 
-              <div className="flex items-center gap-5">
-                <Image src="/icons/day.svg" alt="Night" width="30" height="30" />
-                <div className="flex flex-col align-start gap-0 text-md text-zinc-400 font-medium">
-                    <span>
-                      Сьогодні, 20:30
-                    </span>
-                    <span className="flex items-center gap-3">
+                <div className="flex items-center gap-5">
+                  <Image src="/icons/night.svg" alt="Night" width="30" height="30" />
+                  <div className="flex flex-col align-start gap-0 text-md text-zinc-400 font-medium">
                       <span>
-                        22 хв      
+                        Сьогодні, 20:30
                       </span>
-                      <div className="w-0.75 h-0.75 rounded-full bg-zinc-400"></div>
-                      <span>
-                        23 сторінки
+                      <span className="flex items-center gap-3">
+                        <span>
+                          22 хв      
+                        </span>
+                        <div className="w-0.75 h-0.75 rounded-full bg-zinc-400"></div>
+                        <span>
+                          23 сторінки
+                        </span>
                       </span>
-                    </span>
+                  </div>
                 </div>
-              </div>
 
-              <div className="flex items-center gap-5">
-                <Image src="/icons/night.svg" alt="Night" width="30" height="30" />
-                <div className="flex flex-col align-start gap-0 text-md text-zinc-400 font-medium">
-                    <span>
-                      Сьогодні, 20:30
-                    </span>
-                    <span className="flex items-center gap-3">
+                <div className="flex items-center gap-5">
+                  <Image src="/icons/day.svg" alt="Night" width="30" height="30" />
+                  <div className="flex flex-col align-start gap-0 text-md text-zinc-400 font-medium">
                       <span>
-                        22 хв      
+                        Сьогодні, 20:30
                       </span>
-                      <div className="w-0.75 h-0.75 rounded-full bg-zinc-400"></div>
-                      <span>
-                        23 сторінки
+                      <span className="flex items-center gap-3">
+                        <span>
+                          22 хв      
+                        </span>
+                        <div className="w-0.75 h-0.75 rounded-full bg-zinc-400"></div>
+                        <span>
+                          23 сторінки
+                        </span>
                       </span>
-                    </span>
+                  </div>
                 </div>
-              </div>
 
-              <div className="flex items-center gap-5">
-                <Image src="/icons/day.svg" alt="Night" width="30" height="30" />
-                <div className="flex flex-col align-start gap-0 text-md text-zinc-400 font-medium">
-                    <span>
-                      Сьогодні, 20:30
-                    </span>
-                    <span className="flex items-center gap-3">
+                <div className="flex items-center gap-5">
+                  <Image src="/icons/night.svg" alt="Night" width="30" height="30" />
+                  <div className="flex flex-col align-start gap-0 text-md text-zinc-400 font-medium">
                       <span>
-                        22 хв      
+                        Сьогодні, 20:30
                       </span>
-                      <div className="w-0.75 h-0.75 rounded-full bg-zinc-400"></div>
-                      <span>
-                        23 сторінки
+                      <span className="flex items-center gap-3">
+                        <span>
+                          22 хв      
+                        </span>
+                        <div className="w-0.75 h-0.75 rounded-full bg-zinc-400"></div>
+                        <span>
+                          23 сторінки
+                        </span>
                       </span>
-                    </span>
+                  </div>
                 </div>
+
+                <div className="flex items-center gap-5">
+                  <Image src="/icons/day.svg" alt="Night" width="30" height="30" />
+                  <div className="flex flex-col align-start gap-0 text-md text-zinc-400 font-medium">
+                      <span>
+                        Сьогодні, 20:30
+                      </span>
+                      <span className="flex items-center gap-3">
+                        <span>
+                          22 хв      
+                        </span>
+                        <div className="w-0.75 h-0.75 rounded-full bg-zinc-400"></div>
+                        <span>
+                          23 сторінки
+                        </span>
+                      </span>
+                  </div>
+                </div>
+              </div>  
+
+              <div className="w-full h-[20vh] rounded-2xl p-5 relative flex flex-col gap-5 bg-[#141113] overflow-hidden shadow-md group">
+                <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#FF4B6B]/15 rounded-full blur-2xl pointer-events-none z-0"></div>
+                <div className="absolute -bottom-12 right-6 w-36 h-36 bg-amber-600/10 rounded-full blur-[35px] pointer-events-none z-0"></div>
+                <div className="absolute inset-0 bg-linear-to-b from-transparent to-[#141113]/40 pointer-events-none z-0"></div>
+                
+                <h3 className="text-xl font-bold text-white tracking-wider">
+                  "Читач живе тисячу життів перед тим, як померти"
+                </h3>
+
+                <p className="font-medium text-md text-white">
+                  - George R. R. Martin 
+                </p>
               </div>
             </div>
+            
 
           </main>
         </div>
-      )
+  )
 }
 
 
