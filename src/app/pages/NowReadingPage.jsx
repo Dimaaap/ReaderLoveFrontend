@@ -1,9 +1,12 @@
 "use client"
 
+import { useQuery } from "@tanstack/react-query"
+
 import { Sidebar } from "@/components";
 import { withAuth } from "@/components/WithAuth";
 import Image from "next/image";
 import Link from "next/link";
+import { AllLinks, fetcher } from "@/utils";
 
  function NowReadingContent () {
   const genres = [
@@ -13,9 +16,16 @@ import Link from "next/link";
     }
   ]
 
+  const { data: quote, isLoading, isError } = useQuery({
+    queryKey: ["today-quote"],
+    queryFn: () => fetcher(AllLinks.templateQuotes.TODAY_QUOTE)
+  })
+
   const getReadingStats = (readCount, totalCount) => {
     return (readCount / totalCount) * 100
   }
+
+  if(isError) return <div>Error...</div>
 
   return (
       <div className="flex items-start gap-0 w-full bg-[#0D0B0C] flex-1 h-full overflow-hidden">
@@ -237,20 +247,22 @@ import Link from "next/link";
                   </div>
                 </div>
               </div>  
+              
+              { !isLoading && quote && (
+                <div className="w-full h-[20vh] rounded-2xl p-5 relative flex flex-col gap-5 bg-[#141113] overflow-hidden shadow-md group">
+                  <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#FF4B6B]/15 rounded-full blur-2xl pointer-events-none z-0"></div>
+                  <div className="absolute -bottom-12 right-6 w-36 h-36 bg-amber-600/10 rounded-full blur-[35px] pointer-events-none z-0"></div>
+                  <div className="absolute inset-0 bg-linear-to-b from-transparent to-[#141113]/40 pointer-events-none z-0"></div>
+                  
+                  <h3 className="text-xl font-bold text-white tracking-wider">
+                    { quote.quote }
+                  </h3>
 
-              <div className="w-full h-[20vh] rounded-2xl p-5 relative flex flex-col gap-5 bg-[#141113] overflow-hidden shadow-md group">
-                <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#FF4B6B]/15 rounded-full blur-2xl pointer-events-none z-0"></div>
-                <div className="absolute -bottom-12 right-6 w-36 h-36 bg-amber-600/10 rounded-full blur-[35px] pointer-events-none z-0"></div>
-                <div className="absolute inset-0 bg-linear-to-b from-transparent to-[#141113]/40 pointer-events-none z-0"></div>
-                
-                <h3 className="text-xl font-bold text-white tracking-wider">
-                  "Читач живе тисячу життів перед тим, як померти"
-                </h3>
-
-                <p className="font-medium text-md text-white">
-                  - George R. R. Martin 
-                </p>
-              </div>
+                  <p className="font-medium text-md text-white">
+                    - { quote.author }
+                  </p>
+                </div>
+              ) }
             </div>
             
 

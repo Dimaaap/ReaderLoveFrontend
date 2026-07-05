@@ -23,9 +23,14 @@ const Users = {
     RESET_PASSWORD: `${BASE_BACKEND_URL}/users/auth/reset-password`
 }
 
+const TemporaryQuotes = {
+    TODAY_QUOTE: `${BASE_BACKEND_URL}/template_quotes/today`
+}
+
 export const AllLinks = {
     socialLinks: SocialLinks,
     reviews: Reviews,
     users: Users,
-    books: Books
+    books: Books,
+    templateQuotes: TemporaryQuotes
 }
