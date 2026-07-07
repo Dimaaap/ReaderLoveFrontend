@@ -7,6 +7,7 @@ import { withAuth } from "@/components/WithAuth";
 import Image from "next/image";
 import Link from "next/link";
 import { AllLinks, fetcher } from "@/utils";
+import { useAuth } from "@/hooks/useAuth";
 
  function NowReadingContent () {
   const genres = [
@@ -16,10 +17,71 @@ import { AllLinks, fetcher } from "@/utils";
     }
   ]
 
+  const { user } = useAuth();
+
   const { data: quote, isLoading, isError } = useQuery({
     queryKey: ["today-quote"],
     queryFn: () => fetcher(AllLinks.templateQuotes.TODAY_QUOTE)
   })
+
+  const { data: readingSessions, isLoading: isSessionsLoading, isError: isSessionsError } = useQuery({
+    queryKey: ["reading-sessions", user?.username],
+    queryFn: () => fetcher(AllLinks.readingSessions.USER_LAST_READING_SESSIONS(user.username, 5))
+  })
+
+  const returnReadingDayPart = (isoStartTime) => {
+    const date = new Date(isoStartTime);
+    const hours = date.getUTCHours();
+
+    if(hours >= 5 && hours < 18){
+      return "day"
+    } else {
+      return "night"
+    }
+  }
+
+  const formatReadingSessionDate = (isoStarting) => {
+    const sessionDate = new Date(isoStarting);
+    const now = new Date();
+
+    const hours = String(sessionDate.getHours()).padStart(2, '0');
+    const minutes = String(sessionDate.getMinutes()).padStart(2, '0');
+    const timeString = `${hours}:${minutes}`;
+
+    const isToday = sessionDate.getDate() === now.getDate() 
+    && sessionDate.getMonth() === now.getMonth() && sessionDate.getFullYear() === now.getFullYear();
+
+    if(isToday) {
+      return `Сьогодні, ${timeString}`;
+    } else {
+      const day = String(sessionDate.getDate()).padStart(2, '0');
+
+      const month = String(sessionDate.getMonth() + 1).padStart(2, "0");
+
+      return `${day}.${month}, ${timeString}`
+    }
+  }
+  
+  const readingTime = (isoStarting, isoFinished) => {
+    if (!isoStarting || !isoFinished) return "0 хв";
+
+    const start = new Date(isoStarting);
+    const end = new Date(isoFinished);
+
+    const differenceInMins = end - start;
+
+    const totalMinutes = Math.floor(differenceInMins / 1000 / 60);
+
+    if(totalMinutes < 0) return "0 хв";
+ 
+    if(totalMinutes < 60) {
+      return `${totalMinutes} хв`;
+    }
+
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    return minutes > 0 ? `${hours} год ${minutes} хв` : `${hours} год`
+  }
 
   const getReadingStats = (readCount, totalCount) => {
     return (readCount / totalCount) * 100
@@ -29,6 +91,7 @@ import { AllLinks, fetcher } from "@/utils";
 
   return (
       <div className="flex items-start gap-0 w-full bg-[#0D0B0C] flex-1 h-full overflow-hidden">
+          { console.log(user) }
           <Sidebar username="Dima" />
           <main className="flex-1 h-full overflow-y-auto p-8 text-white flex justify-between">
             <div className="flex flex-col gap-5">
@@ -175,77 +238,30 @@ import { AllLinks, fetcher } from "@/utils";
                   </Link>
                 </div>
 
-                <div className="flex items-center gap-5">
-                  <Image src="/icons/night.svg" alt="Night" width="30" height="30" />
-                  <div className="flex flex-col align-start gap-0 text-md text-zinc-400 font-medium">
-                      <span>
-                        Сьогодні, 20:30
-                      </span>
-                      <span className="flex items-center gap-3">
-                        <span>
-                          22 хв      
-                        </span>
-                        <div className="w-0.75 h-0.75 rounded-full bg-zinc-400"></div>
-                        <span>
-                          23 сторінки
-                        </span>
-                      </span>
-                  </div>
-                </div>
+                { !isSessionsLoading && readingSessions.map((session, id) => (
+                  <div className="flex items-center gap-5" key={ id }>
+                    <Image src={`${returnReadingDayPart(session.started_at) === "day" ? "/icons/day.svg" : "/icons/night.svg"}`}
+                      alt={`${returnReadingDayPart(session.started_at) === "day" ? "Day" : "Night"}` }
+                      width="30" height="30"
+                    />
 
-                <div className="flex items-center gap-5">
-                  <Image src="/icons/day.svg" alt="Night" width="30" height="30" />
-                  <div className="flex flex-col align-start gap-0 text-md text-zinc-400 font-medium">
+                    <div className="flex flex-col align-start gap-0 text-md text-zinc-400 font-medium">
                       <span>
-                        Сьогодні, 20:30
+                        { formatReadingSessionDate(session.started_at) }
                       </span>
                       <span className="flex items-center gap-3">
                         <span>
-                          22 хв      
+                          { readingTime(session.started_at, session.ended_at) }  
                         </span>
-                        <div className="w-0.75 h-0.75 rounded-full bg-zinc-400"></div>
-                        <span>
-                          23 сторінки
-                        </span>
-                      </span>
-                  </div>
-                </div>
+                        <div className="w-0.75 h-0.75 rounded-full bg-zinc-400" />
 
-                <div className="flex items-center gap-5">
-                  <Image src="/icons/night.svg" alt="Night" width="30" height="30" />
-                  <div className="flex flex-col align-start gap-0 text-md text-zinc-400 font-medium">
-                      <span>
-                        Сьогодні, 20:30
-                      </span>
-                      <span className="flex items-center gap-3">
                         <span>
-                          22 хв      
-                        </span>
-                        <div className="w-0.75 h-0.75 rounded-full bg-zinc-400"></div>
-                        <span>
-                          23 сторінки
+                          { session.end_page - session.start_page } сторінок
                         </span>
                       </span>
+                    </div>
                   </div>
-                </div>
-
-                <div className="flex items-center gap-5">
-                  <Image src="/icons/day.svg" alt="Night" width="30" height="30" />
-                  <div className="flex flex-col align-start gap-0 text-md text-zinc-400 font-medium">
-                      <span>
-                        Сьогодні, 20:30
-                      </span>
-                      <span className="flex items-center gap-3">
-                        <span>
-                          22 хв      
-                        </span>
-                        <div className="w-0.75 h-0.75 rounded-full bg-zinc-400"></div>
-                        <span>
-                          23 сторінки
-                        </span>
-                      </span>
-                  </div>
-                </div>
+                )) }
               </div>  
               
               { !isLoading && quote && (

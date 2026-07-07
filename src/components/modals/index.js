@@ -1,3 +1,6 @@
 export * from "./SignUpModal"
 export * from "./SendOtpModal"
 export * from "./ForgotPasswordModal"
+export * from "./SignUpModal"
+export * from "./NewBookNoteModal"
+export * from "./EditNotePopup"

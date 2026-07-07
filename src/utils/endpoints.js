@@ -9,7 +9,8 @@ const Reviews = {
 }
 
 const Books = {
-    BOOK_BY_SLUG: (slug) => `${BASE_BACKEND_URL}/books/by-slug/${slug}`
+    BOOK_BY_SLUG: (slug) => `${BASE_BACKEND_URL}/books/by-slug/${slug}`,
+    USER_ACTIVE_BOOKS: (username) => `${BASE_BACKEND_URL}/books/${username}/books`
 }
 
 const Users = {
@@ -27,10 +28,23 @@ const TemporaryQuotes = {
     TODAY_QUOTE: `${BASE_BACKEND_URL}/template_quotes/today`
 }
 
+const ReadingSessions = {
+    USER_LAST_READING_SESSIONS: (username, limit) => `${BASE_BACKEND_URL}/reading-sessions/by-username?username=${username}&limit=${limit}`
+}
+
+const BookNotes = {
+    USER_ALL_NOTES_FOR_BOOK: (username, bookId) => `${BASE_BACKEND_URL}/book-notes/by-user-book?username=${username}&book_id=${bookId}`,
+    USER_LAST_BOOK_NOTES: (username, limit) => `${BASE_BACKEND_URL}/book-notes/by-username?username=${username}&limit=${limit}`,
+    TOGGLE_NOTE_IMPORTANCE: (noteId) => `${BASE_BACKEND_URL}/book-notes/${noteId}/toggle-importance`,
+    CREATE_BOOK_NOTE: `${BASE_BACKEND_URL}/book-notes/`
+}
+
 export const AllLinks = {
     socialLinks: SocialLinks,
     reviews: Reviews,
     users: Users,
     books: Books,
-    templateQuotes: TemporaryQuotes
+    templateQuotes: TemporaryQuotes,
+    readingSessions: ReadingSessions,
+    bookNotes: BookNotes
 }
