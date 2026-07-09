@@ -2,7 +2,7 @@
 import { forwardRef } from "react"
 
 
-export const ToggleInput = forwardRef(({ isImportant, onChange, ...props}, ref) => {
+export const ToggleInput = forwardRef(({ isImportant, onChange, label="Важлива нотатка", ...props}, ref) => {
   return (
     <label className="flex items-center gap-3 cursor-pointer select-none group">
         <div className="relative">
@@ -16,7 +16,7 @@ export const ToggleInput = forwardRef(({ isImportant, onChange, ...props}, ref) 
                 ${isImportant ? "transform translate-x-4" : ""}`}></div>
         </div>
         <span className="text-sm font-medium text-gray-400 group-hover:text-gray-200 transition-colors">
-            Важлива нотатка
+            { label }
         </span>
     </label>
   )

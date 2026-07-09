@@ -36,7 +36,9 @@ const BookNotes = {
     USER_ALL_NOTES_FOR_BOOK: (username, bookId) => `${BASE_BACKEND_URL}/book-notes/by-user-book?username=${username}&book_id=${bookId}`,
     USER_LAST_BOOK_NOTES: (username, limit) => `${BASE_BACKEND_URL}/book-notes/by-username?username=${username}&limit=${limit}`,
     TOGGLE_NOTE_IMPORTANCE: (noteId) => `${BASE_BACKEND_URL}/book-notes/${noteId}/toggle-importance`,
-    CREATE_BOOK_NOTE: `${BASE_BACKEND_URL}/book-notes/`
+    CREATE_BOOK_NOTE: `${BASE_BACKEND_URL}/book-notes/`,
+    PARTIAL_UPDATE_NOTE: (noteId) => `${BASE_BACKEND_URL}/book-notes/${noteId}`,
+    DELETE_NOTE: (noteId) => `${BASE_BACKEND_URL}/book-notes/${noteId}`
 }
 
 export const AllLinks = {
