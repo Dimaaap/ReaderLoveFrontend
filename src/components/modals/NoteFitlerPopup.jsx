@@ -1,47 +1,21 @@
 "use client"
 
-import { useNoteFilterPopupStore } from '@/states'
 import Image from 'next/image'
-import { ToggleInput } from '../shared';
-import { useForm } from 'react-hook-form';
-import { useState } from "react"
+import { NoteCategoryButton, RadioInput, ToggleInput } from '../shared';
+import { useNoteFilter } from "@/hooks/useNoteFilter"
 
 export const NoteFitlerPopup = ({ booksList=[] }) => {
-    const { setNoteFilterPopupOpen } = useNoteFilterPopupStore();
-
-    const [searchQuery, setSearchQuery] = useState("");
-
-    const { register, handleSubmit, watch, setValue, reset } = useForm({
-        allBooks: true,
-        books: [],
-        importance: "all",
-        categories: []
-    })
-
-    const watchAllBooks = watch("allBooks");
-    const watchCategories = watch("categories") || [];
-
-    const filteredBooks = booksList.filter((book) => 
-        (book.book_title || book).toLowerCase().includes(searchQuery.toLowerCase())
-    )
-
-    const handleCategoryToggle = (category) => {
-        const currentCategories = [...watchCategories];
-
-        if(currentCategories.includes(category)) {
-            setValue("categories", currentCategories.filter(c => c !== category))
-        } else {
-            setValue("categories", [...currentCategories, category])
-        }
-    }
-
-    const onSubmit = (data) => {
-        console.log("Filters: ", data)
-    }
+    const {
+        register, handleSubmit, handleReset,
+        setNoteFilterPopupOpen, searchQuery,
+        setSearchQuery, watchAllBooks,
+        watchCategories, watchBooks, filteredBooks, 
+        handleCategoryToggle, handleBookToggle, handleAllBooksToggle
+    } = useNoteFilter(booksList)
 
     return (
-        <form className="absolute bg-[#0D0B0C] text-white rounded-lg flex flex-col w-60 right-[15%] top-[18%]
-        border border-zinc-600" onSubmit={ handleSubmit(onSubmit) }>
+        <form className="absolute bg-[#0D0B0C] text-white rounded-lg flex flex-col w-60 right-[15%] top-[18%] z-20
+        border border-zinc-600" onSubmit={ handleSubmit }>
             <div className="flex items-center justify-between font-semibold p-2 border-b border-zinc-600">
                 <p className="text-md font-semibold">
                     Фільтри нотаток
@@ -56,7 +30,7 @@ export const NoteFitlerPopup = ({ booksList=[] }) => {
                 <p className="text-md font-semibold">
                     Всі книги
                 </p>
-                <ToggleInput isImportant={ watchAllBooks } onChange={(val) => setValue("allBooks", val)} label="" />
+                <ToggleInput isImportant={ watchAllBooks } onChange={ handleAllBooksToggle } label="" />
             </div>
             <div className="flex flex-col gap-1 font-semibold">
                 <div className="flex flex-col gap-1 p-2">
@@ -73,21 +47,23 @@ export const NoteFitlerPopup = ({ booksList=[] }) => {
                 <div className="flex flex-col bg-[#141113] max-h-75 overflow-auto custom-scrollbar">
                     {filteredBooks.length > 0 ? (
                         filteredBooks.map((book, index) => {
-                            const bookTitle = book.book_title || book;
-                            const bookId = book.id || bookTitle;
                             return (
                                 <label 
-                                    key={bookId + index} 
+                                    key={book + index} 
                                     className="flex items-center gap-3 p-2.5 px-3 text-sm w-full cursor-pointer hover:bg-zinc-800/50 transition-colors"
                                 >
                                     <input 
                                         type="checkbox" 
-                                        value={bookId}
-                                        disabled={watchAllBooks}
-                                        {...register('books')}
-                                        className="w-4.5 h-4.5 rounded border border-zinc-500 bg-transparent text-[#F43F5E] focus:ring-0 focus:ring-offset-0 focus:outline-none appearance-none checked:bg-[#F43F5E] checked:border-[#F43F5E] relative checked:after:content-['✓'] checked:after:absolute checked:after:text-white checked:after:text-[11px] checked:after:font-bold checked:after:top-1/2 checked:after:left-1/2 checked:after:-translate-x-1/2 checked:after:-translate-y-1/2 cursor-pointer transition-all"
+                                        value={book}
+                                        checked={ watchBooks.includes(book) }
+                                        onChange={() => handleBookToggle(book)}
+                                        className="min-w-4.5 h-4.5 rounded border border-zinc-500 bg-transparent text-[#F43F5E] focus:ring-0 focus:ring-offset-0 
+                                        focus:outline-none appearance-none checked:bg-[#F43F5E] checked:border-[#F43F5E] relative 
+                                        checked:after:content-['✓'] checked:after:absolute checked:after:text-white 
+                                        checked:after:text-[11px] checked:after:font-bold checked:after:top-1/2 checked:after:left-1/2 
+                                        checked:after:-translate-x-1/2 checked:after:-translate-y-1/2 cursor-pointer transition-all"
                                     />
-                                    <span className="truncate font-normal text-zinc-300">{bookTitle}</span>
+                                    <span className="truncate font-normal text-zinc-300">{ book }</span>
                                 </label>
                             );
                         })
@@ -100,20 +76,16 @@ export const NoteFitlerPopup = ({ booksList=[] }) => {
                 <p>Фільтри за важливістю </p>
                 <div className="flex flex-col gap-1 text-sm">
                     <label className="flex items-center gap-3 cursor-pointer">
-                        <input 
-                            type="radio" 
-                            value="all" 
-                            {...register('importance')}
-                            className="w-4.5 h-4.5 rounded-full border border-zinc-500 bg-transparent appearance-none checked:bg-[#F43F5E] checked:border-[#F43F5E] relative checked:after:content-[''] checked:after:absolute checked:after:w-1.5 checked:after:h-1.5 checked:after:bg-white checked:after:rounded-full checked:after:top-1/2 checked:after:left-1/2 checked:after:-translate-x-1/2 checked:after:-translate-y-1/2 cursor-pointer"
+                        <RadioInput
+                            value="all" register={ register("importance") }
                         />
                         <span>Всі</span>
                     </label>
                     <label className="flex items-center gap-3 cursor-pointer">
-                        <input 
-                            type="radio" 
-                            value="important" 
-                            {...register('importance')}
-                            className="w-4.5 h-4.5 rounded-full border border-zinc-500 bg-transparent appearance-none checked:bg-[#F43F5E] checked:border-[#F43F5E] relative checked:after:content-[''] checked:after:absolute checked:after:w-1.5 checked:after:h-1.5 checked:after:bg-white checked:after:rounded-full checked:after:top-1/2 checked:after:left-1/2 checked:after:-translate-x-1/2 checked:after:-translate-y-1/2 cursor-pointer"
+                        
+                        <RadioInput
+                            value="important"
+                            register={ register("importance") }
                         />
                         <span>Лише важливі</span>
                     </label>
@@ -125,18 +97,9 @@ export const NoteFitlerPopup = ({ booksList=[] }) => {
                     {['Думки', 'Підсумки', 'Улюблені цитати'].map((category) => {
                          const isActive = watchCategories.includes(category);
                          return (
-                            <button
-                                key={category}
-                                type="button"
-                                onClick={() => handleCategoryToggle(category)}
-                                className={`rounded-lg py-1.5 px-3 border text-xs transition-all duration-200 cursor-pointer ${
-                                    isActive 
-                                    ? 'bg-[#F43F5E] border-[#F43F5E] text-white font-bold' 
-                                    : 'bg-transparent border-zinc-600 text-zinc-300 hover:border-zinc-400'
-                                }`}
-                            >
-                                {category}
-                            </button>
+                            <NoteCategoryButton key={ category } category={ category } 
+                            handler={ () => handleCategoryToggle(category) }
+                            isActive={ isActive } />
                         );
                     })}
                 </div>
@@ -151,7 +114,7 @@ export const NoteFitlerPopup = ({ booksList=[] }) => {
                 </button>
                 <button 
                     type="button"
-                    onClick={() => reset()}
+                    onClick={handleReset}
                     className="text-zinc-400 bg-transparent border border-zinc-600 py-1.5 px-3 rounded-lg font-semibold text-sm cursor-pointer transition-all duration-200 hover:text-white hover:border-zinc-400"
                 >
                     Скинути
