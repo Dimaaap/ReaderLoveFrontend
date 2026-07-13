@@ -8,9 +8,10 @@ import { withAuth } from "@/components/WithAuth"
 import { AllLinks, fetcher } from "@/utils";
 import Image from "next/image"
 import { useAuth } from "@/hooks/useAuth";
-import { useCreateNewBookNoteModalState, useEditBookNoteModalState, useNoteFilterPopupStore } from "@/states";
+import { useCreateNewBookNoteModalState, useEditBookNoteModalState, useNoteFilterPopupStore, useNoteSortingPopupStore } from "@/states";
 import { EditNoteModal } from "@/components/modals/EditNoteModal"
 import { NoteFitlerPopup } from "@/components/modals/NoteFitlerPopup"
+import { NoteSortingPopup } from "@/components/modals/NoteSortingPopup"
 
 function NotesContent () {
 
@@ -20,6 +21,7 @@ function NotesContent () {
     const { newBookNoteModalOpen, setNewBookNoteModalOpen } = useCreateNewBookNoteModalState();
     const { editBookNoteModalOpen, editingNote } = useEditBookNoteModalState();
     const { noteFilterPopupOpen, setNoteFilterPopupOpen, filters } = useNoteFilterPopupStore();
+    const { noteSortingPopupOpen, setNoteSortingPopupOpen, sorting } = useNoteSortingPopupStore();
  
     const { data: notes, isLoading, isError } = useQuery({
         queryKey: ["notes", user?.username],
@@ -40,6 +42,14 @@ function NotesContent () {
         }
     }
 
+    const toggleNoteSortingPopup = () => {
+        if(noteSortingPopupOpen){
+            setNoteSortingPopupOpen(false);
+        } else {
+            setNoteSortingPopupOpen(true)
+        }
+    }
+
     const allNotesBooks = [... new Set(notes?.map(note => note.book.title))];
 
     const filteredNotes = notes?.filter((note) => {
@@ -57,6 +67,39 @@ function NotesContent () {
 
         return true;
     }) || [];
+
+    const filteredAndGroupedNotes = [...filteredNotes].sort((a, b) => {
+        switch(sorting.sortBy){
+            case "date_desc":
+                return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+            case "date_asc":
+                return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+            case "book_title_asc":
+                return (a.book?.title || "").localeCompare(b.book?.title || "", "uk");
+            case "book_title_desc":
+                return (b.book?.title || "").localeCompare(a.book?.title || "", "uk");
+            case "favorites_first":
+                return (b.is_important ? 1 : 0) - (a.is_important ? 1 : 0)
+            default:
+                return 0;
+        }
+    })
+
+    const getSortingButtonText = () => {
+        switch(sorting.sortBy){
+            case "date_desc":
+                return "За датою (↑)";
+            case "date_asc":
+                return "За датою (↓)";
+            case "book_title_asc":
+                return "Назва (↑)";
+            case "book_title_desc":
+                return "Назва (↓)";
+            case "favorites_first":
+                return "Важливість"
+        }
+    }
+
 
     const getFitlersButtonsText = () => {
         if(filters.allBooks && filters.importance === "all" && filters.categories.length === 0){
@@ -80,7 +123,8 @@ function NotesContent () {
             <Sidebar username="Dima" />
             { newBookNoteModalOpen && <CreateBookNoteModal username={ user?.username } /> }
             { editBookNoteModalOpen && <EditNoteModal note={ editingNote } username={ user?.username } /> }
-            { noteFilterPopupOpen && <NoteFitlerPopup booksList={allNotesBooks} /> }
+            { noteFilterPopupOpen && <NoteFitlerPopup booksList={ allNotesBooks } /> }
+            { noteSortingPopupOpen && <NoteSortingPopup /> }
             <main className="w-full flex flex-col gap-10 p-5">
                 <div className="flex items-center justify-between">
                     <h2 className="text-2xl font-bold text-white w-[20%]">
@@ -97,16 +141,16 @@ function NotesContent () {
                         </div>
                         
                         <div className="w-1/3 rounded-xl border border-zinc-400 p-2
-                        text-white text-sm font-normal flex items-center gap-1">
+                        text-white text-sm font-normal flex items-center gap-1 cursor-pointer" onClick={toggleNoteSortingPopup}>
                             <Image src="/icons/sort.svg" alt="sort" width="15" height="15" />
-                            Сортування
+                            { getSortingButtonText() }
                         </div>
                         <BrightPinkButton text="+ Нова нотатка" handler={() => setNewBookNoteModalOpen(true)} />
                     </div>
                 </div>
 
                 <div className="grid grid-cols-4 gap-5">
-                    { !isLoading && filteredNotes?.map((note) => (
+                    { !isLoading && filteredAndGroupedNotes?.map((note) => (
                         <div key={ note.id }>
                             <NoteCart note={ note } key={ note.id} queryClient={ queryClient } username={ user?.username } />
                         </div>
