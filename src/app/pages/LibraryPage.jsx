@@ -2,17 +2,27 @@
 
 import { Sidebar } from '@/components';
 import { withAuth } from '@/components/WithAuth'
-import { readPercent } from '@/utils';
+import { AllLinks, fetcher, readPercent } from '@/utils';
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { books, bookStatusMenu } from "@/data"
+import { useQuery } from '@tanstack/react-query';
+import { useAuth } from '@/hooks/useAuth';
 
 function MeContent() {
 
+  const { user } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  const { data: allBooks, isLoading, isError } = useQuery({
+    queryKey: ["books", user?.username],
+    queryFn: () => fetcher(AllLinks.books.USER_ACTIVE_BOOKS(user?.username)),
+    enanled: !!user?.username,
+    staleTime: 0
+  })
 
   const getFilterFromSearchParams = () => {
     return searchParams.get("filter") || null;
@@ -33,10 +43,11 @@ function MeContent() {
 
   let currentBooks = null;
 
+
   if(getFilterFromSearchParams()){
-    currentBooks = books.filter(book => book.filter === getFilterFromSearchParams());  
+    currentBooks = allBooks.filter(book => book.status === getFilterFromSearchParams());  
   } else {
-    currentBooks = books;
+    currentBooks = allBooks;
   }
   
 
@@ -83,7 +94,7 @@ function MeContent() {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6 mt-5">
-          {currentBooks.map((book, id) => {
+          {currentBooks?.map((book, id) => {
             const bookLink = `/book/${book.slug}`;
             
             return (
@@ -93,7 +104,7 @@ function MeContent() {
                 transition-transform duration-200 group-hover:-translate-y-1">
                   <Link href={bookLink}>
                     <Image 
-                      src={book.cover} 
+                      src={book.image_link} 
                       alt={book.title} 
                       fill
                       className="object-cover"
@@ -112,19 +123,19 @@ function MeContent() {
                   {book.title}
                 </Link>
                 <span className="text-white/40 text-xs font-medium line-clamp-1">
-                  {book.author}
+                  {book.authors[0]?.first_name} {book.authors[0]?.last_name}
                 </span>
 
                 <div className="mt-1 flex flex-col gap-1.5">
                   <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
                     <div 
                       className="h-full bg-[#f43f5e] rounded-full" 
-                      style={{ width: `${readPercent(book.readPages, book.totalPages)}%` }}
+                      style={{ width: `${readPercent(0, book.pages_count)}%` }}
                     />
                   </div>
                   <div className="flex justify-between items-center text-[11px] text-white/30 font-semibold">
-                    <span>{book.readPages} / {book.totalPages} сторінок</span>
-                    <span>{readPercent(book.readPages, book.totalPages)}%</span>
+                    <span>{0} / {book.pages_count} сторінок</span>
+                    <span>{readPercent(0, book.pages_count)}%</span>
                   </div>
                 </div>
 

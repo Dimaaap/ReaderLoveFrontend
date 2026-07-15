@@ -7,4 +7,6 @@ export * from "./CreateNewBookNoteModalState"
 export * from "./EditNotePopupState"
 export * from "./EditBookNoteModalState"
 export * from "./NoteFilterState"
-export * from "./NoteSortingState"
+export * from "./NoteSortingState";
+export * from "./StartReadingSessionState"
+export * from "./ReadingBookDetailsPopupState"

@@ -64,7 +64,7 @@ export const Sidebar = ({ username }) => {
         <Link className="flex items-center justify-between mt-auto p-2 hover:bg-white/5 rounded-xl transition-colors group" href="#">
             <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-full bg-linear-to-tr from-[#F43F5E] to-purple-600 flex items-center justify-between overflow-hidden border border-white/20">
-                    <span className="text-xs font-bold mx-auto uppercase">{username.substring(0, 2)}</span>
+                    <span className="text-xs font-bold mx-auto uppercase">{username?.substring(0, 2)}</span>
                 </div>
                 <div className="flex flex-col">
                     <p className="text-sm font-semibold text-white tracking-wide truncate max-w-22.5">

@@ -7,17 +7,17 @@ export const bookStatusMenu = [
     {
       "title": "Читаю зараз",
       "active": false,
-      "filter": "read-now"
+      "filter": "reading"
     },
     {
       "title": "Прочитані",
       "active": false,
-      "filter": "read"
+      "filter": "finished"
     },
     {
       "title": "Хочу прочитати",
       "active": false,
-      "filter": "want-to-read"
+      "filter": "want_to_read"
     },
     {
       "title": "На паузі",

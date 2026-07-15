@@ -5,14 +5,21 @@ import { useQuery } from "@tanstack/react-query";
 import { AllLinks, fetcher } from "@/utils";
 import Image from "next/image";
 import Link from "next/link";
+import { useStartReadingSessionStore } from "@/states";
+import { StartReadingSessionModal } from "@/components/modals/StartReadingSessionModal";
+import { useAuth } from "@/hooks/useAuth";
 
 
 export default function BookPage({ bookSlug }) {
 
-    const { data: book, isLoading, isError, error } = useQuery({
+    const { user } = useAuth();
+
+    const { data: book, isLoading, isError } = useQuery({
         queryKey: ["book", bookSlug],
-        queryFn: () => fetcher(AllLinks.books.BOOK_BY_SLUG(bookSlug))
+        queryFn: () => fetcher(AllLinks.books.BOOK_WITH_READ_SESSIONS(user?.username, bookSlug))
     })
+
+    const { startReadingSessionOpen, setStartReadingSessionOpen } = useStartReadingSessionStore();
 
     const getAuthorNames = () => {
         let namesArray = [book.authors.map((author) => `${author.first_name} ${author.last_name}`)]
@@ -20,11 +27,26 @@ export default function BookPage({ bookSlug }) {
         return names
     }
 
+    const getBookReadingProgress = (book) => {
+        const progress = Math.round((book.read_pages / book.pages_count) * 100, 0) 
+        return `${progress}%`
+    }
+
+    const translateBookLanguage = (book) => {
+        if(book.language === "Ukrainian") {
+            return "Українська"
+        } else {
+            return "Англійська"
+        }
+    }
+
     if(isLoading) return <div>Loading...</div>
     if(isError) return <div>Error</div>
 
     return (
         <div className="flex flex-col w-full bg-[#0D0B0C] text-zinc-300 overflow-auto">
+            { startReadingSessionOpen && book && <StartReadingSessionModal book={ book } /> }
+            { console.log(book) } 
             <div className="bg-[#141113] rounded-2xl flex flex-col w-300 mx-auto border border-zinc-900 shadow-xl border-b
             my-6">
                 <div className="flex items-center justify-between border-b border-zinc-900 p-6">
@@ -46,7 +68,7 @@ export default function BookPage({ bookSlug }) {
                     <div className="w-30 aspect-2/3 relative rounded-xl overflow-hidden shadow-lg border border-zinc-800/40 
                     shrink-0">
                         <Image
-                            src="/1984.jpg"
+                            src={ book.image_link }
                             alt={ book.title }
                             fill
                             className="object-cover"
@@ -73,21 +95,21 @@ export default function BookPage({ bookSlug }) {
                         <div className="flex flex-col gap-2 mt-1">
                             <div className="flex justify-between text-md font-semibold text-zinc-400">
                                 <span>Прогрес</span>
-                                <span className="text-zinc-200">62%</span>
+                                <span className="text-zinc-200">{ getBookReadingProgress(book) }</span>
                             </div>
                             <div className="w-full h-1.5 bg-[#0D0B0C] rounded-full overflow-hidden">
-                                <div className="h-full bg-[#FF4B6B] rounded-full" style={{ width: '62%' }}></div>
+                                <div className="h-full bg-[#FF4B6B] rounded-full" style={{ width: `${getBookReadingProgress(book)}`}}></div>
                             </div>
                         </div>
 
                         <div className="grid grid-cols-3 gap-2 mt-3 bg-[#0D0B0C] p-3 rounded-xl border border-zinc-900 text-center text-md">
                             <div className="flex flex-col gap-2">
                                 <span className="block text-zinc-500 font-medium uppercase tracking-wider">Прочитано</span>
-                                <span className="text-sm font-bold text-white mt-0.5 block">186 / 296</span>
+                                <span className="text-sm font-bold text-white mt-0.5 block">{ book.read_pages } / { book.pages_count }</span>
                             </div>
                             <div className="flex flex-col gap-2">
                                 <span className="bloc text-zinc-500 font-medium uppercase tracking-wider">Залишилось сторінок</span>
-                                <span className="text-sm font-bold text-white mt-0.5 block">110</span>
+                                <span className="text-sm font-bold text-white mt-0.5 block">{ book.pages_count - book.read_pages }</span>
                             </div>
                             <div className="flex flex-col gap-2">
                                 <span className="block text-zinc-500 font-medium uppercase tracking-wider">Прогнозоване закічнення</span>
@@ -97,7 +119,8 @@ export default function BookPage({ bookSlug }) {
 
                         <div className="flex gap-2 items-center mt-3">
                             <button className="py-3 px-4 bg-[#FF4B6B] hover:bg-[#e03f5d] transition-colors text-white font-semibold text-md rounded-xl 
-                            tracking-wide shadow-md shadow-[#FF4B6B]/10 active:scale-[0.98] cursor-pointer">
+                            tracking-wide shadow-md shadow-[#FF4B6B]/10 active:scale-[0.98] cursor-pointer"
+                            onClick={ () => setStartReadingSessionOpen(true) }>
                                 Продовжити читання
                             </button>
                             <button className="p-4 bg-[#0D0B0C] cursor-pointer border border-zinc-900 rounded-xl hover:opacity-80 transition">
@@ -154,7 +177,7 @@ export default function BookPage({ bookSlug }) {
                                 Мова книги
                             </p>
                             <p className="text-white">
-                                { book.language }
+                                { translateBookLanguage(book) }
                             </p>
                         </div>
                     </div>    

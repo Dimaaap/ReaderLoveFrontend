@@ -20,4 +20,9 @@ export * from "./NoteCart"
 export * from "./ShareNoteImage"
 export * from "./RadioInput";
 export * from "./NoteCategoryButton"
-export * from "./BrightPinkButton"
+export * from "./BrightPinkButton";
+export * from "./LastUserReadingSessions";
+export * from "./ReadingSession";
+export * from "./TemplateQuote";
+export * from "./UserProgress";
+export * from "./BookReadingProgressBar"

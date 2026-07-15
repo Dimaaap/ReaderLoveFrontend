@@ -10,7 +10,9 @@ const Reviews = {
 
 const Books = {
     BOOK_BY_SLUG: (slug) => `${BASE_BACKEND_URL}/books/by-slug/${slug}`,
-    USER_ACTIVE_BOOKS: (username) => `${BASE_BACKEND_URL}/books/${username}/books`
+    USER_ACTIVE_BOOKS: (username) => `${BASE_BACKEND_URL}/books/${username}/books`,
+    BOOK_WITH_READ_SESSIONS: (username, bookSlug) => `${BASE_BACKEND_URL}/books/${username}/slug/${bookSlug}`,
+    USER_LAST_READING_BOOK: (username) => `${BASE_BACKEND_URL}/books/current-reading/${username}`
 }
 
 const Users = {
@@ -29,7 +31,9 @@ const TemporaryQuotes = {
 }
 
 const ReadingSessions = {
-    USER_LAST_READING_SESSIONS: (username, limit) => `${BASE_BACKEND_URL}/reading-sessions/by-username?username=${username}&limit=${limit}`
+    USER_LAST_READING_SESSIONS: (username, limit) => `${BASE_BACKEND_URL}/reading-sessions/by-username?username=${username}&limit=${limit}`,
+    CREATE_READING_SESSION: `${BASE_BACKEND_URL}/reading-sessions/`,
+    PATCH_READING_SESSION: (sessionId) => `${BASE_BACKEND_URL}/reading-sessions/${sessionId}`
 }
 
 const BookNotes = {
@@ -41,6 +45,10 @@ const BookNotes = {
     DELETE_NOTE: (noteId) => `${BASE_BACKEND_URL}/book-notes/${noteId}`
 }
 
+const UserGoals = {
+    USER_ALL_GOALS: (username) => `${BASE_BACKEND_URL}/user-goals/by-username?username=${username}`
+}
+
 export const AllLinks = {
     socialLinks: SocialLinks,
     reviews: Reviews,
@@ -48,5 +56,6 @@ export const AllLinks = {
     books: Books,
     templateQuotes: TemporaryQuotes,
     readingSessions: ReadingSessions,
-    bookNotes: BookNotes
+    bookNotes: BookNotes,
+    userGoals: UserGoals
 }
