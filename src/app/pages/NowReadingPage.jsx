@@ -7,11 +7,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { ReadingBookDetailsPopup } from "@/components/modals/ReadingBookDetailsPopup";
 import { StartReadingSessionModal } from "@/components/modals/StartReadingSessionModal";
+import { AddManualReadingSession } from "@/components/modals/AddManualReadingSession";
+import { EditProgressModal } from "@/components/modals/EditProgressModal";
 
  function NowReadingContent () {
 
   const { user, readingBookDetailsOpen, toggleReadingBookDetailsOpen, startReadingSessionOpen, 
-    setStartReadingSessionOpen, quote, isLoading, isError, currentBook } = useNowReadingPage();
+    setStartReadingSessionOpen, quote, isLoading, isError, currentBook, 
+    addManualReadingSessionOpen, editProgressModalOpen } = useNowReadingPage();
 
   if(isError) return <div>Error...</div>
   if(isLoading) return <div>Loading...</div>
@@ -22,6 +25,9 @@ import { StartReadingSessionModal } from "@/components/modals/StartReadingSessio
           { startReadingSessionOpen && <StartReadingSessionModal book={ currentBook } 
           activeSessionId={ currentBook.active_session_id }
           start={ currentBook.active_session_id === null } /> }
+
+          { addManualReadingSessionOpen && <AddManualReadingSession book={ currentBook }/> }
+          { editProgressModalOpen && <EditProgressModal book={ currentBook } /> }
           <main className="flex-1 h-full overflow-y-auto p-8 text-white flex justify-between">
             <div className="flex flex-col gap-5">
               <h1 className="text-2xl font-bold text-white">

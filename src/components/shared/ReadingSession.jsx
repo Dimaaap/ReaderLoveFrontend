@@ -1,10 +1,7 @@
-import { useNowReadingPage } from '@/hooks/useNowReadingPage';
 import Image from 'next/image'
+import { returnReadingDayPart, formatReadingSessionDate, readingTime } from '@/utils/dateHelper';
 
 const ReadingSession = ({ session }) => {
-
-    const { returnReadingDayPart, formatReadingSessionDate, readingTime } = useNowReadingPage();
-
     return (
         <div className="flex items-center gap-5">
             <Image src={`${returnReadingDayPart(session.started_at) === "day" ? "/icons/day.svg" : "/icons/night.svg"}`}
@@ -16,9 +13,16 @@ const ReadingSession = ({ session }) => {
                     { formatReadingSessionDate(session.started_at) }
                 </span>
                 <span className="flex items-center gap-3">
-                    <span>
-                        { readingTime(session.started_at, session.ended_at) }  
-                    </span>
+                    { session.is_tracked ? (
+                        <span>
+                            { readingTime(session.started_at, session.ended_at) }  
+                        </span>    
+                    ) : (
+                        <span className="text-white">
+                            Редактована сесія
+                        </span>
+                    ) }
+                    
                     <div className="w-0.75 h-0.75 rounded-full bg-zinc-400" />
         
                     <span>

@@ -1,12 +1,15 @@
 "use client"
 
-import { useReadingBookDetailsPopupStore } from '@/states'
+import { useNowReadingPage } from '@/hooks/useNowReadingPage';
+import { useEditProgressModal, useReadingBookDetailsPopupStore } from '@/states'
 import Image from 'next/image';
 import { useEffect, useRef } from 'react'
 
 export const ReadingBookDetailsPopup = () => {
 
     const { readingBookDetailsOpen, setReadingBookDetailsOpen } = useReadingBookDetailsPopupStore();
+    const { setAddManualReadingSessionOpen } = useNowReadingPage();
+    const { setEditProgressModalOpen } = useEditProgressModal();
 
     const dropdownRef = useRef(null);
 
@@ -35,6 +38,7 @@ export const ReadingBookDetailsPopup = () => {
                 <button type="button"
                 className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm cursor-pointer
                 text-neutral-300 hover:bg-neutral-800/60 hover:text-white transition-colors text-left"
+                onClick={ () => {setAddManualReadingSessionOpen(true); setReadingBookDetailsOpen(false)} }
                 >
                     <Image src="/icons/edit.svg" alt="Edit" width="18" height="18" />
                     Додати сесію вручну
@@ -44,6 +48,7 @@ export const ReadingBookDetailsPopup = () => {
                 type="button"
                 className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-neutral-300 cursor-pointer
                 hover:bg-neutral-800/60 hover:text-white transition-colors text-left"
+                onClick={ () => { setEditProgressModalOpen(true); setReadingBookDetailsOpen(false) } }
                 >
                     <Image src="/icons/book.svg" alt="Book" width="18" height="18" />
                     <span>Редагувати прогрес</span>

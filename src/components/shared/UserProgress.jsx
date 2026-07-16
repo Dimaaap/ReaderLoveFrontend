@@ -1,9 +1,10 @@
 import { useNowReadingPage } from "@/hooks/useNowReadingPage";
+import { getTodayReadPages, getReadingStats } from "@/utils/dateHelper"
 import Image from "next/image"
 
 export const UserProgress = () => {
 
-    const { currentBook,readingSessions, getReadingStats, getTodayReadPages, dailyPagesGoal } = useNowReadingPage();
+    const { currentBook,readingSessions, dailyPagesGoal } = useNowReadingPage();
 
     return (
         <div className="flex flex-col gap-5">

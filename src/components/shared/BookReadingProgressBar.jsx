@@ -1,7 +1,8 @@
 import { useNowReadingPage } from "@/hooks/useNowReadingPage";
+import { getReadingStats } from "@/utils/dateHelper";
 
 export const BookReadingProgressBar = () => {
-    const { currentBook, getReadingStats } = useNowReadingPage();
+    const { currentBook } = useNowReadingPage();
   
     return (
         <div className="flex flex-col gap-2 mt-1">
