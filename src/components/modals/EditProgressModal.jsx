@@ -6,10 +6,17 @@ import { AllLinks } from "@/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { EditSessionPopup } from "./EditSessionPopup";
+import { DeleteSessionConfirm } from "./DeleteSessionConfirm";
 
 export const EditProgressModal = ({ book }) => {
     const { setEditProgressModalOpen } = useEditProgressModal();
-    const { editingSessionId, startEditingSession, stopEditingSession } = useEditSessionPopup()
+    const { 
+        editingSessionId, 
+        startEditingSession, 
+        stopEditingSession, 
+        deletingSessionId, 
+        setDeletingSessionId 
+    } = useEditSessionPopup()
     
     const [newPage, setNewPage] = useState("");
     const { user } = useAuth();
@@ -74,6 +81,29 @@ export const EditProgressModal = ({ book }) => {
             startEditingSession(sessionId)
         }
     }
+
+    const handleDeleteSessionSubmit = async(sessionId) => {
+        try {
+            const response = await fetch(AllLinks.readingSessions.DELETE_READING_SESSION(sessionId), {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+
+            if(!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || "Помилка при створенні")
+            }
+
+            setDeletingSessionId(null);
+
+            return response.json();
+        } catch (error){
+            console.error("Помилка при видаленні сесії: ", error)
+        }
+    }
+
 
     const isSubmitting = createSessionMutation.isPending;
     
@@ -168,12 +198,21 @@ export const EditProgressModal = ({ book }) => {
                                                 <Image src="/icons/edit.svg" alt="Edit" width="18" height="18" />
                                             </button>
                                             <button type="button"
+                                            onClick={() => setDeletingSessionId(session.id)}
                                             className="p-1.5 rounded-md bg-[#D9383A] hover:bg-[#be2f31] text-white 
                                             transition-colors cursor-pointer" title="Видалити">
                                                 <Image src="/icons/delete.svg" alt="Delete" width="18" height="18" />
                                             </button>
                                         </div>
-                                        { editingSessionId === session.id && <EditSessionPopup book={ book } session={ session } /> }
+                                        { editingSessionId === session.id && <EditSessionPopup book={ book } session={ session } 
+                                        username={ user?.username } /> }
+
+                                        { deletingSessionId == session.id && (
+                                            <DeleteSessionConfirm 
+                                                onConfirm={() => handleDeleteSessionSubmit(session.id)}
+                                                onCancel={() => setDeletingSessionId(null)}
+                                            />
+                                        ) }
                                     </div>
                                 ))
                             ) : (

@@ -111,7 +111,7 @@ import { EditProgressModal } from "@/components/modals/EditProgressModal";
                             <button className="p-4 bg-[#0D0B0C] cursor-pointer border border-zinc-900 rounded-xl hover:opacity-80 transition">
                                 <Image src="/icons/bookmark.svg" alt="Bookmark" width="18" height="18" className="opacity-80" />
                             </button>
-                             { readingBookDetailsOpen && <ReadingBookDetailsPopup /> }
+                             { readingBookDetailsOpen && <ReadingBookDetailsPopup book={ currentBook } /> }
                             <button className="relative p-4 bg-[#0D0B0C] border border-zinc-900 rounded-xl 
                             hover:opacity-80 transition cursor-pointer" onClick={ toggleReadingBookDetailsOpen }>
                                 <Image src="/icons/dots-horizontal.svg" alt="More" width="18" height="18" className="opacity-80" />

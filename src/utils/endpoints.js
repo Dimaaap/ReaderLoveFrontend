@@ -33,7 +33,8 @@ const TemporaryQuotes = {
 const ReadingSessions = {
     USER_LAST_READING_SESSIONS: (username, limit) => `${BASE_BACKEND_URL}/reading-sessions/by-username?username=${username}&limit=${limit}`,
     CREATE_READING_SESSION: `${BASE_BACKEND_URL}/reading-sessions/`,
-    PATCH_READING_SESSION: (sessionId) => `${BASE_BACKEND_URL}/reading-sessions/${sessionId}`
+    PATCH_READING_SESSION: (sessionId) => `${BASE_BACKEND_URL}/reading-sessions/${sessionId}`,
+    DELETE_READING_SESSION: (sessionId) => `${BASE_BACKEND_URL}/reading-sessions/${sessionId}`
 }
 
 const BookNotes = {
