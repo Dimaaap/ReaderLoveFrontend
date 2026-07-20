@@ -2,7 +2,7 @@
 
 import { useNowReadingPage } from '@/hooks/useNowReadingPage';
 import { useShare } from '@/hooks/useShare';
-import { useEditProgressModal, useReadingBookDetailsPopupStore } from '@/states'
+import { useEditProgressModal, useReadingBookDetailsPopupStore, useShareModalState } from '@/states'
 import { generateProgressText } from '@/utils';
 import Image from 'next/image';
 import { useEffect, useRef } from 'react'
@@ -12,6 +12,8 @@ export const ReadingBookDetailsPopup = ({ book }) => {
     const { readingBookDetailsOpen, setReadingBookDetailsOpen } = useReadingBookDetailsPopupStore();
     const { setAddManualReadingSessionOpen } = useNowReadingPage();
     const { setEditProgressModalOpen } = useEditProgressModal();
+    const { setShareModalOpen } = useShareModalState();
+    const { toggleReadingBookDetailsOpen } = useNowReadingPage();
 
     const dropdownRef = useRef(null);
 
@@ -96,7 +98,7 @@ export const ReadingBookDetailsPopup = ({ book }) => {
 
                 <button
                 type="button"
-                onClick={ handleShareClick }
+                onClick={ () => { setShareModalOpen(true); toggleReadingBookDetailsOpen() } }
                 className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm cursor-pointer
                 transition-colors text-left
                 ${isCopied ? "bg-green-600/20 text-green-400 border border-green-600/40" : "text-neutral-300 hover:bg-neutral-800/60 hover:text-white"}`}

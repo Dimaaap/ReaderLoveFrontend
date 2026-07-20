@@ -7,7 +7,7 @@ import { AllLinks, fetcher } from "../utils";
 export const useNowReadingPage = () => {
     const { user } = useAuth();
 
-    const { readingBookDetailsOpen, toggleReadingBookDetailsOpen } = useReadingBookDetailsPopupStore();
+    const { readingBookDetailsOpen, setReadingBookDetailsOpen, toggleReadingBookDetailsOpen } = useReadingBookDetailsPopupStore();
     const { startReadingSessionOpen, setStartReadingSessionOpen } = useStartReadingSessionStore();
     const { addManualReadingSessionOpen, setAddManualReadingSessionOpen } = useAddManualReadingSessionModal();
     const { editProgressModalOpen } = useEditProgressModal();
@@ -44,7 +44,7 @@ export const useNowReadingPage = () => {
     const dailyPagesGoal = userGoals?.filter((goal) => goal.category === "Сторінки за день")[0];
 
     return {
-        user, readingBookDetailsOpen, toggleReadingBookDetailsOpen,
+        user, readingBookDetailsOpen, setReadingBookDetailsOpen, toggleReadingBookDetailsOpen,
         startReadingSessionOpen, setStartReadingSessionOpen,
         quote, isLoading, isError, currentBook,
         readingSessions,

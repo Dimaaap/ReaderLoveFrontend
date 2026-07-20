@@ -12,3 +12,5 @@ export * from "./AddManualReadingSession";
 export * from "./EditProgressModal";
 export * from "./EditSessionPopup";
 export * from "./DeleteSessionConfirm"
+export * from "./SharePreviewModal";
+export * from "./UserSettingsModal"

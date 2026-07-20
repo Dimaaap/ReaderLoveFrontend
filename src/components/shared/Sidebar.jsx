@@ -51,7 +51,11 @@ export const Sidebar = ({ username }) => {
         </ul>
 
         <ul className="w-full flex flex-col gap-1 pb-5 border-b border-white/10">
-            <Link className="flex items-center gap-3 w-full py-2 px-3 text-sm font-medium text-white/60 hover:text-white hover:bg-white/5 rounded-lg transition-colors" href="#">
+            <Link className=
+            {`flex items-center gap-3 w-full py-2 px-3 text-sm font-medium rounded-lg transition-all duration-200
+                ${ meSection === "settings"
+                    ? "bg-white/10 text-white font-semibold" 
+                    : "text-white/60 hover:text-white hover:bg-white/5"}`} href="/me/settings">
                 <Image src="/icons/settings.svg" alt="" width="18" height="18" className="opacity-60" />
                 <span>Налаштування</span>
             </Link>
