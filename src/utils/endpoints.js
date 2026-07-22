@@ -23,7 +23,9 @@ const Users = {
     LOGIN_WITH_GOOGLE: "http://localhost:8030/api/v1/users/auth/google/callback",
     LOGTIN_WITH_GITHUB: "http://localhost:8030/api/v1/users/auth/github/callback",
     FORGOT_PASSWORD: `${BASE_BACKEND_URL}/users/auth/forgot-password`,
-    RESET_PASSWORD: `${BASE_BACKEND_URL}/users/auth/reset-password`
+    RESET_PASSWORD: `${BASE_BACKEND_URL}/users/auth/reset-password`,
+    UPLOAD_AVATAR: `${BASE_BACKEND_URL}/users/auth/me/avatar`,
+    CHANGE_PASSWORD: `${BASE_BACKEND_URL}/users/auth/me/change-password`
 }
 
 const TemporaryQuotes = {

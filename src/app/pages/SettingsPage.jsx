@@ -1,20 +1,42 @@
 "use client";
 
 import { Sidebar } from "@/components";
+import { ChangePasswordModal } from "@/components/modals/ChangePasswordModal";
 import { UserSettingsModal } from "@/components/modals/UserSettingsModal";
 import { withAuth } from "@/components/WithAuth";
 import { useAuth } from "@/hooks/useAuth";
-import { useUserSettingsModalState } from "@/states";
+import { useChangePasswordModalStore, useUserSettingsModalState } from "@/states";
 import Image from "next/image";
 
 function SettingsContent () {
     const { user } = useAuth();
 
     const { userSettingsModalOpen, setUserSettingsModalOpen } = useUserSettingsModalState();
+    const { changePasswordModalOpen } = useChangePasswordModalStore();
 
+    const avatarColors = {
+        pink: "from-pink-500 to-fuchsia-700",
+        purple: "from-purple-500 to-violet-700",
+        blue: "from-sky-500 to-blue-700",
+        green: "from-green-500 to-emerald-700",
+        orange: "from-orange-500 to-amber-600",
+        red: "from-rose-500 to-red-700"
+    }
+
+    const handleImageLink = avatarSrc => {
+        let avatar = avatarSrc?.split("/")?.slice(-3)
+        let validSrc = `http://localhost:8030/${avatar?.join("/")}`
+        return validSrc
+    }
+
+    const avatarSrc = user?.avatar
+        ? `http://localhost:8030/${user.avatar.replace(/^\/+/, "")}`
+        : null;
+    
     return (
         <div className="flex items-start gap-0 w-full bg-[#0D0B0C] flex-1 h-full overflow-auto">
             { userSettingsModalOpen && <UserSettingsModal /> }
+            { changePasswordModalOpen && <ChangePasswordModal /> }
             
             <Sidebar username={ user?.username } />
 
@@ -26,13 +48,26 @@ function SettingsContent () {
                         <div className="rounded-2xl max-h-max border border-zinc-700 bg-[#141113] p-6">
                             <h2 className="text-2xl font-semibold mb-6">Профіль</h2>
                             <div className="flex items-center gap-5">
-                                <div className="w-24 h-24 rounded-full bg-linear-to-br from-pink-500 to-purple-700 flex 
-                                items-center justify-center text-3xl font-bold">
-                                    { user?.username?.substring(0, 2) }
+                               <div className={`w-25 h-25 rounded-full relative overflow-hidden cursor-pointer flex items-center justify-center 
+                                    ${!user?.avatar ? `bg-linear-to-tr ${avatarColors[user?.avatar_color]}` : ""}`}>    
+
+                                    {avatarSrc ? (
+                                        <img
+                                            src={ handleImageLink(avatarSrc) }
+                                            alt="Avatar"
+                                            fill={ true }
+                                            className="object-cover"
+                                            unoptimized={preview?.startsWith("blob:").toString()}
+                                        />
+                                    ) : (
+                                        <span className="text-2xl font-semibold uppercase">
+                                            {user?.username?.substring(0, 2)}
+                                        </span>
+                                    )}
                                 </div>
                                 <div className="flex-1">
                                     <div className="text-xl font-semibold">{ user?.username }</div>
-                                    <div className="text-zinc-400">email@example.com</div>
+                                    <div className="text-zinc-400">{ user?.email }</div>
 
                                     <button className="mt-4 px-4 py-2 rounded-xl border border-zinc-600 bg-[#0D0B0C] cursor-pointer 
                                     flex items-center gap-2 hover:border-pink-500"

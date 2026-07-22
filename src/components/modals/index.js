@@ -14,3 +14,4 @@ export * from "./EditSessionPopup";
 export * from "./DeleteSessionConfirm"
 export * from "./SharePreviewModal";
 export * from "./UserSettingsModal"
+export * from "./ChangePasswordModal"

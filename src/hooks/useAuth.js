@@ -42,5 +42,5 @@ export const useAuth = () => {
         checkAuth()
     }, [])
 
-    return { user, isAuthenticated, isLoading, refreshAuth: checkAuth }
+    return { user, setUser, isAuthenticated, isLoading, refreshAuth: checkAuth }
 }  

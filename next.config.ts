@@ -39,7 +39,13 @@ const nextConfig: NextConfig = {
         hostname: "s4.vcdn.biz",
         port: "",
         pathname: "/**"
-      }
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '8030',
+        pathname: '/media/**',
+      },
     ]
   }
 };
