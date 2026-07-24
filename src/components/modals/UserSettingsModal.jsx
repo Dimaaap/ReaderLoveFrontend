@@ -202,7 +202,7 @@ export const UserSettingsModal = () => {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={ () => setUserSettingsModalOpen(false)}>
-            <div className="w-190 h-[99vh] m-auto p-7 flex flex-col gap-5 rounded-xl z-40 bg-[#13141d]"
+            <div className="w-190 h-[90vh] m-auto p-7 flex flex-col gap-5 rounded-xl z-40 bg-[#13141d]"
             onClick={ (e) => e.stopPropagation() }>
                 <div className="text-white flex items-center w-full justify-between">
                     <h4 className="text-2xl font-bold">
@@ -420,24 +420,6 @@ export const UserSettingsModal = () => {
                                       
                                 </div>
                                 
-                            </div>
-
-                            <div className="w-full flex items-center justify-between cursor-pointer 
-                            hover:opacity-80 duration-200 transition-all pb-2">
-                                <div className="flex items-center gap-3">
-                                    <Image src="/icons/safe.svg" alt="" width="20" height="20" />
-
-                                    <div className="flex flex-col gap-1">
-                                        <p className="text-white font-semibold text-md">
-                                            Налаштування профілю
-                                        </p>
-                                        <div className="text-zinc-600 font-semibold text-sm">
-                                            Керування приватністю та відображенням профілю
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <Image src="/icons/right-chevron.svg" alt="" width="20" height="20" />
                             </div>
                         </div>
 

@@ -1,18 +1,22 @@
 "use client";
 
-import { Sidebar } from "@/components";
+import { Sidebar, Switch } from "@/components";
 import { ChangePasswordModal } from "@/components/modals/ChangePasswordModal";
 import { UserSettingsModal } from "@/components/modals/UserSettingsModal";
 import { withAuth } from "@/components/WithAuth";
 import { useAuth } from "@/hooks/useAuth";
 import { useChangePasswordModalStore, useUserSettingsModalState } from "@/states";
 import Image from "next/image";
+import { useState } from "react";
+
 
 function SettingsContent () {
     const { user } = useAuth();
 
     const { userSettingsModalOpen, setUserSettingsModalOpen } = useUserSettingsModalState();
     const { changePasswordModalOpen } = useChangePasswordModalStore();
+
+    const [settings, setSettings] = useState(user?.settings)
 
     const avatarColors = {
         pink: "from-pink-500 to-fuchsia-700",
@@ -32,6 +36,56 @@ function SettingsContent () {
     const avatarSrc = user?.avatar
         ? `http://localhost:8030/${user.avatar.replace(/^\/+/, "")}`
         : null;
+
+    const userSettingsMap = [
+        {
+            title: "Email-сповіщення",
+            description: "Надсилати сповіщення на пошту",
+            value: settings?.email_notifications,
+            key: "email_notifications"
+        },
+        {
+            title: "Нагадування читати",
+            description: "Надсилати щоденні нагадування",
+            value: settings?.reading_reminders,
+            key: "reading_reminders"
+        },
+        {
+            title: "Рекомендації книг",
+            description: "Рекомендувати книги",
+            value: settings?.book_recommendations,
+            key: "book_recommendations"
+        }
+    ]
+
+    const userConfidencyMap = [
+        {
+            title: "Публічний профіль",
+            value: settings?.is_public_profile,
+            key: "is_public_profile"
+        },
+        {
+            title: "Показувати прогрес читання",
+            value: settings?.is_show_reading_progress,
+            key: "is_show_reading_progress"
+        },
+        {
+            title: "Дозволити рекомендації друзям",
+            value: settings?.allow_friends_recommendations,
+            key: "allow_friends_recommendations"
+        }
+    ]
+
+    const handleUpdateUserSettings = (key, value) => {
+        setSettings((prev) => {
+            if(!prev) return prev;
+
+            return {
+                ...prev,
+                [key]: value
+            }
+        })
+    }
     
     return (
         <div className="flex items-start gap-0 w-full bg-[#0D0B0C] flex-1 h-full overflow-auto">
@@ -81,14 +135,11 @@ function SettingsContent () {
 
                         <div className="rounded-2xl border border-zinc-700 bg-[#141113] p-6">
                             <h2 className="text-2xl font-semibold mb-6">Сповіщення</h2>
-                                {[
-                                    ["Email-сповіщення","Отримувати новини на пошту"],
-                                    ["Нагадування читати","Щоденні нагадування"],
-                                    ["Рекомендації книг","Персональні рекомендації"],
-                                ].map(([t,d])=>(
-                                    <div key={t} className="flex justify-between items-center py-4 border-b border-zinc-800 last:border-0">
-                                        <div><div>{t}</div><div className="text-sm text-zinc-500">{d}</div></div>
-                                        <input type="checkbox"/>
+                                {userSettingsMap.map((setting, index) => (
+                                    <div key={ index } className="flex justify-between items-center py-4 border-b border-zinc-800 
+                                    last:border-0">
+                                        <div><div>{setting.title}</div><div className="text-sm text-zinc-500">{ setting.description }</div></div>
+                                        <Switch checked={ setting.value } onChange={( value ) => handleUpdateUserSettings(setting.key, value)} />
                                     </div>
                                 ))}
                         </div>
@@ -107,18 +158,14 @@ function SettingsContent () {
 
                         <div className="rounded-2xl border border-zinc-700 bg-[#141113] p-6 col-span-2">
                             <h2 className="text-2xl font-semibold mb-6">Конфіденційність</h2>
-                            {[
-                            "Публічний профіль",
-                            "Показувати прогрес читання",
-                            "Дозволити рекомендації друзям"
-                            ].map(t=>(
-                            <div key={t} className="flex cursor-pointer justify-between 
-                            hover:opacity-80 duration-250 transition-all
-                            items-center py-4 border-b border-zinc-800 last:border-0">
-                                <span>{t}</span>
-                                <input type="checkbox"/>
-                            </div>
-                            ))}
+                            { userConfidencyMap.map((setting, id)=> (
+                                <div key={ id } className="flex cursor-pointer justify-between 
+                                hover:opacity-80 duration-250 transition-all
+                                items-center py-4 border-b border-zinc-800 last:border-0">
+                                    <span>{ setting.title }</span>
+                                    <Switch checked={ setting.value } onChange={(value) => handleUpdateUserSettings(setting.key, value)} />
+                                </div>
+                            )) }
                         </div>
 
                         <div className="rounded-2xl border border-zinc-700 bg-[#141113] p-6">

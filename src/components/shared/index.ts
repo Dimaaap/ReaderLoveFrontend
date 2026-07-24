@@ -25,4 +25,5 @@ export * from "./LastUserReadingSessions";
 export * from "./ReadingSession";
 export * from "./TemplateQuote";
 export * from "./UserProgress";
-export * from "./BookReadingProgressBar"
+export * from "./BookReadingProgressBar";
+export * from "./Switch";
