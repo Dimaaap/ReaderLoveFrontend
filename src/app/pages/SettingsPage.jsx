@@ -2,12 +2,15 @@
 
 import { Sidebar, Switch } from "@/components";
 import { ChangePasswordModal } from "@/components/modals/ChangePasswordModal";
+import { ConfirmDeleteAccount } from "@/components/modals/ConfirmDeleteAccount";
+import { LibraryModal } from "@/components/modals/LibraryModal";
 import { UserSettingsModal } from "@/components/modals/UserSettingsModal";
 import { withAuth } from "@/components/WithAuth";
 import { useAuth } from "@/hooks/useAuth";
-import { useChangePasswordModalStore, useUserSettingsModalState } from "@/states";
+import { useChangePasswordModalStore, useConfirmDeleteAccountModalStore, useLibraryModalStore, useUserSettingsModalState } from "@/states";
+import { AllLinks } from "@/utils";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 
 function SettingsContent () {
@@ -15,6 +18,8 @@ function SettingsContent () {
 
     const { userSettingsModalOpen, setUserSettingsModalOpen } = useUserSettingsModalState();
     const { changePasswordModalOpen } = useChangePasswordModalStore();
+    const { libraryModalOpen, setLibraryModalOpen } = useLibraryModalStore();
+    const { confirmDeleteAccountModalOpen, setConfirmDeleteAccountModalOpen } = useConfirmDeleteAccountModalStore()
 
     const [settings, setSettings] = useState(user?.settings)
 
@@ -76,14 +81,41 @@ function SettingsContent () {
         }
     ]
 
-    const handleUpdateUserSettings = (key, value) => {
-        setSettings((prev) => {
-            if(!prev) return prev;
+    const exportMap = [
+        {
+            title: "Експорт бібліотеки",
+            onClick: () => setLibraryModalOpen(true)
+        },
+        {
+            title: "Експорт цитат",
+            onClick: () => {}
+        },
+        {
+            title: "Видалити акаунт",
+            onClick: () => setConfirmDeleteAccountModalOpen(true)
+        }
+    ]
 
-            return {
-                ...prev,
+    useEffect(() => {
+        setSettings(user?.settings)
+    }, [user])
+
+    const handleUpdateUserSettings = async (key, value) => {
+        setSettings((prev) => ({
+            ...prev,
+            [key]: value
+        }));
+
+        await fetch(AllLinks.users.UPDATE_USER_SETTINGS, {
+            method: "PATCH",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+                
+            },
+            body: JSON.stringify({
                 [key]: value
-            }
+            })
         })
     }
     
@@ -91,6 +123,8 @@ function SettingsContent () {
         <div className="flex items-start gap-0 w-full bg-[#0D0B0C] flex-1 h-full overflow-auto">
             { userSettingsModalOpen && <UserSettingsModal /> }
             { changePasswordModalOpen && <ChangePasswordModal /> }
+            { libraryModalOpen && <LibraryModal /> }
+            { confirmDeleteAccountModalOpen && <ConfirmDeleteAccount /> }
             
             <Sidebar username={ user?.username } />
 
@@ -146,14 +180,15 @@ function SettingsContent () {
 
                         <div className="max-h-max rounded-2xl border border-zinc-700 bg-[#141113] p-6">
                             <h2 className="text-2xl font-semibold mb-6">Дані та експорт</h2>
-                            {["Експорт бібліотеки","Експорт цитат","Видалити акаунт"].map((t)=>(
-                            <button key={t} className="w-full flex justify-between cursor-pointer items-center py-4 
-                            border-b border-zinc-800 last:border-0 hover:opacity-80 transition-all duration-250">
-                                <span className={t==="Видалити акаунт"?"text-red-500":""}>{t}</span>
-                                <Image src={t === "Видалити акаунт" ? "/icons/right-chevron-red.svg" : "/icons/right-chevron.svg"}
+                            { exportMap.map((map, index)=>(
+                            <button key={ index } className="w-full flex justify-between cursor-pointer items-center py-4 
+                            border-b border-zinc-800 last:border-0 hover:opacity-80 transition-all duration-250"
+                            onClick={ map.onClick }>
+                                <span className={map.title ==="Видалити акаунт"?"text-red-500":""}>{ map.title }</span>
+                                <Image src={map.title === "Видалити акаунт" ? "/icons/right-chevron-red.svg" : "/icons/right-chevron.svg"}
                                 alt="" width="18" height="18" />
                             </button>
-                            ))}
+                            )) }
                         </div>
 
                         <div className="rounded-2xl border border-zinc-700 bg-[#141113] p-6 col-span-2">

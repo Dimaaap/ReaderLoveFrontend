@@ -15,3 +15,5 @@ export * from "./DeleteSessionConfirm"
 export * from "./SharePreviewModal";
 export * from "./UserSettingsModal"
 export * from "./ChangePasswordModal"
+export * from "./LibraryModal";
+export * from "./ConfirmDeleteAccount"

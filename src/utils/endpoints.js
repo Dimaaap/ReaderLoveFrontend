@@ -12,7 +12,8 @@ const Books = {
     BOOK_BY_SLUG: (slug) => `${BASE_BACKEND_URL}/books/by-slug/${slug}`,
     USER_ACTIVE_BOOKS: (username) => `${BASE_BACKEND_URL}/books/${username}/books`,
     BOOK_WITH_READ_SESSIONS: (username, bookSlug) => `${BASE_BACKEND_URL}/books/${username}/slug/${bookSlug}`,
-    USER_LAST_READING_BOOK: (username, limit=5) => `${BASE_BACKEND_URL}/books/current-reading/${username}?limit=${limit}`
+    USER_LAST_READING_BOOK: (username, limit=5) => `${BASE_BACKEND_URL}/books/current-reading/${username}?limit=${limit}`,
+    EXPORT_USER_BOOKS: (username) => `${BASE_BACKEND_URL}/books/${username}/export`
 }
 
 const Users = {
@@ -25,7 +26,8 @@ const Users = {
     FORGOT_PASSWORD: `${BASE_BACKEND_URL}/users/auth/forgot-password`,
     RESET_PASSWORD: `${BASE_BACKEND_URL}/users/auth/reset-password`,
     UPLOAD_AVATAR: `${BASE_BACKEND_URL}/users/auth/me/avatar`,
-    CHANGE_PASSWORD: `${BASE_BACKEND_URL}/users/auth/me/change-password`
+    CHANGE_PASSWORD: `${BASE_BACKEND_URL}/users/auth/me/change-password`,
+    UPDATE_USER_SETTINGS: `${BASE_BACKEND_URL}/users/auth/me/settings`
 }
 
 const TemporaryQuotes = {

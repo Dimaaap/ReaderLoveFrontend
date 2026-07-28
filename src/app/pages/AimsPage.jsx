@@ -78,7 +78,6 @@ function AimsContent () {
 
     return (
         <div className="flex items-start gap-0 w-full bg-[#0D0B0C] flex-1 oferflow-auto h-full">
-            { console.log(doneGoals) }
             <Sidebar username="Dima" />
 
             <main className="w-full flex flex-col gap-10 p-5">
