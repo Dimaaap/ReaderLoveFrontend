@@ -27,3 +27,8 @@ export * from "./TemplateQuote";
 export * from "./UserProgress";
 export * from "./BookReadingProgressBar";
 export * from "./Switch";
+export * from "./ActivityItem";
+export * from "./ActivityFeed"
+export * from "./FriendCard";
+export * from "./FriendGrid";
+export * from "./FilterButton"
