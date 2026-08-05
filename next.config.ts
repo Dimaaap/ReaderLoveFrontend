@@ -12,6 +12,12 @@ const nextConfig: NextConfig = {
       }, 
       {
         protocol: "https",
+        hostname: "www.yakaboo.ua",
+        port: "",
+        pathname: "/**"
+      },
+      {
+        protocol: "https",
         hostname: "s1.vcdn.biz",
         port: "",
         pathname: "/**"

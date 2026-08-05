@@ -72,7 +72,7 @@ export const Sidebar = ({ username }) => {
                 </div>
                 <div className="flex flex-col">
                     <p className="text-sm font-semibold text-white tracking-wide truncate max-w-22.5">
-                        {username}
+                        { username }
                     </p>
                     <p className="text-[11px] font-medium text-white/40 group-hover:text-white/60 transition-colors">
                         Мій профіль

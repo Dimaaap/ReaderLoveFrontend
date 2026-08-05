@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export const FriendCard = ({ friend }) => (
   <Link className="bg-[#0D0B0C] relative p-4 border border-zinc-800/50 hover:border-zinc-700 rounded-xl flex items-center gap-4 
-  transition group cursor-pointer hover:-translate-y-0.5 transform" href={`/friend/${ friend.id }`}>
+  transition group cursor-pointer hover:-translate-y-0.5 transform" href={`/friend/${ friend.username }`}>
     
     <div className="relative shrink-0">
       <div

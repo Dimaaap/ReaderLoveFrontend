@@ -9,12 +9,12 @@ export const BookReadingProgressBar = () => {
             <div className="flex justify-between text-md font-semibold text-zinc-400">
                 <span>Прогрес</span>
                 <span className="text-zinc-200">
-                    { Math.round(getReadingStats(currentBook?.read_pages, currentBook?.pages_count), 0) }%
+                    { Math.round(getReadingStats(currentBook?.last_read_page, currentBook?.pages_count), 0) }%
                 </span>
             </div>
             <div className="w-full h-1.5 bg-[#141113] rounded-full overflow-hidden">
                 <div className="h-full bg-[#FF4B6B] rounded-full" 
-                style={{ width: `${Math.round(getReadingStats(currentBook?.read_pages, currentBook?.pages_count), 0)}%` }}></div>
+                style={{ width: `${Math.round(getReadingStats(currentBook?.last_read_page, currentBook?.pages_count), 0)}%` }}></div>
             </div>
         </div>
     )

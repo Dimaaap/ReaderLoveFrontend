@@ -19,7 +19,7 @@ export const StartReadingSessionModal = ({ book, start=true, activeSessionId = n
     const queryClient = useQueryClient();
 
     useEffect(() => {
-        setStartPage(start ? String(book.read_pages || 0) : String(book.read_pages || 0));
+        setStartPage(start ? String(book.last_read_page || 0) : String(book.last_read_page || 0));
         setError(null);
     }, [start, book.read_pages])
 
@@ -56,7 +56,7 @@ export const StartReadingSessionModal = ({ book, start=true, activeSessionId = n
         const pageNum = parseInt(startPage, 10);
 
         const isValid = !isNaN(pageNum) && pageNum >= 0 && pageNum <= book.pages_count;
-        const isValidEndPage = start || pageNum >= book.read_pages;
+        const isValidEndPage = start || pageNum >= book.last_read_page;
 
         if (isValid && isValidEndPage) {
             try {
@@ -125,7 +125,6 @@ export const StartReadingSessionModal = ({ book, start=true, activeSessionId = n
     
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-            { console.log(start, activeSessionId) }
             <div className="relative w-full max-w-md rounded-2xl bg-[#1E1E1E] p-6 text-white shadow-2xl 
             border border-zinc-800 animate-in fade-in zoom-in-95 duration-200 flex flex-col gap-5">
                 <div className="flex items-center justify-between">
@@ -160,13 +159,13 @@ export const StartReadingSessionModal = ({ book, start=true, activeSessionId = n
                     <div>
                         <label className="block text-xs font-medium text-zinc-300 mb-2">
                             { start 
-                            ? `Введіть номер початкової сторінки (остання прочитана: ${book.read_pages})` 
-                            : `Введіть кінцеву сторінку (сесію розпочато з: ${book.read_pages})` }
+                            ? `Введіть номер початкової сторінки (остання прочитана: ${book.last_read_page})` 
+                            : `Введіть кінцеву сторінку (сесію розпочато з: ${book.last_read_page})` }
                         </label>
                         <div className="relative flex items-center">
                             <input
                             type="number"
-                            min={ start ? "0" : book.reap_pages }
+                            min={ start ? "0" : book.last_read_page }
                             max={ book.pages_count }
                             value={ startPage }
                             onChange={ handlePageChange }

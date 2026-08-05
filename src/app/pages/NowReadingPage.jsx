@@ -102,11 +102,11 @@ import { useShareModalState } from "@/states";
                             <div className="grid grid-cols-3 gap-1 mt-3 bg-[#0D0B0C] p-3 rounded-xl border border-zinc-900 text-center text-xs w-full">
                                 <div className="flex flex-col gap-2">
                                     <span className="block text-zinc-500 font-medium uppercase tracking-wider">Прочитано</span>
-                                    <span className="text-xs font-bold text-white mt-0.5 block">{ currentBook?.read_pages } / { currentBook?.pages_count }</span>
+                                    <span className="text-xs font-bold text-white mt-0.5 block">{ currentBook?.last_read_page }</span>
                                 </div>
                                 <div className="flex flex-col gap-2">
                                     <span className="bloc text-zinc-500 font-medium uppercase tracking-wider">Залишилось сторінок</span>
-                                    <span className="text-xs font-bold text-white mt-0.5 block">{ currentBook?.pages_count - currentBook?.read_pages }</span>
+                                    <span className="text-xs font-bold text-white mt-0.5 block">{ currentBook?.pages_count - currentBook?.last_read_page }</span>
                                 </div>
                                 <div className="flex flex-col gap-2">
                                     <span className="block text-zinc-500 font-medium uppercase tracking-wider">Прогнозоване закічнення</span>

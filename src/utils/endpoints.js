@@ -27,7 +27,8 @@ const Users = {
     RESET_PASSWORD: `${BASE_BACKEND_URL}/users/auth/reset-password`,
     UPLOAD_AVATAR: `${BASE_BACKEND_URL}/users/auth/me/avatar`,
     CHANGE_PASSWORD: `${BASE_BACKEND_URL}/users/auth/me/change-password`,
-    UPDATE_USER_SETTINGS: `${BASE_BACKEND_URL}/users/auth/me/settings`
+    UPDATE_USER_SETTINGS: `${BASE_BACKEND_URL}/users/auth/me/settings`,
+    GET_USER_BY_USERNAME: (username) => `${BASE_BACKEND_URL}/users/auth/user/${username}`
 }
 
 const TemporaryQuotes = {
@@ -54,6 +55,10 @@ const UserGoals = {
     USER_ALL_GOALS: (username) => `${BASE_BACKEND_URL}/user-goals/by-username?username=${username}`
 }
 
+const WebSockets = {
+    userOnline: (userId) => `ws://localhost:8030/ws/presence/${userId}`
+}
+
 export const AllLinks = {
     socialLinks: SocialLinks,
     reviews: Reviews,
@@ -62,5 +67,6 @@ export const AllLinks = {
     templateQuotes: TemporaryQuotes,
     readingSessions: ReadingSessions,
     bookNotes: BookNotes,
-    userGoals: UserGoals
+    userGoals: UserGoals,
+    webSockets: WebSockets
 }
