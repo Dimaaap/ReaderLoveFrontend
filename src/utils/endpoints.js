@@ -59,6 +59,11 @@ const WebSockets = {
     userOnline: (userId) => `ws://localhost:8030/ws/presence/${userId}`
 }
 
+const BookReviews = {
+    bookReview: `${BASE_BACKEND_URL}/book-reviews/`,
+    bookReviewsByBookId: (bookId, limit, offset) => `${BASE_BACKEND_URL}/book-reviews/by-book-id?book_id=${bookId}&limit=${limit}&offset=${offset}`
+}
+
 export const AllLinks = {
     socialLinks: SocialLinks,
     reviews: Reviews,
@@ -68,5 +73,6 @@ export const AllLinks = {
     readingSessions: ReadingSessions,
     bookNotes: BookNotes,
     userGoals: UserGoals,
-    webSockets: WebSockets
+    webSockets: WebSockets,
+    bookReviews: BookReviews
 }

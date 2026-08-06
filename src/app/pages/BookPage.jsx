@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 
 import { AllLinks, fetcher } from "@/utils";
 import Image from "next/image";
@@ -20,7 +20,29 @@ export default function BookPage({ bookSlug }) {
 
     const { data: book, isLoading, isError } = useQuery({
         queryKey: ["book", bookSlug],
-        queryFn: () => fetcher(AllLinks.books.BOOK_BY_SLUG(bookSlug))
+        queryFn: async () => {
+            console.log("GET BOOK");
+
+            const data = await fetcher(AllLinks.books.BOOK_BY_SLUG(bookSlug));
+
+            return data;
+        }
+    })
+
+    const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
+      queryKey: ["reviews", book?.id],
+      queryFn: async({ pageParam = 0 }) => {
+        return fetcher(
+          AllLinks.bookReviews.bookReviewsByBookId(book.id, 5, pageParam)
+        )
+      },
+
+      initialPageParam: 0,
+      getNextPageParam: (lastPage, pages) => {
+        if(lastPage.length < 5) return undefined;
+
+        return pages.length * 5;
+      }
     })
 
     const getAuthorNames = () => {
@@ -36,6 +58,8 @@ export default function BookPage({ bookSlug }) {
             return "Англійська"
         }
     }
+
+    const reviews = data?.pages.flatMap(page => page) ?? [];
 
     if(isLoading) return <div>Loading...</div>
     if(isError) return <div>Error</div>
@@ -217,8 +241,8 @@ export default function BookPage({ bookSlug }) {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              { book?.reviews?.map((review) => (
-                <div key={ review.id } className="bg-[#0D0B0C] p-4 rounded-xl border border-zinc-900">
+              { reviews.map((review) => (
+                <div key={ review.id } className="bg-[#0D0B0C] text-wrap p-4 rounded-xl border border-zinc-900">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center font-bold text-xs text-white">
                       { review.user.username.substring(0, 1).toUpperCase() }
@@ -230,12 +254,41 @@ export default function BookPage({ bookSlug }) {
                       </p>
                     </div>
                   </div>
-                  <p className="text-xs text-zinc-400 leading-normal">
+                  <p className="text-xs text-zinc-400 leading-normal break-all">
                     { review.text }
                   </p>
                 </div>
               )) }
             </div>
+
+            {hasNextPage && (
+              <button
+                  onClick={() => fetchNextPage()}
+                  disabled={isFetchingNextPage}
+                  className="
+                      self-center
+                      px-6
+                      py-3
+                      rounded-xl
+                      bg-[#1A1719]
+                      border
+                      border-zinc-800
+                      text-sm
+                      font-semibold
+                      text-zinc-300
+                      hover:border-[#FF4B6B]
+                      hover:text-white
+                      transition
+                      disabled:opacity-50
+                      disabled:cursor-not-allowed
+                      cursor-pointer
+                  "
+              >
+                  {isFetchingNextPage
+                      ? "Завантаження..."
+                      : "Показати ще"}
+              </button>
+          )}
           </div>
         )}
       </div>

@@ -34,8 +34,7 @@ function FriendContent() {
     const { data: user, isLoading, isError } = useQuery({
         queryKey: ["user", username],
         queryFn: () => fetcher(AllLinks.users.GET_USER_BY_USERNAME(username)),
-        enabled: Boolean(username),
-        staleTime: 1000 * 60 * 5
+        enabled: Boolean(username)
     })
 
     const isOnline = usePresence(user?.id) ?? false
