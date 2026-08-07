@@ -16,6 +16,11 @@ const Books = {
     EXPORT_USER_BOOKS: (username) => `${BASE_BACKEND_URL}/books/${username}/export`
 }
 
+const BookGenres = {
+    BOOK_GENRE_BY_SLUG: (slug) => `${BASE_BACKEND_URL}/book_genres/by-slug/${slug}`,
+    ALL_BOOK_GENRES: `${BASE_BACKEND_URL}/book_genres/`
+}
+
 const Users = {
     REGISTER: `${BASE_BACKEND_URL}/users/auth/register`,
     VERIFY: `${BASE_BACKEND_URL}/users/auth/verify`,
@@ -74,5 +79,6 @@ export const AllLinks = {
     bookNotes: BookNotes,
     userGoals: UserGoals,
     webSockets: WebSockets,
-    bookReviews: BookReviews
+    bookReviews: BookReviews,
+    bookGenres: BookGenres
 }

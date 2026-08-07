@@ -58,8 +58,6 @@ function FriendContent() {
     return (
         <div className="flex items-start w-full bg-[#0b0c10] min-h-screen overflow-y-auto">
             <Sidebar username={username} />
-            { console.log(user) }
-
             <main className="flex flex-col gap-6 w-full p-6 px-8 max-w-7xl mx-auto">
                 <h2 className="text-3xl font-bold text-white tracking-tight">
                     Профіль: {username}
