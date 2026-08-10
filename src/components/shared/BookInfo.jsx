@@ -63,6 +63,7 @@ export default function BookInfo({
                     setBookStatus={setBookStatus}
                     statusMenuOpen={statusMenuOpen}
                     setStatusMenuOpen={setStatusMenuOpen}
+                    bookSlug={ book.slug }
                 />
 
             </div>

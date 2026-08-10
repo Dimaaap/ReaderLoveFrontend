@@ -130,12 +130,12 @@ function MeContent() {
                   <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
                     <div 
                       className="h-full bg-[#f43f5e] rounded-full" 
-                      style={{ width: `${readPercent(0, book.pages_count)}%` }}
+                      style={{ width: `${readPercent(book.last_read_page || 0, book.pages_count)}%` }}
                     />
                   </div>
                   <div className="flex justify-between items-center text-[11px] text-white/30 font-semibold">
-                    <span>{0} / {book.pages_count} сторінок</span>
-                    <span>{readPercent(0, book.pages_count)}%</span>
+                    <span>{book.last_read_page || 0} / {book.pages_count} сторінок</span>
+                    <span>{readPercent(book.last_read_page || 0, book.pages_count)}%</span>
                   </div>
                 </div>
 

@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 
 import { AllLinks, fetcher } from "@/utils";
+import { useAuth } from "./useAuth";
+import { useCreateNewBookNoteModalState } from "@/states";
 
 
 export const useBookPage = (bookSlug) => {
@@ -11,10 +13,16 @@ export const useBookPage = (bookSlug) => {
     const [statusMenuOpen, setStatusMenuOpen] = useState(false);
     const [bookStatus, setBookStatus] = useState(null);
 
+    const { user } = useAuth();
+
      const { data: book, isLoading, isError } = useQuery({
         queryKey: ["book", bookSlug],
         queryFn: async () => {
-            const data = await fetcher(AllLinks.books.BOOK_BY_SLUG(bookSlug));
+            const fetchUrl = user?.username 
+            ? AllLinks.books.BOOK_BY_SLUG_FOR_USER_WITH_STATUS(user.username, bookSlug) 
+            : AllLinks.books.BOOK_BY_SLUG(bookSlug) 
+
+            const data = await fetcher(fetchUrl);
             return data;
         }
     })
@@ -50,8 +58,8 @@ export const useBookPage = (bookSlug) => {
     const authorNames = useMemo(() => {
         if (!book) return "";
 
-        return book.authors
-            .map(
+        return book?.authors
+            ?.map(
                 (author) =>
                     `${author.first_name} ${author.last_name}`
             )

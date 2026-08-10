@@ -22,13 +22,14 @@ export default function BookPage({ bookSlug }) {
     <div className="flex flex-col w-full h-full bg-[#0D0B0C] text-zinc-300 overflow-auto">
       <div className="bg-[#141113] rounded-2xl flex flex-col w-200 max-w-full mx-auto border border-zinc-900 shadow-xl my-6">
         { createReviewModalOpen && <CreateReviewModal book={ page.book } /> }
+        { console.log(page) }
 
         <BookHeader book={page.book} />
 
         <BookInfo
             book={page.book}
             authorNames={page.authorNames}
-            bookStatus={page.bookStatus}
+            bookStatus={page.book.status}
             setBookStatus={page.setBookStatus}
             statusMenuOpen={page.statusMenuOpen}
             setStatusMenuOpen={page.setStatusMenuOpen}

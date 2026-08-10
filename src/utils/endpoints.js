@@ -10,8 +10,11 @@ const Reviews = {
 
 const Books = {
     BOOK_BY_SLUG: (slug) => `${BASE_BACKEND_URL}/books/by-slug/${slug}`,
+    BOOK_BY_SLUG_FOR_USER_WITH_STATUS: (username, bookSlug) => `${BASE_BACKEND_URL}/books/by-slug/${bookSlug}/${username}`,
+    UPDATE_USER_BOOK_READING_STATUS: (username, bookSlug) => `${BASE_BACKEND_URL}/books/${username}/status/${bookSlug}`,
     USER_ACTIVE_BOOKS: (username) => `${BASE_BACKEND_URL}/books/${username}/books`,
     BOOK_WITH_READ_SESSIONS: (username, bookSlug) => `${BASE_BACKEND_URL}/books/${username}/slug/${bookSlug}`,
+    DELETE_BOOK_STATUS: (username, bookSlug) => `${BASE_BACKEND_URL}/books/status/${bookSlug}/${username}`,
     USER_LAST_READING_BOOK: (username, limit=5) => `${BASE_BACKEND_URL}/books/current-reading/${username}?limit=${limit}`,
     EXPORT_USER_BOOKS: (username) => `${BASE_BACKEND_URL}/books/${username}/export`
 }
