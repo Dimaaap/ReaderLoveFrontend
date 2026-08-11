@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { AllLinks, fetcher } from "@/utils";
 import { useAuth } from "./useAuth";
@@ -15,8 +15,12 @@ export const useBookPage = (bookSlug) => {
 
     const { user } = useAuth();
 
+    const queryClient = useQueryClient();
+
+    const queryKey = ["book", bookSlug, user?.username]
+
      const { data: book, isLoading, isError } = useQuery({
-        queryKey: ["book", bookSlug],
+        queryKey,
         queryFn: async () => {
             const fetchUrl = user?.username 
             ? AllLinks.books.BOOK_BY_SLUG_FOR_USER_WITH_STATUS(user.username, bookSlug) 
@@ -24,6 +28,42 @@ export const useBookPage = (bookSlug) => {
 
             const data = await fetcher(fetchUrl);
             return data;
+        }
+    })
+
+    const { mutate: updateBookStatus } = useMutation({
+        mutationFn: async (newStatus) => {
+            return await fetch(AllLinks.books.UPDATE_USER_BOOK_READING_STATUS(user?.username, bookSlug), {
+                method: "POST",
+                body: JSON.stringify({ status: newStatus })
+            })
+        },
+
+        onMutate: async(newStatus) => {
+            await queryClient.cancelQueries({ queryKey });
+
+            const previousBook = queryClient.getQueryData(queryKey);
+
+            queryClient.setQueryData(queryKey, (oldData) => {
+                if(!oldData) return oldData;
+
+                return {
+                    ...oldData,
+                    status: newStatus
+                }
+            })
+
+            return { previousBook }
+        },
+
+        onError: (err, newStatus, context) => {
+            if(context?.previousBook) {
+                queryClient.setQueryData(queryKey, context.previousBook)
+            }
+        },
+
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey })
         }
     })
 
@@ -81,8 +121,7 @@ export const useBookPage = (bookSlug) => {
         statusMenuOpen,
         setStatusMenuOpen,
 
-        bookStatus,
-        setBookStatus,
+        setBookStatus: updateBookStatus,
 
         authorNames,
 

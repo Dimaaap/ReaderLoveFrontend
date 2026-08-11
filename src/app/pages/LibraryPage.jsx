@@ -55,6 +55,7 @@ function MeContent() {
     <div className="flex items-start gap-0 w-full bg-[#0D0B0C] flex-1 h-full overflow-hidden">
       
       <Sidebar username="Dima" />
+      { console.log(allBooks) }
       
       <main className="flex-1 h-full overflow-y-auto p-8 text-white">
         <div className="flex items-center justify-between mb-8">

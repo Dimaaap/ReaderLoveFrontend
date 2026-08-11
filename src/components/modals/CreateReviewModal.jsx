@@ -63,9 +63,8 @@ export const CreateReviewModal = ({ book }) => {
     const { mutateAsync: createReview, isPending } = useMutation({
         mutationFn: createReviewApi,
         onSuccess: async () => {
-            await queryClient.refetchQueries({
-                queryKey: ["reviews", book.slug],
-                type: "active",
+            await queryClient.invalidateQueries({
+                queryKey: ["reviews"]
             });
         }
     });
@@ -96,7 +95,7 @@ export const CreateReviewModal = ({ book }) => {
             scrollbar-none">
                 <div className="w-full flex items-center justify-between">
                     <h2 className="text-lg font-bold tracking-wide">
-                        { console.log(user?.username) }
+
                         Написати відгук
                         <br />
                         <span className="text-sm font-semibold text-zinc-400">для книги { book.title }</span>

@@ -8,6 +8,7 @@ export const BookReviewsBlock = ({ reviews, hasNextPage, fetchNextPage, isFetchi
 
     return (
         <div className="flex flex-col gap-4 p-6">
+            { console.log(reviews) }
             <div className="flex justify-between items-center mb-2">
                 <h3 className="font-bold text-zinc-300">Останні відгуки</h3>
                 <span className="text-sm text-[#FF4B6B] font-semibold cursor-pointer hover:underline"
