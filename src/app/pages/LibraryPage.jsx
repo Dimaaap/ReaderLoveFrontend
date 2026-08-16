@@ -9,6 +9,8 @@ import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { books, bookStatusMenu } from "@/data"
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
+import { useAddBookModalStore } from '@/states';
+import { AddBookModal } from '@/components/modals/AddBookModal';
 
 function MeContent() {
 
@@ -16,6 +18,8 @@ function MeContent() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  const { addBookModalOpen, setAddBookModalOpen } = useAddBookModalStore();
 
   const { data: allBooks, isLoading, isError } = useQuery({
     queryKey: ["books", user?.username],
@@ -55,7 +59,7 @@ function MeContent() {
     <div className="flex items-start gap-0 w-full bg-[#0D0B0C] flex-1 h-full overflow-hidden">
       
       <Sidebar username="Dima" />
-      { console.log(allBooks) }
+      { addBookModalOpen && <AddBookModal /> }
       
       <main className="flex-1 h-full overflow-y-auto p-8 text-white">
         <div className="flex items-center justify-between mb-8">
@@ -74,7 +78,8 @@ function MeContent() {
                 <Image src="/icons/sorting.svg" alt="" width="18" height="18" />
                 Сортування
               </span>
-              <button className="bg-[#F43F5E] hover:bg-[#E11D48] text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
+              <button className="bg-[#F43F5E] hover:bg-[#E11D48] text-white px-4 py-2 rounded-lg text-sm font-semibold 
+              transition-colors" onClick={ () => setAddBookModalOpen(true) }>
                   + Додати книгу
               </button> 
             </div>

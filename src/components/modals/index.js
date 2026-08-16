@@ -17,4 +17,8 @@ export * from "./UserSettingsModal"
 export * from "./ChangePasswordModal"
 export * from "./LibraryModal";
 export * from "./ConfirmDeleteAccount"
-export * from "./CreateReviewModal"
+export * from "./CreateReviewModal";
+export * from "./AddBookModal";
+export * from "./ChooseBookOptionSection";
+export * from "./SearchBookModalSection";
+export * from "./AddBookModalSection"

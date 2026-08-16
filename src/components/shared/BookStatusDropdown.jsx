@@ -44,6 +44,8 @@ export default function BookStatusDropdown({
             }
             );
 
+            console.log(response)
+
             if(!response.ok) {
                 throw new Error("Не вдалось оновити статус")
             }

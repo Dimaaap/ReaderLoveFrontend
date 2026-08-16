@@ -43,4 +43,5 @@ export * from "./BookTabs";
 export * from "./BookGeneralTab"
 export * from "./BookInfo"
 export * from "./BookReviewTab";
-export * from "./AllGenresSidebar"
+export * from "./AllGenresSidebar";
+export * from "./BookSearchResult";

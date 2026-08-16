@@ -21,7 +21,7 @@ export default function BookInfo({
 
             <div className="relative w-32 aspect-2/3 rounded-xl overflow-hidden border border-zinc-800/40 shadow-lg shrink-0">
 
-                <Image
+                <img
                     src={book.image_link}
                     alt={book.title}
                     fill
