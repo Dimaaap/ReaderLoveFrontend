@@ -24,7 +24,7 @@ const Books = {
 
 const BookGenres = {
     BOOK_GENRE_BY_SLUG: (slug) => `${BASE_BACKEND_URL}/book_genres/by-slug/${slug}`,
-    ALL_BOOK_GENRES: `${BASE_BACKEND_URL}/book_genres/`
+    ALL_BOOK_GENRES: (limit=10, offset=0) => `${BASE_BACKEND_URL}/book_genres/?limit=${limit}&offset=${offset}`
 }
 
 const Users = {
@@ -75,6 +75,10 @@ const BookReviews = {
     bookReviewsByBookId: (bookId, limit, offset) => `${BASE_BACKEND_URL}/book-reviews/by-book-id?book_id=${bookId}&limit=${limit}&offset=${offset}`
 }
 
+const BookPublishers = {
+    ALL_BOOK_PUBLISHERS: (limit=10, offset=0) => `${BASE_BACKEND_URL}/book_publishers/?limit=${limit}&offset=${offset}`
+}
+
 export const AllLinks = {
     socialLinks: SocialLinks,
     reviews: Reviews,
@@ -86,5 +90,6 @@ export const AllLinks = {
     userGoals: UserGoals,
     webSockets: WebSockets,
     bookReviews: BookReviews,
-    bookGenres: BookGenres
+    bookGenres: BookGenres,
+    bookPublishers: BookPublishers
 }

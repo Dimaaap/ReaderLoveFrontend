@@ -1,26 +1,77 @@
 "use client";
 
 import { AllLinks, fetcher } from "@/utils";
-import { BookOpen } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { useRef, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { useInfiniteQuery} from "@tanstack/react-query";
+import { CreateBookFormInputField, DownloadBookCover, GenresSelect, PublishersSelect } from "../shared";
+import { CreateBookNoteModal } from "./NewBookNoteModal";
 
 export const AddBookModalSection = ({ handleClose }) => {
-    const fileInputRef = useRef(null);
 
     const [coverFile, setCoverFile] = useState(null);
     const [coverPreview, setCoverPreview] = useState(null);
 
-    const { data: bookGenres, isLoading, isError } = useQuery({
+    const PAGINATION_SECTION = 10;
+
+    const {
+        data: genresPage,
+        fetchNextPage: fetchNextGenrePage,
+        hasNextPage: hasNextGenrePage,
+        isFetchingNextPage: isFetchingNextGenrePage,
+        isLoading: isGenresLoading,
+        isError: isGenresError
+    } = useInfiniteQuery({
         queryKey: ["book-genres"],
-        queryFn: () => fetcher(AllLinks.bookGenres.ALL_BOOK_GENRES),
+
+        queryFn: ({ pageParam=0 }) => fetcher(AllLinks.bookGenres.ALL_BOOK_GENRES(PAGINATION_SECTION, pageParam)),
+        initialPageParam: 0,
+        getNextPageParam: (lastPage, allPages) => {
+            if(lastPage.length < PAGINATION_SECTION) {
+                return undefined;
+            }
+
+            return allPages.length * PAGINATION_SECTION;
+        },
+
         refetchOnWindowFocus: false
     })
+
+    const bookGenres = genresPage?.pages.flat() ?? [];
+
+    const {
+        data: publishersPages,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+        isLoading: isPublishersLoading,
+        isError: isPublishersError
+    } = useInfiniteQuery({
+        queryKey: ["book-publishers"],
+        queryFn: ({ pageParam=0 }) => fetcher(
+            AllLinks.bookPublishers.ALL_BOOK_PUBLISHERS(
+                10, 
+                pageParam
+            )
+        ),
+        initialPageParam: 0,
+        getNextPageParam: (lastPage, allPages) => {
+            if(lastPage.length < PAGINATION_SECTION) {
+                return undefined;
+            }
+
+            return allPages.length * PAGINATION_SECTION 
+        },
+        refetchOnWindowFocus: false
+    })
+
+    const bookPublishers = publishersPages?.pages.flat() ?? [];
 
     const {
         register,
         handleSubmit,
+        setValue,
+        watch,
         formState: { errors, isSubmitting },
     } = useForm({
         defaultValues: {
@@ -36,6 +87,9 @@ export const AddBookModalSection = ({ handleClose }) => {
             publisher: ""
         },
     });
+
+    const selectedPublisher = watch("publisher")
+    const selectedGenre = watch("genre");
 
     const onSubmit = async (data) => {
         try {
@@ -117,86 +171,17 @@ export const AddBookModalSection = ({ handleClose }) => {
     return (
         <form onSubmit={ handleSubmit(onSubmit) } className="flex flex-col gap-5">
             <div className="grid grid-cols-[140px_1fr] gap-5">
-                <div>
-                    <input 
-                        ref={ fileInputRef }
-                        type="file"
-                        accept="image/jgep,image/png,image/webp"
-                        className="hidden"
-                        onChange={(event) => {
-                            const file = event.target.files?.[0];
-
-                            if(!file) {
-                                return;
-                            }
-
-                            if(file.size > 5 * 1024 * 1024){
-                                alert("Максимальний розмір обкладинки - 5МБ")
-                                event.target.value = ""
-                                return
-                            }
-
-                            setCoverFile(file);
-                            setCoverPreview(URL.createObjectURL(file));
-                        }}
-                    />
-
-                    <button
-                        type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        className="
-                        relative flex h-47.5 w-full
-                        flex-col items-center justify-center
-                        gap-2 overflow-hidden rounded-xl
-                        border border-dashed border-zinc-700
-                        bg-[#121011] text-zinc-500
-                        transition
-                        hover:border-pink-500/50
-                        hover:text-pink-400"
-                    >
-                        { coverPreview ? (
-                            <>
-                                <img src={ coverPreview } alt="Обкладинка книги" className="h-full w-full object-cover" />
-
-                                <span className="absolute bottom-2 left-1/2 -translate-x-1/2 rounded-md 
-                                bg-black/70 px-2 py-1 text-xs text-white">
-                                    Змінити
-                                </span>
-                            </>
-                        ) : (
-                            <>
-                                <BookOpen size={ 28 } />
-
-                                <span className="text-xs text-center">
-                                    Додати обкладинку
-                                </span>
-                            </>
-                        ) }
-                    </button>
-                </div>
+                <DownloadBookCover coverPreview={ coverPreview } setCoverFile={ setCoverFile } setCoverPreview={ setCoverPreview } />
 
                 <div className="flex flex-col gap-4">
                     <div>
                         <label className="mb-2 block text-sm text-zinc-400">
                             Назва книги
                         </label>
-
-                        <input
-                            type="text"
-                            placeholder="Введіть назву"
-                            {...register("title", {
+                        
+                        <CreateBookFormInputField placeholderText="Введіть назву" register={register("title", {
                                 required: "Введіть назву книги",
-                            })}
-                            className="
-                                h-11 w-full rounded-lg
-                                border border-zinc-800
-                                bg-[#121011] px-3
-                                text-sm text-white
-                                outline-none
-                                placeholder:text-zinc-600
-                                focus:border-pink-500
-                            "
-                        />
+                            })} />
 
                         {errors.title && (
                             <p className="mt-1 text-xs text-red-400">
@@ -211,39 +196,16 @@ export const AddBookModalSection = ({ handleClose }) => {
                         </label>
 
                         <div className="grid grid-cols-2 gap-2">
-                            <input
-                                type="text"
-                                placeholder="Ім'я"
-                                {...register("first_name", {
-                                    required: "Введіть ім'я автора",
-                                })}
-                                className="
-                                    h-11 w-full rounded-lg
-                                    border border-zinc-800
-                                    bg-[#121011] px-3
-                                    text-sm text-white
-                                    outline-none
-                                    placeholder:text-zinc-600
-                                    focus:border-pink-500
-                                "
-                            />
 
-                            <input
-                                type="text"
-                                placeholder="Прізвище"
-                                {...register("last_name", {
-                                    required: "Введіть прізвище автора",
-                                })}
-                                className="
-                                    h-11 w-full rounded-lg
-                                    border border-zinc-800
-                                    bg-[#121011] px-3
-                                    text-sm text-white
-                                    outline-none
-                                    placeholder:text-zinc-600
-                                    focus:border-pink-500
-                                "
-                            />
+                            <CreateBookFormInputField placeholderText="Ім'я" 
+                            register={register("first_name", {
+                                required: "Введіть ім'я автора",
+                            })} />
+
+                            <CreateBookFormInputField placeholderText="Прізвище"
+                            register={register("last_name", {
+                                required: "Введіть прізвище автора",
+                            })} />
                         </div>
 
                         {(errors.first_name || errors.last_name) && (
@@ -261,20 +223,7 @@ export const AddBookModalSection = ({ handleClose }) => {
                         ISBN
                     </label>
 
-                    <input
-                        type="text"
-                        placeholder="978..."
-                        {...register("isbn")}
-                        className="
-                            h-11 w-full rounded-lg
-                            border border-zinc-800
-                            bg-[#121011] px-3
-                            text-sm text-white
-                            outline-none
-                            placeholder:text-zinc-600
-                            focus:border-pink-500
-                        "
-                    />
+                    <CreateBookFormInputField placeholderText="987..." register={register("isbn")} />
                 </div>
 
                 <div>
@@ -282,20 +231,32 @@ export const AddBookModalSection = ({ handleClose }) => {
                         Видавництво
                     </label>
 
-                    <input
-                        type="text"
-                        placeholder="Введіть назву видавництва"
-                        {...register("publisher")}
-                        className="
-                            h-11 w-full rounded-lg
-                            border border-zinc-800
-                            bg-[#121011] px-3
-                            text-sm text-white
-                            outline-none
-                            placeholder:text-zinc-600
-                            focus:border-pink-500
-                        "
+                    <PublishersSelect
+                        publishers={ bookPublishers }
+                        value={ selectedPublisher }
+                        onChange={(slug) => {
+                            setValue("publisher", slug, {
+                                shouldValidate: true
+                            })
+                        }}
+                        onLoadMore={ fetchNextPage }
+                        hasNextPage={ hasNextPage }
+                        isFetchingNextPage={ isFetchingNextPage }
+                        error={ isPublishersError ? "Не вдалося завантажити видавництва" : null }
                     />
+
+                     <input
+                        type="hidden"
+                        {...register("publisher", {
+                            required: "Оберіть видавництво",
+                        })}
+                    />
+
+                    { errors.publisher && (
+                        <p className="mt-1 text-xs text-red-400">
+                            { errors.publisher.message }
+                        </p>
+                    ) }
                 </div>
             </div>
 
@@ -305,29 +266,21 @@ export const AddBookModalSection = ({ handleClose }) => {
                         Жанр
                     </label>
 
-                    <select
-                        {...register("genre", {
-                            required: "Оберіть жанр",
-                        })}
-                        className="
-                            h-11 w-full rounded-lg
-                            border border-zinc-800
-                            bg-[#121011] px-3
-                            text-sm text-zinc-400
-                            outline-none
-                            focus:border-pink-500
-                        "
-                    >
-                        <option value="">
-                            Оберіть жанр
-                        </option>
+                    <GenresSelect
+                        genres={ bookGenres }
+                        value={ selectedGenre }
+                        onChange={(slug) => {
+                            setValue("genre", slug, {
+                                shouldValidate: true
+                            })
+                        }}
+                        onLoadMore={ fetchNextGenrePage }
+                        hasNextPage={ hasNextGenrePage }
+                        isFetchingNextPage={ isFetchingNextGenrePage }
+                        error={ isGenresError ? "Не вдалось завантажити жанри" : null }
+                    />
 
-                        { bookGenres?.map((genre, index) => (
-                            <option key={ index } value={ genre.slug }>
-                                { genre.title }
-                            </option>
-                        )) }
-                    </select>
+                    <input type="hidden" {...register("genre", {required: "Оберіть жанр"})}/>
 
                     {errors.genre && (
                         <p className="mt-1 text-xs text-red-400">
@@ -340,22 +293,10 @@ export const AddBookModalSection = ({ handleClose }) => {
                         Рік видання
                     </label>
 
-                    <input
-                        type="number"
-                        placeholder="Наприклад, 2024"
-                        {...register("publish_date", {
-                            required: "Вкажіть рік видання",
-                        })}
-                        className="
-                            h-11 w-full rounded-lg
-                            border border-zinc-800
-                            bg-[#121011] px-3
-                            text-sm text-white
-                            outline-none
-                            placeholder:text-zinc-600
-                            focus:border-pink-500
-                        "
-                    />
+                    <CreateBookFormInputField placeholderText="На приклад, 2024" 
+                    register={ register("publish_date", {
+                        required: "Вкажіть рік видання"}
+                    )} type="number" />
 
                     {errors.publish_date && (
                         <p className="mt-1 text-xs text-red-400">
@@ -368,26 +309,16 @@ export const AddBookModalSection = ({ handleClose }) => {
                         Кількість сторінок
                     </label>
 
-                    <input
-                        type="number"
-                        placeholder="Наприклад, 320"
-                        {...register("pages_count", {
+                    <CreateBookFormInputField 
+                        placeholderText="На приклад, 320"
+                        register={register("pages_count", {
                             required: "Вкажіть кількість сторінок",
                             valueAsNumber: true,
                             min: {
                                 value: 1,
                                 message: "Мінімум 1 сторінка",
                             },
-                        })}
-                        className="
-                            h-11 w-full rounded-lg
-                            border border-zinc-800
-                            bg-[#121011] px-3
-                            text-sm text-white
-                            outline-none
-                            placeholder:text-zinc-600
-                            focus:border-pink-500
-                        "
+                        })} type="number"
                     />
 
                     {errors.pages_count && (

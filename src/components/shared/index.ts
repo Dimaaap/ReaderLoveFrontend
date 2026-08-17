@@ -45,3 +45,9 @@ export * from "./BookInfo"
 export * from "./BookReviewTab";
 export * from "./AllGenresSidebar";
 export * from "./BookSearchResult";
+export * from "./PublishersSelect";
+export * from "./GenresSelect";
+export * from "./DownloadBookCover";
+export * from "./ChangeBookCover";
+export * from "./AddBookCover";
+export * from "./CreateBookFormInputField"
