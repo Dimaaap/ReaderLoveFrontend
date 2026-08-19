@@ -17,7 +17,7 @@ const Books = {
     DELETE_BOOK_STATUS: (username, bookSlug) => `${BASE_BACKEND_URL}/books/status/${bookSlug}/${username}`,
     USER_LAST_READING_BOOK: (username, limit=5) => `${BASE_BACKEND_URL}/books/current-reading/${username}?limit=${limit}`,
     EXPORT_USER_BOOKS: (username) => `${BASE_BACKEND_URL}/books/${username}/export`,
-    CREATE_BOOK: `${BASE_BACKEND_URL}/books`,
+    CREATE_BOOK: `${BASE_BACKEND_URL}/books/`,
     UPLOAD_COVER: `${BASE_BACKEND_URL}/books/upload-cover`,
     ALL_BOOKS: (limit, searchQuery) => `${BASE_BACKEND_URL}/books/?search=${searchQuery}&limit=${limit}`
 }
@@ -79,6 +79,10 @@ const BookPublishers = {
     ALL_BOOK_PUBLISHERS: (limit=10, offset=0) => `${BASE_BACKEND_URL}/book_publishers/?limit=${limit}&offset=${offset}`
 }
 
+const BookAuthors = {
+    ALL_AUTHORS: (limit=10, offset=0) => `${BASE_BACKEND_URL}/book_authors/?limit=${limit}&offset=${offset}`
+}
+
 export const AllLinks = {
     socialLinks: SocialLinks,
     reviews: Reviews,
@@ -91,5 +95,6 @@ export const AllLinks = {
     webSockets: WebSockets,
     bookReviews: BookReviews,
     bookGenres: BookGenres,
-    bookPublishers: BookPublishers
+    bookPublishers: BookPublishers,
+    bookAuthors: BookAuthors
 }

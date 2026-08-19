@@ -9,8 +9,9 @@ import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { books, bookStatusMenu } from "@/data"
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
-import { useAddBookModalStore } from '@/states';
+import { useAddBookModalStore, useBookOptionsPopupStore } from '@/states';
 import { AddBookModal } from '@/components/modals/AddBookModal';
+import { BookOptionsPopup } from '@/components/modals/BookOptionsPopup';
 
 function MeContent() {
 
@@ -20,6 +21,7 @@ function MeContent() {
   const searchParams = useSearchParams();
 
   const { addBookModalOpen, setAddBookModalOpen } = useAddBookModalStore();
+  const { toggleBookOptionsPopup, selectedBookId } = useBookOptionsPopupStore();
 
   const { data: allBooks, isLoading, isError } = useQuery({
     queryKey: ["books", user?.username],
@@ -52,6 +54,23 @@ function MeContent() {
     currentBooks = allBooks.filter(book => book.status === getFilterFromSearchParams());  
   } else {
     currentBooks = allBooks;
+  }
+
+  const getBookImageUrl = imageLink => {
+    if(!imageLink) {
+      return "https://s4.vcdn.biz/static/f/11655154901/5dd09d53934a4268add21439ca6c03bf.jpeg"
+    }
+
+    if(imageLink.startsWith("https://")) {
+      return imageLink;
+    }
+
+    if(imageLink.startsWith("/media")) {
+      console.log("here")
+      return `http://localhost:8030${imageLink}`
+    }
+
+    return "https://s4.vcdn.biz/static/f/11655154901/5dd09d53934a4268add21439ca6c03bf.jpeg"
   }
   
 
@@ -104,13 +123,13 @@ function MeContent() {
             const bookLink = `/book/${book.slug}`;
             
             return (
-              <div key={id} className="group relative flex flex-col gap-3">
+              <div key={book.id} className="group relative flex flex-col gap-3">
                 
                 <div className="relative aspect-3/4 w-full rounded-2xl overflow-hidden bg-[#1c181b] border border-white/5 shadow-lg 
                 transition-transform duration-200 group-hover:-translate-y-1">
                   <Link href={bookLink}>
-                    <Image 
-                      src={book.image_link} 
+                    <img 
+                      src={ getBookImageUrl(book.image_link) } 
                       alt={book.title} 
                       fill
                       className="object-cover"
@@ -118,11 +137,23 @@ function MeContent() {
                     />
                   </Link>
 
-                  <button className="absolute top-3 right-3 p-1.5 rounded-xl bg-black/40 backdrop-blur-md text-white/70 hover:text-white border border-white/5 transition-colors">
+                  <button 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    toggleBookOptionsPopup(book.id);
+                    
+                  }}
+                  className="absolute top-3 right-3 p-1.5 rounded-xl bg-black/40 backdrop-blur-md text-white/70 hover:text-white border border-white/5 transition-colors">
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M5 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/>
                     </svg>
                   </button>
+
+                  { selectedBookId === book.id && (
+                    <BookOptionsPopup book={ book } />
+                  ) }
                 </div>
 
                 <Link href={bookLink} className="text-white font-medium text-[15px] leading-snug hover:underline line-clamp-1">

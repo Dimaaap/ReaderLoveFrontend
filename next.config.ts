@@ -35,6 +35,12 @@ const nextConfig: NextConfig = {
         pathname: "/**"
       },
       {
+        protocol: "http",
+        hostname: "localhost",
+        port: "8030",
+        pathname: "/**"
+      },
+      {
         protocol: "https",
         hostname: "s5.vcdn.biz",
         port: "",

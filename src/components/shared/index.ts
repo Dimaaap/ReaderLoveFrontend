@@ -51,3 +51,4 @@ export * from "./DownloadBookCover";
 export * from "./ChangeBookCover";
 export * from "./AddBookCover";
 export * from "./CreateBookFormInputField"
+export * from "./BookBasicInfo"

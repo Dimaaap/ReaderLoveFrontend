@@ -1,8 +1,13 @@
-export async function fetcher(link) {
-    const res = await fetch(link);
+export async function fetcher(link, options={}) {
+    const res = await fetch(link, options);
 
     if(!res.ok){
-        throw new Error("Failed to fetch")
+        const responseText = await res.text();
+
+        console.error("STATUS:", res.status);
+        console.error("API RESPONSE:", responseText);
+
+        throw new Error(responseText);
     }
 
     return res.json()
