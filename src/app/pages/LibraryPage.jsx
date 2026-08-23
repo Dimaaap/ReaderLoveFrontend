@@ -90,7 +90,6 @@ function MeContent() {
                 <Image src="/icons/filter.svg" alt="" width="18" height="18" />
                 Фільтр
               </span>
-
               <span className="background-transparent flex items-center text-white tracking-tight gap-3 text-sm 
               font-semibold border border-white/30 p-2 bg-[#141113] cursor-pointer rounded-lg 
               transition-all duration-150 hover:opacity-80">
