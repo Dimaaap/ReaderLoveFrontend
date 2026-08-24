@@ -11,12 +11,14 @@ export function BookGeneralTab({ book }) {
                 <p className="text-sm font-normal leading-relaxed text-zinc-400 line-clamp-4">
                     {book.description}
                 </p>
-
-                <button
-                    className="self-start mt-1 text-sm font-semibold text-[#FF4B6B] hover:underline cursor-pointer"
-                >
-                    Показати більше
-                </button>
+                { book?.description && (
+                    <button
+                        className="self-start mt-1 text-sm font-semibold text-[#FF4B6B] hover:underline cursor-pointer"
+                    >
+                        Показати більше
+                    </button>    
+                ) }
+                
             </div>
 
             <BookCharacteristics book={book} />

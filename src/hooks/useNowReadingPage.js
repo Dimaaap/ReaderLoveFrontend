@@ -10,7 +10,7 @@ export const useNowReadingPage = () => {
     const { readingBookDetailsOpen, setReadingBookDetailsOpen, toggleReadingBookDetailsOpen } = useReadingBookDetailsPopupStore();
     const { startReadingSessionOpen, setStartReadingSessionOpen } = useStartReadingSessionStore();
     const { addManualReadingSessionOpen, setAddManualReadingSessionOpen } = useAddManualReadingSessionModal();
-    const { editProgressModalOpen } = useEditProgressModal();
+    const { setEditProgressModalOpen, editProgressModalOpen } = useEditProgressModal();
 
     const { data: quote, isLoading, isError } = useQuery({
         queryKey: ["today-quote"],
@@ -49,6 +49,6 @@ export const useNowReadingPage = () => {
         quote, isLoading, isError, currentBook,
         readingSessions,
         seenUserReadingSessions, dailyPagesGoal, addManualReadingSessionOpen, setAddManualReadingSessionOpen,
-        editProgressModalOpen
+        editProgressModalOpen, setEditProgressModalOpen
     }
 }

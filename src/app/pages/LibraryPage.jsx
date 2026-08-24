@@ -6,7 +6,7 @@ import { AllLinks, fetcher, readPercent } from '@/utils';
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { books, bookStatusMenu } from "@/data"
+import { bookStatusMenu } from "@/data"
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
 import { useAddBookModalStore, useBookOptionsPopupStore } from '@/states';
@@ -23,16 +23,18 @@ function MeContent() {
   const { addBookModalOpen, setAddBookModalOpen } = useAddBookModalStore();
   const { toggleBookOptionsPopup, selectedBookId } = useBookOptionsPopupStore();
 
-  const { data: allBooks, isLoading, isError } = useQuery({
+  const { data: allBooks } = useQuery({
     queryKey: ["books", user?.username],
     queryFn: () => fetcher(AllLinks.books.USER_ACTIVE_BOOKS(user?.username)),
-    enanled: !!user?.username,
-    staleTime: 0
+    enabled: !!user?.username,
+    staleTime: 0,
+    refetchOnWindowFocus: false
   })
 
   const getFilterFromSearchParams = () => {
     return searchParams.get("filter") || null;
   }
+
 
   const handleAddParam = (filter=null) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -75,7 +77,7 @@ function MeContent() {
   
 
   return (
-    <div className="flex items-start gap-0 w-full bg-[#0D0B0C] flex-1 h-full overflow-hidden">
+    <div className="flex items-start gap-0 w-full bg-[#0D0B0C] flex-1 h-full overflow-hidden z-20">
       
       <Sidebar username="Dima" />
       { addBookModalOpen && <AddBookModal /> }
@@ -120,19 +122,19 @@ function MeContent() {
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6 mt-5">
           {currentBooks?.map((book, id) => {
             const bookLink = `/book/${book.slug}`;
+            const isOpen = selectedBookId === book.id
             
             return (
-              <div key={book.id} className="group relative flex flex-col gap-3">
+              <div key={book.id} className={`group relative flex flex-col gap-3 transition-all 
+              ${selectedBookId === book.id ? "z-40" : "z-10"}`}>
                 
-                <div className="relative aspect-3/4 w-full rounded-2xl overflow-hidden bg-[#1c181b] border border-white/5 shadow-lg 
-                transition-transform duration-200 group-hover:-translate-y-1">
+                <div className={`relative aspect-3/4 w-full rounded-2xl overflow-hidden bg-[#1c181b] border border-white/5 shadow-lg 
+                transition-transform duration-200 ${!isOpen ? "group-hover:-translate-y-1": ""}`}>
                   <Link href={bookLink}>
                     <img 
                       src={ getBookImageUrl(book.image_link) } 
                       alt={book.title} 
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
+                      className="object-cover w-full h-full"
                     />
                   </Link>
 
@@ -144,18 +146,20 @@ function MeContent() {
                     toggleBookOptionsPopup(book.id);
                     
                   }}
-                  className="absolute top-3 right-3 p-1.5 rounded-xl bg-black/40 backdrop-blur-md text-white/70 hover:text-white border border-white/5 transition-colors">
+                  className="absolute top-3 right-3 p-1.5 rounded-xl bg-black/40 backdrop-blur-md text-white/70 
+                  hover:text-white border border-white/5 transition-colors z-20">
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M5 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/>
                     </svg>
                   </button>
-
-                  { selectedBookId === book.id && (
-                    <BookOptionsPopup book={ book } />
-                  ) }
                 </div>
 
-                <Link href={bookLink} className="text-white font-medium text-[15px] leading-snug hover:underline line-clamp-1">
+                { isOpen && (
+                    <BookOptionsPopup book={ book } onOpenEditModal={ toggleBookOptionsPopup } />
+                  ) }
+
+                <Link href={bookLink} className={`text-white font-medium text-[15px] leading-snug line-clamp-1
+                  ${!isOpen ? "hover:underline" : ""}`}>
                   {book.title}
                 </Link>
                 <span className="text-white/40 text-xs font-medium line-clamp-1">

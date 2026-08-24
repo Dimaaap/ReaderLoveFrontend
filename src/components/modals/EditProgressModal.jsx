@@ -2,9 +2,9 @@ import { useEditProgressModal, useEditSessionPopup } from "@/states"
 import Image from "next/image";
 import { useState } from "react";
 import { formatReadingSessionDate, readingTime } from "@/utils/dateHelper"
-import { AllLinks } from "@/utils";
+import { AllLinks, fetcher } from "@/utils";
 import { useAuth } from "@/hooks/useAuth";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { EditSessionPopup } from "./EditSessionPopup";
 import { DeleteSessionConfirm } from "./DeleteSessionConfirm";
 
@@ -68,7 +68,7 @@ export const EditProgressModal = ({ book }) => {
             book_id: book.id,
             started_at: new Date(),
             ended_at: new Date(),
-            start_page: book.read_pages,
+            start_page: book.read_pages || 0,
             end_page: parseInt(newPage, 10),
             is_tracked: false
         })
@@ -109,11 +109,12 @@ export const EditProgressModal = ({ book }) => {
     
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+            { console.log(book) }
             <div className="relative w-full max-w-162.5 rounded-2xl bg-[#161515] p-6 text-white shadow-2xl border 
             border-zinc-900 animate-in fade-in zoom-in-95 duration-200 flex flex-col gap-6 max-h-[92vh] overflow-y-auto scollbar-none">
                 <div className="w-full flex items-center justify-between">
                     <h2 className="text-lg font-bold tracking-wide">
-                        Редагування прогресу: <span className="text-[#ffd3d3]">{ book.title }</span>
+                        Редагування прогресу: <span className="text-[#ffd3d3]">{ book?.title }</span>
                     </h2>   
 
                     <button 
@@ -132,8 +133,8 @@ export const EditProgressModal = ({ book }) => {
 
                     <div className="flex gap-4 rounded-xl bg-[#221F20] p-4 border border-zinc-800/60 items-center">
                         <Image
-                            src={ book.image_link }
-                            alt={ book.title }
+                            src={ book?.image_link }
+                            alt={ book?.title }
                             className="h-16 w-11 rounded-md object-cover shadow-md shrink-0"
                             width="44"
                             height="64"
@@ -142,7 +143,7 @@ export const EditProgressModal = ({ book }) => {
                         <div className="flex-1 flex flex-col gap-1.5">
                             <div className="text-xs font-semibold text-zinc-400">
                                 Поточна сторінка <span className="text-zinc-500 font-medium">
-                                    { book?.read_pages } / { book?.pages_count }
+                                    { book?.last_read_page } / { book?.pages_count }
                                 </span>
                             </div>
                             <input

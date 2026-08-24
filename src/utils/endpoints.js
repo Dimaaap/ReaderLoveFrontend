@@ -9,6 +9,7 @@ const Reviews = {
 }
 
 const Books = {
+    BOOK_BY_ID: (bookId) => `${BASE_BACKEND_URL}/books/${ bookId }`,
     BOOK_BY_SLUG: (slug) => `${BASE_BACKEND_URL}/books/by-slug/${slug}`,
     BOOK_BY_SLUG_FOR_USER_WITH_STATUS: (username, bookSlug) => `${BASE_BACKEND_URL}/books/by-slug/${bookSlug}/${username}`,
     UPDATE_USER_BOOK_READING_STATUS: (username, bookSlug) => `${BASE_BACKEND_URL}/books/${username}/status/${bookSlug}`,

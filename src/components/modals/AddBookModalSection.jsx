@@ -34,7 +34,6 @@ export const AddBookModalSection = ({ handleClose }) => {
     const selectedPublisher = watch("publisher");
 
     const onSubmit = async (data) => {
-        console.log(data)
         try {
             const book = await createBook({
                 data,

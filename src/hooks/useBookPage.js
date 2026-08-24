@@ -35,6 +35,9 @@ export const useBookPage = (bookSlug) => {
         mutationFn: async (newStatus) => {
             return await fetch(AllLinks.books.UPDATE_USER_BOOK_READING_STATUS(user?.username, bookSlug), {
                 method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
                 body: JSON.stringify({ status: newStatus })
             })
         },
@@ -64,6 +67,44 @@ export const useBookPage = (bookSlug) => {
 
         onSettled: () => {
             queryClient.invalidateQueries({ queryKey })
+            queryClient.invalidateQueries({ queryKey: ["books", user?.username] });
+        }
+    })
+
+    const { mutate: deleteBook, isPending: isDeleting } = useMutation({
+        mutationFn: async() => {
+            const response = await fetch(
+                AllLinks.books.DELETE_BOOK_STATUS(user?.username, book.slug), { method: "DELETE" }
+            );
+
+            if(!response.ok){
+                throw new Error("Не вдалось видалити книгу з бібілотеки")
+            }
+
+            return response.json();
+        },
+
+        onMutate: async() => {
+            await queryClient.cancelQueries({ queryKey: ["books", user?.username] });
+            const previousBooks = queryClient.getQueryData(["books", user?.username])
+
+            queryClient.setQueryData(["books", user?.username], (oldData) => {
+                if(!Array.isArray(oldData)) return oldData;
+                return oldData.filter((b) => b.id !== book.id)
+            })
+
+            return { previousBooks }
+        },
+
+        onError: (err, variables, context) => {
+            if(context?.previousBooks){
+                queryClient.setQueryData(["books", user?.username], context.previousBooks)
+            }
+        },
+
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ["books", user?.username] });
+            queryClient.invalidateQueries({ queryKey: ["book", book.slug, user?.username] });
         }
     })
 
@@ -122,7 +163,8 @@ export const useBookPage = (bookSlug) => {
         setStatusMenuOpen,
 
         setBookStatus: updateBookStatus,
-
+        removeBook: deleteBook,
+        isDeleting,
         authorNames,
 
         reviews,

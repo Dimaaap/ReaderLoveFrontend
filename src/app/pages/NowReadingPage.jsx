@@ -25,7 +25,6 @@ import { useShareModalState } from "@/states";
 
     return (
         <div className="flex items-start gap-0 w-full bg-[#0D0B0C] flex-1 h-full overflow-hidden">
-            { console.log(currentBook) }
             <Sidebar username={ user?.username } />
             { startReadingSessionOpen && <StartReadingSessionModal book={ currentBook } 
             activeSessionId={ currentBook.active_session_id }

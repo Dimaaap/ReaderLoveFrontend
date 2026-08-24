@@ -19,7 +19,7 @@ export function BookHeader({ book }) {
                 </button>
 
                 <h1 className="text-lg font-semibold tracking-wide text-zinc-200">
-                    {book.title}
+                    {book?.title}
                 </h1>
 
             </div>

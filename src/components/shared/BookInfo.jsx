@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 
 import BookStatusDropdown from "./BookStatusDropdown";
@@ -16,16 +15,21 @@ export default function BookInfo({
     setStatusMenuOpen,
 }) {
 
+    const getImageLink = (link) => {
+        if(link && link.startsWith("/media/")){
+            link = `http://localhost:8030${link}`;
+        } 
+        return link;
+    }
+
     return (
         <div className="flex gap-5 items-start mt-2 p-6">
 
             <div className="relative w-32 aspect-2/3 rounded-xl overflow-hidden border border-zinc-800/40 shadow-lg shrink-0">
 
                 <img
-                    src={book.image_link}
-                    alt={book.title}
-                    fill
-                    priority
+                    src={ getImageLink(book?.image_link) }
+                    alt={book?.title}
                     className="object-cover"
                 />
 

@@ -29,7 +29,7 @@ export default function BookPage({ bookSlug }) {
         <BookInfo
             book={page.book}
             authorNames={page.authorNames}
-            bookStatus={page.book.status}
+            bookStatus={page.book?.status}
             setBookStatus={page.setBookStatus}
             statusMenuOpen={page.statusMenuOpen}
             setStatusMenuOpen={page.setStatusMenuOpen}
