@@ -36,7 +36,7 @@ export const ReadingBookDetailsPopup = ({ book }) => {
         }
     }, [readingBookDetailsOpen])
 
-    const lastSessionPages = book.recent_sessions[0].end_page - book.recent_sessions[0].start_page || 0
+    const lastSessionPages = book?.recent_sessions[0]?.end_page - book?.recent_sessions[0]?.start_page || 0
     
     const handleShareClick = async() => {
         const progressData = {

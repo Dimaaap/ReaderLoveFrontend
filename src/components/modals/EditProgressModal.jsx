@@ -1,12 +1,15 @@
+
 import { useEditProgressModal, useEditSessionPopup } from "@/states"
 import Image from "next/image";
 import { useState } from "react";
 import { formatReadingSessionDate, readingTime } from "@/utils/dateHelper"
-import { AllLinks, fetcher } from "@/utils";
+import { AllLinks } from "@/utils";
 import { useAuth } from "@/hooks/useAuth";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { EditSessionPopup } from "./EditSessionPopup";
 import { DeleteSessionConfirm } from "./DeleteSessionConfirm";
+import { useBookPage } from "@/hooks/useBookPage";
+import { useRouter } from "next/navigation";
 
 export const EditProgressModal = ({ book }) => {
     const { setEditProgressModalOpen } = useEditProgressModal();
@@ -21,7 +24,25 @@ export const EditProgressModal = ({ book }) => {
     const [newPage, setNewPage] = useState("");
     const { user } = useAuth();
 
+    const router = useRouter();
+
+    const { setBookStatus } = useBookPage(book?.slug)
+
     const queryClient = useQueryClient();
+
+    const invalidateBookQueries = () => {
+        queryClient.invalidateQueries({
+            queryKey: ["last-reading-book", user?.username]
+        });
+
+        queryClient.invalidateQueries({
+            queryKey: ["user-goals", user?.username]
+        });
+
+        queryClient.invalidateQueries({
+            queryKey: ["book-detail", book?.slug, user?.username]
+        })
+    }
 
     const createSessionMutation = useMutation({
         mutationFn: async(sessionData) => {
@@ -58,18 +79,58 @@ export const EditProgressModal = ({ book }) => {
         }
     })
 
+    const handleChangeBookStatus = status => {
+        if(book?.status === status) {
+            return;
+        }
+        
+        setBookStatus(status, {
+            onSuccess: () => {
+                setEditProgressModalOpen(false);
+                window.location.reload();
+            }
+        })
+    }
+
+    const deleteSessionMutation = useMutation({
+        mutationFn: async (sessionId) => {
+            const response = await fetch(AllLinks.readingSessions.DELETE_READING_SESSION(sessionId), {
+                method: "DELETE",
+                headers: {"Content-Type": "application/json"}
+            });
+
+            if(!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || "Помилка при видаленні")
+            }
+            return response.json();
+        },
+
+        onSuccess: () => {
+            invalidateBookQueries()
+            setDeletingSessionId(null)
+        },
+
+        onError: (err) => {
+            console.error("Помилка при видаленні сесії: ", err);
+        }
+    })
+
     const handleQuickPageSubmit = async (e) => {
         e.preventDefault();
         
-        if(!newPage || isNaN(parseInt(newPage, 10))) return;
+        const parsedNewPage = parseInt(newPage, 10)
+        if(!newPage || isNaN(parsedNewPage)) return;
+
+        const startPage = book?.last_read_page ?? book?.last_read_page ?? 0;
 
         createSessionMutation.mutate({
             username: user?.username,
             book_id: book.id,
             started_at: new Date(),
             ended_at: new Date(),
-            start_page: book.read_pages || 0,
-            end_page: parseInt(newPage, 10),
+            start_page: startPage,
+            end_page: parsedNewPage,
             is_tracked: false
         })
     }
@@ -83,25 +144,7 @@ export const EditProgressModal = ({ book }) => {
     }
 
     const handleDeleteSessionSubmit = async(sessionId) => {
-        try {
-            const response = await fetch(AllLinks.readingSessions.DELETE_READING_SESSION(sessionId), {
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json"
-                }
-            })
-
-            if(!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.message || "Помилка при створенні")
-            }
-
-            setDeletingSessionId(null);
-
-            return response.json();
-        } catch (error){
-            console.error("Помилка при видаленні сесії: ", error)
-        }
+        deleteSessionMutation.mutate(sessionId)
     }
 
 
@@ -109,7 +152,6 @@ export const EditProgressModal = ({ book }) => {
     
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
-            { console.log(book) }
             <div className="relative w-full max-w-162.5 rounded-2xl bg-[#161515] p-6 text-white shadow-2xl border 
             border-zinc-900 animate-in fade-in zoom-in-95 duration-200 flex flex-col gap-6 max-h-[92vh] overflow-y-auto scollbar-none">
                 <div className="w-full flex items-center justify-between">
@@ -240,7 +282,8 @@ export const EditProgressModal = ({ book }) => {
 
                         <button type="button" 
                         className="flex gap-2 items-center justify-center p-3 rounded-xl bg-[#FF4B6B] hover:bg-[#e03a58] 
-                        text-white transition-colors cursor-pointer">
+                        text-white transition-colors cursor-pointer"
+                        onClick={ () => handleChangeBookStatus("finished") }>
                             <Image src="/icons/star.svg" alt="Star" width="16" height="16" />
                             <span className="text-[11px] font-bold text-center leading-tight">
                                 Позначити як прочитану
