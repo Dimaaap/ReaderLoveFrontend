@@ -22,3 +22,4 @@ export * from "./InviteFriendsModalState";
 export * from "./CreateReviewModalState";
 export * from "./AddBookModalState";
 export * from './BookOptionsPopupState'
+export * from "./ChooseBookForReadingModalState"

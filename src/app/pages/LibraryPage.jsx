@@ -53,7 +53,7 @@ function MeContent() {
 
 
   if(getFilterFromSearchParams()){
-    currentBooks = allBooks.filter(book => book.status === getFilterFromSearchParams());  
+    currentBooks = allBooks?.filter(book => book.status === getFilterFromSearchParams());  
   } else {
     currentBooks = allBooks;
   }

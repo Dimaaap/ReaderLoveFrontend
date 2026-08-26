@@ -10,8 +10,10 @@ import { StartReadingSessionModal } from "@/components/modals/StartReadingSessio
 import { AddManualReadingSession } from "@/components/modals/AddManualReadingSession";
 import { EditProgressModal } from "@/components/modals/EditProgressModal";
 import SharePreviewModal from "@/components/modals/SharePreviewModal";
-import { useShareModalState } from "@/states";
+import { useChooseBookForReadingModalStore, useShareModalState } from "@/states";
 import { Clock } from "lucide-react";
+import { ChooseBookForReadingModal } from "@/components/modals/ChooseBookForReadingModal";
+import { BookDetailsModal } from "@/components/modals/BookDetailsModal";
 
  function NowReadingContent () {
 
@@ -20,6 +22,8 @@ import { Clock } from "lucide-react";
         addManualReadingSessionOpen, editProgressModalOpen } = useNowReadingPage();
 
     const { shareModalOpen, setShareModalOpen } = useShareModalState();
+    const { chooseBookForReadingModalOpen, activeModal, 
+        selectedBook, openBookDetails, backToChooseBook,setChooseBookForReadingModalOpen } = useChooseBookForReadingModalStore();
 
     if(isError) return <div>Error...</div>
     if(isLoading) return <div>Loading...</div>
@@ -31,6 +35,11 @@ import { Clock } from "lucide-react";
             activeSessionId={ currentBook.active_session_id }
             start={ currentBook.active_session_id === null } /> }
 
+            {chooseBookForReadingModalOpen && (
+                activeModal === "choose-book"
+                ? <ChooseBookForReadingModal user={user} />
+                : <BookDetailsModal />
+            )}
             { addManualReadingSessionOpen && <AddManualReadingSession book={ currentBook }/> }
             { editProgressModalOpen && <EditProgressModal book={ currentBook } /> }
             { shareModalOpen && (
@@ -183,7 +192,8 @@ import { Clock } from "lucide-react";
 
                             <button className="flex items-center gap-2 px-7 py-3.5 bg-[#FF4B6B] hover:bg-[#e03f5d] text-white 
                             font-semibold text-md rounded-xl shadow-md shadow-[#FF4B6B]/10 transition-all duration-200 active:scale-[0.98]
-                            cursor-pointer">
+                            cursor-pointer"
+                            onClick={ () => setChooseBookForReadingModalOpen(true) }>
                                 <Image src="/icons/book.svg" alt="" width="19" height="19"/>
                                 Обрати книгу
                             </button>

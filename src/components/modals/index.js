@@ -23,3 +23,4 @@ export * from "./ChooseBookOptionSection";
 export * from "./SearchBookModalSection";
 export * from "./AddBookModalSection"
 export * from "./ChangeBookStatusPopup";
+export * from "./BookDetailsModal"
