@@ -32,7 +32,7 @@ export const useBookPage = (bookSlug) => {
     })
 
     const { mutate: updateBookStatus } = useMutation({
-        mutationFn: async (newStatus) => {
+        mutationFn: async (newStatus, lastReadPage=0) => {
             return await fetch(AllLinks.books.UPDATE_USER_BOOK_READING_STATUS(user?.username, bookSlug), {
                 method: "POST",
                 headers: {

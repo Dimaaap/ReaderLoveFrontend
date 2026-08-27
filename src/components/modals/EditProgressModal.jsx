@@ -83,7 +83,7 @@ export const EditProgressModal = ({ book }) => {
         if(book?.status === status) {
             return;
         }
-        
+        console.log(status)
         setBookStatus(status, {
             onSuccess: () => {
                 setEditProgressModalOpen(false);

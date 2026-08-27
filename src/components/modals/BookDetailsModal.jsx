@@ -7,6 +7,7 @@ import Image from "next/image";
 export const BookDetailsModal = () => {
     const {
         selectedBook,
+        openChoosePage,
         backToChooseBook,
         closeModal,
     } = useChooseBookForReadingModalStore();
@@ -17,7 +18,7 @@ export const BookDetailsModal = () => {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-            <div className="w-205 rounded-3xl border border-zinc-800 bg-[#111113] shadow-2xl">
+            <div className="w-180 rounded-3xl border border-zinc-800 bg-[#111113] shadow-2xl">
 
                 <div className="flex items-center justify-between p-8">
                     <button
@@ -40,10 +41,10 @@ export const BookDetailsModal = () => {
                 <div className="flex gap-8 px-8 pb-8">
                     <Image
                         src={selectedBook.image_link}
-                        width={240}
-                        height={340}
+                        width={220}
+                        height={300}
                         alt={selectedBook.title}
-                        className="h-80 w-56 rounded-2xl object-cover"
+                        className="h-65 w-52 rounded-2xl object-cover"
                     />
 
                     <div>
@@ -68,13 +69,24 @@ export const BookDetailsModal = () => {
                             {selectedBook.pages_count}
                         </p>
 
-                        <button
-                            className="mt-8 cursor-pointer rounded-full bg-[#FF4D6D]
-                            px-6 py-3 font-semibold text-white transition-all
-                            hover:opacity-90"
-                        >
-                            Почати читати
-                        </button>
+                        <div className="w-full flex items-center justify-between mt-5 gap-5">
+                            <button className="cursor-pointer rounded-full bg-zinc-400 px-6 py-3
+                            font-semibold text-white transition-all hover:opacity-90"
+                            onClick={ backToChooseBook }>
+                                Скасувати
+                            </button>
+                            
+                            <button
+                                className="cursor-pointer rounded-full bg-[#FF4D6D]
+                                px-6 py-3 font-semibold text-white transition-all
+                                hover:opacity-90 w-full"
+                                onClick={ openChoosePage }
+                            >
+                                Почати читати
+                            </button>    
+                        </div>
+
+                        
                     </div>
                 </div>
             </div>

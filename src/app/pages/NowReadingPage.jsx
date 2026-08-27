@@ -14,6 +14,9 @@ import { useChooseBookForReadingModalStore, useShareModalState } from "@/states"
 import { Clock } from "lucide-react";
 import { ChooseBookForReadingModal } from "@/components/modals/ChooseBookForReadingModal";
 import { BookDetailsModal } from "@/components/modals/BookDetailsModal";
+import { ChooseReadingPageModal } from "@/components/modals/ChooseReadingPageModal";
+import { Toast } from "@/components/shared/Toast";
+import { useEffect } from "react"
 
  function NowReadingContent () {
 
@@ -22,9 +25,20 @@ import { BookDetailsModal } from "@/components/modals/BookDetailsModal";
         addManualReadingSessionOpen, editProgressModalOpen } = useNowReadingPage();
 
     const { shareModalOpen, setShareModalOpen } = useShareModalState();
-    const { chooseBookForReadingModalOpen, activeModal, 
-        selectedBook, openBookDetails, backToChooseBook,setChooseBookForReadingModalOpen } = useChooseBookForReadingModalStore();
+    const { chooseBookForReadingModalOpen, activeModal, setChooseBookForReadingModalOpen, toast, showToast } = useChooseBookForReadingModalStore();
 
+    useEffect(() => {
+        const pendingToast = sessionStorage.getItem('pendingToast');
+        if (pendingToast) {
+            const { title, description } = JSON.parse(pendingToast);
+            
+            showToast({ title, description, duration: 4000 });
+            
+            sessionStorage.removeItem('pendingToast');
+        }
+    }, [showToast]);
+
+    
     if(isError) return <div>Error...</div>
     if(isLoading) return <div>Loading...</div>
 
@@ -36,9 +50,19 @@ import { BookDetailsModal } from "@/components/modals/BookDetailsModal";
             start={ currentBook.active_session_id === null } /> }
 
             {chooseBookForReadingModalOpen && (
-                activeModal === "choose-book"
-                ? <ChooseBookForReadingModal user={user} />
-                : <BookDetailsModal />
+                <>
+                    {activeModal === "choose-book" && (
+                        <ChooseBookForReadingModal user={user} />
+                    )}
+
+                    {activeModal === "book-details" && (
+                        <BookDetailsModal />
+                    )}
+
+                    {activeModal === "choose-page" && (
+                        <ChooseReadingPageModal />
+                    )}
+                </>
             )}
             { addManualReadingSessionOpen && <AddManualReadingSession book={ currentBook }/> }
             { editProgressModalOpen && <EditProgressModal book={ currentBook } /> }
@@ -231,6 +255,8 @@ import { BookDetailsModal } from "@/components/modals/BookDetailsModal";
                     ) }
                 </div>
             </main>
+
+            { toast.isOpen && <Toast toast={ toast } /> }
         </div>
     )
 }
