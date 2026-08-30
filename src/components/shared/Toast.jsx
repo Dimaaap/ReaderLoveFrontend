@@ -7,7 +7,6 @@ export const Toast = ({ toast }) => {
 
     const { hideToast } = useChooseBookForReadingModalStore()
 
-
     return (
         <div className="fixed top-0 right-[40%] z-100 flex items-center gap-3 rounded-2xl border 
         border-zinc-800 bg-[#141414] p-4 text-white shadow-2xl animate-in fade-in slide-in-from-bottom-5">
