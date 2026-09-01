@@ -14,6 +14,7 @@ export const UserSettingsModal = () => {
     const { user, setUser } = useAuth();
 
     const [preview, setPreview] = useState(user?.avatar)
+    const [avatarChanged, setAvatarChanged] = useState(false);
 
     const { register, handleSubmit, watch, reset, formState: { errors, isDirty, dirtyFields } } = useForm({
         defaultValues: {
@@ -53,6 +54,7 @@ export const UserSettingsModal = () => {
         if(!file) return;
 
         setPreview(URL.createObjectURL(file))
+        setAvatarChanged(true)
 
         const formData = new FormData();
         formData.append("file", file);
@@ -93,6 +95,7 @@ export const UserSettingsModal = () => {
         }
 
         setPreview(null);
+        setAvatarChanged(true)
 
         setUser((prev) => ({
             ...prev,
@@ -153,12 +156,12 @@ export const UserSettingsModal = () => {
 
     const onSubmit = async (data) => {
         try {
-            
             const updatedFields = {};
-
             Object.keys(dirtyFields).forEach((key) => {
                 updatedFields[key] = data[key]
             })
+
+            console.log(updatedFields)
 
             const response = await fetch(AllLinks.users.ME, {
                 method: "PATCH",
@@ -181,7 +184,9 @@ export const UserSettingsModal = () => {
             }))
 
             reset(updatedUser)
+            setUserSettingsModalOpen(false)
         } catch(err) {
+            console.log('error')
             console.error(err);
         }
     }
@@ -430,7 +435,7 @@ export const UserSettingsModal = () => {
                             </button>
 
                              <button type="submit" className="bg-[#F43F5E] rounded-xl border border-zinc-600 text-white 
-                            font-semibold text-md p-2 hover:opacity-80 transition-all duration-200 cursor-pointer" disabled={ !isDirty }
+                            font-semibold text-md p-2 hover:opacity-80 transition-all duration-200 cursor-pointer" disabled={ !isDirty && !avatarChanged }
                             onClick={ handleSubmit(onSubmit) }>
                                 Зберегти зміни
                             </button>

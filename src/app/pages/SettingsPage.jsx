@@ -145,7 +145,6 @@ function SettingsContent () {
                                             alt="Avatar"
                                             fill={ true }
                                             className="object-cover"
-                                            unoptimized={preview?.startsWith("blob:").toString()}
                                         />
                                     ) : (
                                         <span className="text-2xl font-semibold uppercase">
