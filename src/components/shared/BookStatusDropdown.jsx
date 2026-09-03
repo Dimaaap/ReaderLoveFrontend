@@ -34,7 +34,10 @@ export default function BookStatusDropdown({
         setStatusMenuOpen(false);
         setLoading(true)
 
+        const statusValue = typeof newStatus === 'object' ? newStatus.value : newStatus;
+
         try {
+            console.log(newStatus)
             const response = await fetch(AllLinks.books.UPDATE_USER_BOOK_READING_STATUS(user?.username, bookSlug), {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
@@ -47,11 +50,13 @@ export default function BookStatusDropdown({
             console.log(response)
 
             if(!response.ok) {
-                throw new Error("Не вдалось оновити статус")
+                const errorData = await response.json();
+                console.error("Деталі помилки 422:", errorData.detail);
+                throw new Error("Не вдалось оновити статус");
             }
 
             const data = await response.json();
-            setBookStatus(null)
+            setBookStatus(data.status)
         } catch(err) {
             console.error("Помилка видалення статусу: ", err)
         } finally {

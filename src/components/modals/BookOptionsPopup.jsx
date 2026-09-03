@@ -2,6 +2,7 @@
 
 import { ArrowRight, BookAIcon, ChevronRight, Eye, RefreshCw, Trash2 } from 'lucide-react'
 import Link from 'next/link';
+import { useStartReadingSessionStore } from "@/states";
 import { useState } from 'react'
 import { ChangeBookStatusPopup } from './ChangeBookStatusPopup';
 import { useBookPage } from '@/hooks/useBookPage';
@@ -12,7 +13,8 @@ export const BookOptionsPopup = ({ book, onOpenEditModal }) => {
 
     const [showStatusMenu, setShowStatusMenu] = useState(false)
     const { removeBook, isDeleting } = useBookPage(book.slug)
-
+    const { setStartReadingSessionOpen } = useStartReadingSessionStore();
+     
     const handleDeleteBook = () => {
         removeBook(undefined, {
             onSuccess: () => {
@@ -32,9 +34,11 @@ export const BookOptionsPopup = ({ book, onOpenEditModal }) => {
                 <BookAIcon />
                 <p>Дії для книги</p>
             </div>
-
             <Link href="#"
-            onClick={() => onOpenEditModal()}
+            onClick={ () => {
+                setStartReadingSessionOpen(true);
+                onOpenEditModal();
+            } }
             className="flex items-center justify-between p-2 rounded-lg hover:bg-white/5 transition-colors
             cursor-pointer group">
                 <div className="flex items-center gap-2.5">

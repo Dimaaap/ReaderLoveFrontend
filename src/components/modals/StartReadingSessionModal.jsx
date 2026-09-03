@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { useEffect, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query';
 
-export const StartReadingSessionModal = ({ book, start=true, activeSessionId = null }) => {
+export const StartReadingSessionModal = ({ book, start=true, activeSessionId = null, firstSession=false }) => {
     const initialPage = start ? String(book.read_pages || 0) : String(book.read_pages || 0);
     const [startPage, setStartPage] = useState(initialPage);
     const [error, setError] = useState(null);
@@ -158,9 +158,9 @@ export const StartReadingSessionModal = ({ book, start=true, activeSessionId = n
                 <form className="space-y-6" onSubmit={ handleSubmit }>
                     <div>
                         <label className="block text-xs font-medium text-zinc-300 mb-2">
-                            { start 
+                            { !firstSession ? (start 
                             ? `Введіть номер початкової сторінки (остання прочитана: ${book.last_read_page})` 
-                            : `Введіть кінцеву сторінку (сесію розпочато з: ${book.last_read_page})` }
+                            : `Введіть кінцеву сторінку (сесію розпочато з: ${book.last_read_page})`) : ("Введіть сторінку початку") }
                         </label>
                         <div className="relative flex items-center">
                             <input
@@ -199,7 +199,7 @@ export const StartReadingSessionModal = ({ book, start=true, activeSessionId = n
                                 : 'bg-[#ff3b69] hover:bg-[#e0345c]'
                                 }`}
                         >
-                            { isSubmitting ? "Збереження..." : start ? "Почати читати" : "Зупинити читання" }
+                            { isSubmitting ? "Збереження..." : !firstSession ? (start ? "Почати читати" : "Зупинити читання") : "Почати сесію" }
                         </button>
                         <button type="button" className="flex-1 rounded-lg bg-zinc-700 py-2.5 text-sm font-medium text-zinc-200 
                         hover:bg-zinc-600 active:scale-[0.98] transition-all"

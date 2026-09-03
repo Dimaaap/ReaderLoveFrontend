@@ -9,9 +9,12 @@ import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { bookStatusMenu } from "@/data"
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
-import { useAddBookModalStore, useBookOptionsPopupStore } from '@/states';
+import { useAddBookModalStore, useBookFiltersModalState, useBookOptionsPopupStore, useStartReadingSessionStore } from '@/states';
 import { AddBookModal } from '@/components/modals/AddBookModal';
 import { BookOptionsPopup } from '@/components/modals/BookOptionsPopup';
+import { StartReadingSessionModal } from '@/components/modals/StartReadingSessionModal';
+import { useState } from 'react';
+import BookFiltersModal from '@/components/modals/BookFiltersModal';
 
 function MeContent() {
 
@@ -19,9 +22,12 @@ function MeContent() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [currentBook, setCurrentBook] = useState(null);
 
   const { addBookModalOpen, setAddBookModalOpen } = useAddBookModalStore();
   const { toggleBookOptionsPopup, selectedBookId } = useBookOptionsPopupStore();
+  const { startReadingSessionOpen } = useStartReadingSessionStore()
+  const { bookFiltersModalOpen, setBookFiltersModalOpen } = useBookFiltersModalState();
 
   const { data: allBooks } = useQuery({
     queryKey: ["books", user?.username],
@@ -74,6 +80,14 @@ function MeContent() {
 
     return "https://s4.vcdn.biz/static/f/11655154901/5dd09d53934a4268add21439ca6c03bf.jpeg"
   }
+
+  const toggleFilterBookModal = () => {
+    if(bookFiltersModalOpen) {
+      setBookFiltersModalOpen(false)
+    } else {
+      setBookFiltersModalOpen(true)
+    }
+  }
   
 
   return (
@@ -81,6 +95,8 @@ function MeContent() {
       
       <Sidebar username="Dima" />
       { addBookModalOpen && <AddBookModal /> }
+      { startReadingSessionOpen && currentBook && <StartReadingSessionModal book={ currentBook } firstSession={ !currentBook?.last_read_page } /> }
+      { bookFiltersModalOpen && <BookFiltersModal /> }
       
       <main className="flex-1 h-full overflow-y-auto p-8 text-white">
         <div className="flex items-center justify-between mb-8">
@@ -88,7 +104,8 @@ function MeContent() {
             <div className="flex items-center gap-6">
               <span className="background-transparent flex items-center text-white gap-3 tracking-tight
               bg-[#141113] border border-white/30 cursor-pointer text-sm font-semibold
-                p-2 rounded-lg transition-all duration-150 hover:opacity-80">
+                p-2 rounded-lg transition-all duration-150 hover:opacity-80"
+                onClick={ toggleFilterBookModal }>
                 <Image src="/icons/filter.svg" alt="" width="18" height="18" />
                 Фільтр
               </span>
@@ -142,6 +159,7 @@ function MeContent() {
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
+                    setCurrentBook(book);
 
                     toggleBookOptionsPopup(book.id);
                     

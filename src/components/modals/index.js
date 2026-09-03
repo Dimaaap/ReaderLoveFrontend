@@ -25,3 +25,4 @@ export * from "./AddBookModalSection"
 export * from "./ChangeBookStatusPopup";
 export * from "./BookDetailsModal";
 export * from "./ChooseReadingPageModal";
+export * from "./BookFiltersModal";

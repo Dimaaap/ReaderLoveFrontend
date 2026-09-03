@@ -38,7 +38,7 @@ export default function BookInfo({
             <div className="flex flex-col flex-1 gap-1">
 
                 <h1 className="text-xl font-bold tracking-tight text-white">
-                    {book.title}
+                    {book?.title}
                 </h1>
 
                 <p className="text-md font-semibold text-zinc-500 mb-2">
@@ -47,7 +47,7 @@ export default function BookInfo({
 
                 <div className="flex flex-wrap gap-1.5 mb-3">
 
-                    {book.genres?.map((genre) => (
+                    {book?.genres?.map((genre) => (
 
                         <Link
                             key={genre.id}
