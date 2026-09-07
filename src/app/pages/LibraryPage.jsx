@@ -1,27 +1,25 @@
 "use client";
 
-import { Sidebar } from '@/components';
+import { BookCard, Sidebar } from '@/components';
 import { withAuth } from '@/components/WithAuth'
-import { AllLinks, fetcher, readPercent } from '@/utils';
+import { AllLinks, fetcher,} from '@/utils';
 import Image from "next/image"
-import Link from "next/link"
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { bookStatusMenu } from "@/data"
+import { useBookFiltering } from "../../hooks/useBookFiltering";
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
 import { useAddBookModalStore, useBookFiltersModalState, useBookOptionsPopupStore, useStartReadingSessionStore } from '@/states';
 import { AddBookModal } from '@/components/modals/AddBookModal';
-import { BookOptionsPopup } from '@/components/modals/BookOptionsPopup';
 import { StartReadingSessionModal } from '@/components/modals/StartReadingSessionModal';
 import { useState } from 'react';
 import BookFiltersModal from '@/components/modals/BookFiltersModal';
+import { usePathname, useRouter } from 'next/navigation';
 
 function MeContent() {
 
   const { user } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const [currentBook, setCurrentBook] = useState(null);
 
   const { addBookModalOpen, setAddBookModalOpen } = useAddBookModalStore();
@@ -37,6 +35,8 @@ function MeContent() {
     refetchOnWindowFocus: false
   })
 
+  const { searchParams, activeFiltersCount, filteredBooks } = useBookFiltering(allBooks)
+
   const getFilterFromSearchParams = () => {
     return searchParams.get("filter") || null;
   }
@@ -47,38 +47,11 @@ function MeContent() {
 
     if(filter) {
       params.set("filter", filter)
-      router.push(`${pathname}?${params.toString()}`)
     } else {
       params.delete("filter")
-      router.push(pathname)
-    }
-    
-  }
-
-  let currentBooks = null;
-
-
-  if(getFilterFromSearchParams()){
-    currentBooks = allBooks?.filter(book => book.status === getFilterFromSearchParams());  
-  } else {
-    currentBooks = allBooks;
-  }
-
-  const getBookImageUrl = imageLink => {
-    if(!imageLink) {
-      return "https://s4.vcdn.biz/static/f/11655154901/5dd09d53934a4268add21439ca6c03bf.jpeg"
     }
 
-    if(imageLink.startsWith("https://")) {
-      return imageLink;
-    }
-
-    if(imageLink.startsWith("/media")) {
-      console.log("here")
-      return `http://localhost:8030${imageLink}`
-    }
-
-    return "https://s4.vcdn.biz/static/f/11655154901/5dd09d53934a4268add21439ca6c03bf.jpeg"
+    router.push(`${pathname}?${params.toString()}`, { scroll:false })
   }
 
   const toggleFilterBookModal = () => {
@@ -102,13 +75,24 @@ function MeContent() {
         <div className="flex items-center justify-between mb-8">
             <h1 className="text-3xl font-bold tracking-tight">Моя бібліотека</h1>
             <div className="flex items-center gap-6">
-              <span className="background-transparent flex items-center text-white gap-3 tracking-tight
-              bg-[#141113] border border-white/30 cursor-pointer text-sm font-semibold
-                p-2 rounded-lg transition-all duration-150 hover:opacity-80"
-                onClick={ toggleFilterBookModal }>
+              
+              <button 
+              type="button"
+              className="background-transparent flex items-center text-white gap-2.5 tracking-tight 
+              bg-[#141113] border border-white/30 cursor-pointer text-sm font-semibold p-2 px-3 rounded-lg 
+              transition-all duration-150 hover:opacity-80"
+              onClick={ toggleFilterBookModal }>
                 <Image src="/icons/filter.svg" alt="" width="18" height="18" />
-                Фільтр
-              </span>
+                <span>Фільтр</span>
+
+                { activeFiltersCount > 0 && (
+                  <span className="flex items-center justify-center min-w-5 h-5 px-1.5 text-[11px] font-bold
+                  text-white bg-[#F43F5E] rounded-full animate-in zoom-in-50 duration-150">
+                    { activeFiltersCount }
+                  </span>
+                ) }
+              </button>
+              
               <span className="background-transparent flex items-center text-white tracking-tight gap-3 text-sm 
               font-semibold border border-white/30 p-2 bg-[#141113] cursor-pointer rounded-lg 
               transition-all duration-150 hover:opacity-80">
@@ -137,69 +121,15 @@ function MeContent() {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6 mt-5">
-          {currentBooks?.map((book, id) => {
-            const bookLink = `/book/${book.slug}`;
-            const isOpen = selectedBookId === book.id
-            
-            return (
-              <div key={book.id} className={`group relative flex flex-col gap-3 transition-all 
-              ${selectedBookId === book.id ? "z-40" : "z-10"}`}>
-                
-                <div className={`relative aspect-3/4 w-full rounded-2xl overflow-hidden bg-[#1c181b] border border-white/5 shadow-lg 
-                transition-transform duration-200 ${!isOpen ? "group-hover:-translate-y-1": ""}`}>
-                  <Link href={bookLink}>
-                    <img 
-                      src={ getBookImageUrl(book.image_link) } 
-                      alt={book.title} 
-                      className="object-cover w-full h-full"
-                    />
-                  </Link>
-
-                  <button 
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setCurrentBook(book);
-
-                    toggleBookOptionsPopup(book.id);
-                    
-                  }}
-                  className="absolute top-3 right-3 p-1.5 rounded-xl bg-black/40 backdrop-blur-md text-white/70 
-                  hover:text-white border border-white/5 transition-colors z-20">
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M5 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/>
-                    </svg>
-                  </button>
-                </div>
-
-                { isOpen && (
-                    <BookOptionsPopup book={ book } onOpenEditModal={ toggleBookOptionsPopup } />
-                  ) }
-
-                <Link href={bookLink} className={`text-white font-medium text-[15px] leading-snug line-clamp-1
-                  ${!isOpen ? "hover:underline" : ""}`}>
-                  {book.title}
-                </Link>
-                <span className="text-white/40 text-xs font-medium line-clamp-1">
-                  {book.authors[0]?.first_name} {book.authors[0]?.last_name}
-                </span>
-
-                <div className="mt-1 flex flex-col gap-1.5">
-                  <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-[#f43f5e] rounded-full" 
-                      style={{ width: `${readPercent(book.last_read_page || 0, book.pages_count)}%` }}
-                    />
-                  </div>
-                  <div className="flex justify-between items-center text-[11px] text-white/30 font-semibold">
-                    <span>{book.last_read_page || 0} / {book.pages_count} сторінок</span>
-                    <span>{readPercent(book.last_read_page || 0, book.pages_count)}%</span>
-                  </div>
-                </div>
-
-              </div>
-            );
-          })}
+          { filteredBooks.map((book) => (
+            <BookCard 
+              key={ book.id }
+              book={ book }
+              isOpen={ selectedBookId === book.id }
+              onSelectBook={ setCurrentBook }
+              onToggleOptions={ toggleBookOptionsPopup }
+            />
+          )) }
         </div>
       </main>
 

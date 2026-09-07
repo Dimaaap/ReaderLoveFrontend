@@ -53,3 +53,4 @@ export * from "./AddBookCover";
 export * from "./CreateBookFormInputField"
 export * from "./BookBasicInfo";
 export * from "./ArrowIcon";
+export * from "./BookCard"
