@@ -1,7 +1,76 @@
 import { useSearchParams } from "next/navigation"
 import { useMemo } from "react";
+import { LANGUAGES } from "../../config";
 
 const FILTER_KEYS = ["genreId", "authorId", "lang", "yearFrom", "yearTo", "pagesFrom", "pagesTo"];
+const DEFAULT_SORT = "title";
+const DEFAULT_ORDER = "desc";
+
+const filterBook = (book, params) => {
+    const statusFitler = params.get("filter");
+    const genreId = params.get("genreId");
+    const authorId = params.get("authorId");
+    const langParam = params.get("lang");
+    const yearFrom = params.get("yearFrom");
+    const yearTo = params.get("yearTo");
+    const pagesFrom = params.get("pagesFrom");
+    const pagesTo = params.get("pagesTo");
+
+    if (statusFitler && book.status !== statusFitler) return false;
+    if (genreId && !book.genres?.some((g) => String(g.id) === String(genreId))) return false;
+    if (authorId && !book.authors?.some((a) => String(a.id) === String(authorId))) return false;
+
+    if(langParam) {
+        const normalizedParam = langParam.toLowerCase().trim();
+        const mappedParam = LANGUAGES[normalizedParam] || normalizedParam;
+        const bookLang = (book.language || "").toLowerCase().trim();
+        
+        if(bookLang !== mappedParam) {
+            return false;
+        }
+    }
+
+    if (yearFrom && book.publish_date < Number(yearFrom)) return false;
+    if (yearTo && book.publish_date > Number(yearTo)) return false;
+    if (pagesFrom && book.pages_count < Number(pagesFrom)) return false;
+    if (pagesTo && book.pages_count > Number(pagesTo)) return false;
+    
+    return true
+}
+
+
+const compareBooks = (a, b, criterion, order) => {
+    const isAsc = order === "asc";
+
+    switch (criterion) {
+        case "title": {
+            const titleA = a.title || "";
+            const titleB = b.title || "";
+            return isAsc ? titleA.localeCompare(titleB, "uk") : titleB.localeCompare(titleA, "uk")    
+        }
+
+        case "progress": {
+            const progA = a.pages_count ? (a.last_read_page || 0) / a.pages_count : 0;
+            const progB = b.pages_count ? (b.last_read_page || 0) / b.pages_count : 0;
+            return isAsc ? progA - progB : progB - progA;    
+        }
+        
+        case "year": {
+            const yearA = Number(a.publish_date) || 0;
+            const yearB = Number(b.publish_date) || 0;
+            return isAsc ? yearA - yearB : yearB - yearA;
+        }
+
+        case "pages": {
+            const pagesA = Number(a.pages_count) || 0;
+            const pagesB = Number(b.pages_count) || 0;
+            return isAsc ? pagesA - pagesB : pagesB - pagesA;
+        }
+        default:
+            return 0
+    }
+
+}
 
 export const useBookFiltering = (allBooks) => {
     const searchParams = useSearchParams();
@@ -11,61 +80,27 @@ export const useBookFiltering = (allBooks) => {
     }, [searchParams])
 
     const filteredBooks = useMemo(() => {
-        if(!allBooks) return [];
+        if(!allBooks?.length) return [];
 
-        const statusFitler = searchParams.get("filter");
-        const genreId = searchParams.get("genreId");
-        const authorId = searchParams.get("authorId");
-        const langParam = searchParams.get("lang");
-        const yearFrom = searchParams.get("yearFrom");
-        const yearTo = searchParams.get("yearTo");
-        const pagesFrom = searchParams.get("pagesFrom");
-        const pagesTo = searchParams.get("pagesTo");
+        const sortCriterion = searchParams.get("sort") || DEFAULT_SORT;
+        const sortOrder = searchParams.get("order") || DEFAULT_ORDER;
 
-        return allBooks.filter((book) => {
-            if(statusFitler && book.status !== statusFitler){
-                return false;
-            }
+        const filtered = allBooks.filter((book) => filterBook(book, searchParams));
+        return filtered.sort((a, b) => compareBooks(a, b, sortCriterion, sortOrder))
+        }, [allBooks, searchParams])
 
-            if(genreId && !book.genres?.some((g) => String(g.id) === String(genreId))) {
-                return false;
-            }
 
-            if(authorId && !book.authors?.some((a) => String(a.id) === String(authorId))) {
-                return false;
-            }
+    const isSortActive = useMemo(() => {
+        const currentSort = searchParams.get("sort");
+        const currentOrder = searchParams.get("order");
 
-            if(langParam) {
-                const normalizedParam = langParam.toLowerCase().trim();
-                const mappedParam = LANGUAGES[normalizedParam] || normalizedParam;
-                const bookLang = (book.language || "").toLowerCase().trim();
-                
-                if(bookLang !== mappedParam) {
-                return false;
-                }
-            }
-
-            if(yearFrom && book.publish_date < Number(yearFrom)) {
-                return false;
-            }
-
-            if(yearTo && book.publish_date > Number(yearTo)) {
-                return false;
-            }
-
-            if(pagesFrom && book.pages_count < Number(pagesFrom)) {
-                return false;
-            }
-
-            if(pagesTo && book.pages_count > Number(pagesTo)) {
-                return false;
-            }
-
-            return true;
-        })
-    }, [allBooks, searchParams]);
+        return (
+            (currentSort && currentSort !== DEFAULT_SORT) ||
+            (currentOrder && currentOrder !== DEFAULT_ORDER)
+        );
+    }, [searchParams]);
 
     return {
-        filteredBooks, activeFiltersCount, searchParams
+        filteredBooks, activeFiltersCount, isSortActive, searchParams
     }
 }

@@ -24,3 +24,4 @@ export * from "./AddBookModalState";
 export * from './BookOptionsPopupState'
 export * from "./ChooseBookForReadingModalState";
 export * from "./BookFiltersModalState";
+export * from "./BookSortingModalState"

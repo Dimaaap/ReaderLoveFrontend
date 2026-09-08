@@ -6,7 +6,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 
 const sidebarLinks = [
-    { name: "Головна", icon: "home.svg", link: "" },
+    { name: "Всі сесії", icon: "home.svg", link: "reading-sessions" },
     { name: "Бібліотека", icon: "library.svg", link: "library" },
     { name: "Зараз читаю", icon: "book.svg", link: "now-reading" },
     { name: "Статистика", icon: "stats.svg", link: "stats" },

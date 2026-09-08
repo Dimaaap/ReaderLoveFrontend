@@ -8,12 +8,13 @@ import { bookStatusMenu } from "@/data"
 import { useBookFiltering } from "../../hooks/useBookFiltering";
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
-import { useAddBookModalStore, useBookFiltersModalState, useBookOptionsPopupStore, useStartReadingSessionStore } from '@/states';
+import { useAddBookModalStore, useBookFiltersModalState, useBookOptionsPopupStore, useBookSortingModalState, useStartReadingSessionStore } from '@/states';
 import { AddBookModal } from '@/components/modals/AddBookModal';
 import { StartReadingSessionModal } from '@/components/modals/StartReadingSessionModal';
 import { useState } from 'react';
 import BookFiltersModal from '@/components/modals/BookFiltersModal';
 import { usePathname, useRouter } from 'next/navigation';
+import { BooksOrderModal } from '@/components/modals/BooksOrderModal';
 
 function MeContent() {
 
@@ -26,6 +27,7 @@ function MeContent() {
   const { toggleBookOptionsPopup, selectedBookId } = useBookOptionsPopupStore();
   const { startReadingSessionOpen } = useStartReadingSessionStore()
   const { bookFiltersModalOpen, setBookFiltersModalOpen } = useBookFiltersModalState();
+  const { bookSortingModalOpen, setBookSortingModalOpen } = useBookSortingModalState();
 
   const { data: allBooks } = useQuery({
     queryKey: ["books", user?.username],
@@ -35,7 +37,7 @@ function MeContent() {
     refetchOnWindowFocus: false
   })
 
-  const { searchParams, activeFiltersCount, filteredBooks } = useBookFiltering(allBooks)
+  const { searchParams, activeFiltersCount, isSortActive, filteredBooks } = useBookFiltering(allBooks)
 
   const getFilterFromSearchParams = () => {
     return searchParams.get("filter") || null;
@@ -61,6 +63,14 @@ function MeContent() {
       setBookFiltersModalOpen(true)
     }
   }
+
+  const toggleSortingBookModal = () => {
+    if(bookSortingModalOpen) {
+      setBookSortingModalOpen(false)
+    } else {
+      setBookSortingModalOpen(true)
+    }
+  }
   
 
   return (
@@ -70,6 +80,7 @@ function MeContent() {
       { addBookModalOpen && <AddBookModal /> }
       { startReadingSessionOpen && currentBook && <StartReadingSessionModal book={ currentBook } firstSession={ !currentBook?.last_read_page } /> }
       { bookFiltersModalOpen && <BookFiltersModal /> }
+      { bookSortingModalOpen && <BooksOrderModal /> }
       
       <main className="flex-1 h-full overflow-y-auto p-8 text-white">
         <div className="flex items-center justify-between mb-8">
@@ -93,12 +104,18 @@ function MeContent() {
                 ) }
               </button>
               
-              <span className="background-transparent flex items-center text-white tracking-tight gap-3 text-sm 
-              font-semibold border border-white/30 p-2 bg-[#141113] cursor-pointer rounded-lg 
-              transition-all duration-150 hover:opacity-80">
+              <button 
+              type="button"
+              className={`flex items-center text-white tracking-tight gap-2.5 text-sm font-semibold border bg-[#141113] cursor-pointer
+              rounded-lg p-2 px-3 transition-all duration-150 hover:opacity-80 ${ isSortActive ? "border-[#F43F5E]" : "border-white/30" }`}
+              onClick={ toggleSortingBookModal }>
                 <Image src="/icons/sorting.svg" alt="" width="18" height="18" />
-                Сортування
-              </span>
+                <span>Сортування</span>
+
+                { isSortActive && (
+                  <span className="w-2 h-2 rounded-full bg-[#F43F5E] animate-pulse" />
+                ) }
+              </button>
               <button className="bg-[#F43F5E] hover:bg-[#E11D48] text-white px-4 py-2 rounded-lg text-sm font-semibold 
               transition-colors" onClick={ () => setAddBookModalOpen(true) }>
                   + Додати книгу
