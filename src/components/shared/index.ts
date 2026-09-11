@@ -28,10 +28,7 @@ export * from "./UserProgress";
 export * from "./BookReadingProgressBar";
 export * from "./Switch";
 export * from "./ActivityItem";
-export * from "./ActivityFeed"
 export * from "./FriendCard";
-export * from "./FriendGrid";
-export * from "./FilterButton"
 export * from "./ReviewCard"
 export * from "./NextPageButton";
 export * from "./BookReviewsBlock";
@@ -55,4 +52,5 @@ export * from "./BookBasicInfo";
 export * from "./ArrowIcon";
 export * from "./BookCard"
 export * from "./SelectOrderCriterionButton"
-export * from "./RotatingArrow"
+export * from "./RotatingArrow";
+export * from "./ReadingBooksInMonth";

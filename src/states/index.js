@@ -18,7 +18,6 @@ export * from "./UserSettingsModalState";
 export * from "./ChangePasswordModalState";
 export * from "./LibraryModalState";
 export * from "./ConfirmDeleteAccountModalState"
-export * from "./InviteFriendsModalState";
 export * from "./CreateReviewModalState";
 export * from "./AddBookModalState";
 export * from './BookOptionsPopupState'

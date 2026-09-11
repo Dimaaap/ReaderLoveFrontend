@@ -1,4 +1,4 @@
-export const mockSessions = [
+export const MOCK_SESSIONS = [
   {
     id: "s1",
     date: "2026-09-02T14:30:00Z",
