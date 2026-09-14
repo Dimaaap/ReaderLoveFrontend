@@ -52,7 +52,9 @@ const ReadingSessions = {
     CREATE_READING_SESSION: `${BASE_BACKEND_URL}/reading-sessions/`,
     PATCH_READING_SESSION: (sessionId) => `${BASE_BACKEND_URL}/reading-sessions/${sessionId}`,
     DELETE_READING_SESSION: (sessionId) => `${BASE_BACKEND_URL}/reading-sessions/${sessionId}`,
-    USER_READING_SESSIONS_FOR_YEAR_AND_MONTH: (username, year, month) => `${BASE_BACKEND_URL}/reading-sessions/calendar/${username}?year=${year}&month=${month}`
+    USER_READING_SESSIONS_FOR_YEAR_AND_MONTH: (username, year, month) => `${BASE_BACKEND_URL}/reading-sessions/calendar/${username}?year=${year}&month=${month}`,
+    ACTIVE_SESSIONS: (username) => `${BASE_BACKEND_URL}/reading-sessions/active?current_username=${username}`,
+    TOGGLE_REACTION: (sessionId, username) => `${BASE_BACKEND_URL}/session_reactions/session_reactions/${sessionId}?username=${username}`
 }
 
 const BookNotes = {

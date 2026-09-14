@@ -82,6 +82,11 @@ export const StartReadingSessionModal = ({ book, start=true, activeSessionId = n
     };
 
     const createNewReadingSession = async (pageNum) => {
+        console.log({
+            username: user?.username,
+            book_id: book.id,
+            start_page: pageNum
+        })
         const response = await fetch(AllLinks.readingSessions.CREATE_READING_SESSION, {
             method: "POST",
             headers: {

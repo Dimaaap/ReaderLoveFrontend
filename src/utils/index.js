@@ -4,3 +4,4 @@ export * from "./cookies-funcs"
 export * from "./readPercent"
 export * from "./shareProgress";
 export * from "./createBookPayload";
+export * from "./api"
