@@ -57,3 +57,5 @@ export * from "./ReadingBooksInMonth";
 export * from "./SessionTimer"
 export * from "./ReactionPicker"
 export * from "./SessionCard"
+export * from "./MePageTabs"
+export * from "./ChallengeCard"

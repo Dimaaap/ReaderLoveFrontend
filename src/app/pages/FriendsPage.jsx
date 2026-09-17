@@ -1,6 +1,6 @@
 "use client"
 
-import { SessionCard, Sidebar } from "@/components";
+import { MePageTabs, SessionCard, Sidebar } from "@/components";
 import { withAuth } from "@/components/WithAuth";
 import { useAuth } from "@/hooks/useAuth";
 import { useState } from "react";
@@ -8,7 +8,6 @@ import { useQuery } from "@tanstack/react-query";
 import { AllLinks, fetcher } from "@/utils";
 import { useToggleReaction } from "../../hooks/useToggleReactions"
 
-const TABS = ["Читають зараз", "Підписки", "Челенджі", "Добірки"];
 
 function FriendsContent() {
   const { user } = useAuth();
@@ -34,21 +33,7 @@ function FriendsContent() {
       <main className="flex-1 p-8 max-w-5xl mx-auto">
         <h1 className="text-3xl font-bold mb-6 text-white">Спільнота</h1>
 
-        <div className="flex items-center gap-3 mb-6 border-b border-zinc-800 pb-4">
-          {TABS.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2 cursor-pointer rounded-lg text-sm font-medium transition-colors ${
-                activeTab === tab
-                  ? "bg-zinc-800 text-white"
-                  : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900"
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
+        <MePageTabs setter={ setActiveTab } activeTab={ activeTab } />
 
         <div className="mb-4">
           <h2 className="text-xl font-semibold text-zinc-300 mb-3">

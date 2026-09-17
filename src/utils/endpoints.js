@@ -87,6 +87,10 @@ const BookAuthors = {
     ALL_AUTHORS: (limit=10, offset=0) => `${BASE_BACKEND_URL}/book_authors/?limit=${limit}&offset=${offset}`
 }
 
+const Challenges = {
+    ALL_CHALLENGES: `${BASE_BACKEND_URL}/challenges/challenges/`
+}
+
 export const AllLinks = {
     socialLinks: SocialLinks,
     reviews: Reviews,
@@ -100,5 +104,6 @@ export const AllLinks = {
     bookReviews: BookReviews,
     bookGenres: BookGenres,
     bookPublishers: BookPublishers,
-    bookAuthors: BookAuthors
+    bookAuthors: BookAuthors,
+    challenges: Challenges
 }
