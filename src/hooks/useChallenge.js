@@ -7,7 +7,7 @@ import { useMemo } from "react"
 export function useChallenges() {
     const query = useQuery({
         queryKey: ["challenges"],
-        queryFn: () => fetcher(AllLinks.challenges.ALL_CHALLENGES),
+        queryFn: () => fetcher(AllLinks.challenges.CHALLENGES_SUMMARIES),
         staleTime: 1000 * 60 * 5
     });
 

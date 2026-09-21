@@ -88,7 +88,10 @@ const BookAuthors = {
 }
 
 const Challenges = {
-    ALL_CHALLENGES: `${BASE_BACKEND_URL}/challenges/challenges/`
+    ALL_CHALLENGES: `${BASE_BACKEND_URL}/challenges/challenges/`,
+    CHALLENGES_SUMMARIES: `${BASE_BACKEND_URL}/challenges/challenges/summaries`,
+    JOIN_CHALLENGE: (challengeId, username) => `${BASE_BACKEND_URL}/challenges/challenges/${challengeId}/join/${username}`,
+    LEAVE_CHALLENGE: (challengeId, username) => `${BASE_BACKEND_URL}/challenges/challenges/${challengeId}/leave/${username}`
 }
 
 export const AllLinks = {

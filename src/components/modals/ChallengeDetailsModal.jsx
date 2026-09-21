@@ -1,23 +1,26 @@
 "use client"
 
+import { useAuth } from "@/hooks/useAuth";
 import { useChallengeModalStore } from "@/states";
-import { FileText, Gift, LogOut, MoreVertical, Plus, X } from "lucide-react";
+import { AllLinks } from "@/utils";
+import { useQueryClient } from "@tanstack/react-query";
+import { LogOut, MoreVertical, Plus, X } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useState } from "react"
 
-const MOCK_PARTICIPANTS = [
-  { id: 1, avatar: "https://api.dicebear.com/8.x/notionists/svg?seed=user1" },
-  { id: 2, avatar: "https://api.dicebear.com/8.x/notionists/svg?seed=user2" },
-  { id: 3, avatar: "https://api.dicebear.com/8.x/notionists/svg?seed=user3" },
-  { id: 4, avatar: "https://api.dicebear.com/8.x/notionists/svg?seed=user4" },
-  { id: 5, avatar: "https://api.dicebear.com/8.x/notionists/svg?seed=user5" },
-];
 
 export const ChallengeDetailsModal = () => {
 
-    const { isOpen, selectedChallenge: challenge, closeChallengeModal } = useChallengeModalStore();
+    const { isOpen, 
+        selectedChallenge: challenge, 
+        closeChallengeModal,
+        joinSelectedChallenge,
+        leaveSelectedChallenge  
+    } = useChallengeModalStore();
 
-    const [showMenu, setShowMenu] = useState(false);
-    const [isParticipating, setIsParticipating] = useState(false);
+    const [openPopup, setOpenPopup] = useState(false);
+    const { user } = useAuth();
+    const queryClient = useQueryClient();
 
     useEffect(() => {
         const handleKeyDown = (e) => {
@@ -39,17 +42,65 @@ export const ChallengeDetailsModal = () => {
 
     if (!isOpen || !challenge) return null;
 
-    const handleLeaveChallenge = () => {
-        setIsParticipating(false);
-        setShowMenu(false);
+    const handleLeaveChallenge = async () => {
+        if (!challenge.id || !user?.username) return;
+
+        try {
+            const response = await fetch(
+                AllLinks.challenges.LEAVE_CHALLENGE(challenge.id, user.username), {
+                    method: "DELETE",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                }
+            );
+
+            if(!response.ok) {
+                throw new Error(`Failed to leave challenge: ${ response.status }`)
+            }
+
+            leaveSelectedChallenge(user.username);
+            await queryClient.invalidateQueries({ queryKey: ["challenges"] });
+        } catch (error) {
+            console.error("Error leaving challenge: ", error);
+        }
+
+        closeChallengeModal();
     }
 
-    const handleJoinChallenge = () => {
-        setIsParticipating(true);
-    }
+    const handleJoinChallenge = async () => {
+        if(!challenge.id || !user?.username) return;
+
+        try {
+            const response = await fetch(
+                AllLinks.challenges.JOIN_CHALLENGE(challenge.id, user.username), {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                }
+            );
+
+            if(!response.ok) {
+                throw new Error(`Failed to join challenges: ${ response.status }`)
+            }
+
+            joinSelectedChallenge({
+                id: user.id,
+                username: user.username,
+                avatar: user.avatar,
+                avatar_color: user.avatar_color
+            })
+
+            await queryClient.invalidateQueries({ queryKey: ["challenges"] });
+        } catch (error) {
+            console.error("Error joining challenge: ", error);
+        }
+
+        closeChallengeModal()
+    }   
 
     const handleClose = () => {
-        setShowMenu(false);
         closeChallengeModal();
     }
 
@@ -62,23 +113,33 @@ export const ChallengeDetailsModal = () => {
         });
     };
 
+    const isUserParticipating = () => {
+        if(!Array.isArray(challenge.preview_participants) || !user.username) {
+            return false
+        }
+
+        return challenge.preview_participants?.some((participant) => participant?.username == user.username)
+    }
+
+    const participantsCount = challenge.participants_count || challenge.preview_participants?.length || 0;
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
         onClick={ closeChallengeModal }>
+            { console.log(challenge) }
             <div className="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-xl max-h-[90vh] 
             overflow-y-auto shadow-2xl relative"
             onClick={(e) => {
                 e.stopPropagation()
-                if (showMenu) setShowMenu(false);    
             }}>
                 <div className={`${ challenge.color } p-6 pb-12 rounded-t-2xl relative`}>
                     <div className="absolute top-4 right-4 flex items-center gap-1 z-10">
-                        {isParticipating && (
+                        {isUserParticipating() && (
                             <div className="relative">
                                 <button
                                     onClick={(e) => {
                                     e.stopPropagation();
-                                    setShowMenu((prev) => !prev);
+                                    setOpenPopup((prev) => !prev);
                                     }}
                                     className="p-1.5 rounded-lg text-white/70 hover:text-white hover:bg-black/20 cursor-pointer 
                                     transition-colors"
@@ -87,7 +148,7 @@ export const ChallengeDetailsModal = () => {
                                     <MoreVertical size={20} />
                                 </button>
 
-                                {showMenu && (
+                                { openPopup && (
                                     <div className="absolute right-0 mt-2 w-56 bg-zinc-900 border border-zinc-800 rounded-xl 
                                     shadow-xl py-1 z-20">
                                     <button
@@ -128,35 +189,98 @@ export const ChallengeDetailsModal = () => {
                     </div>
                 </div>
 
-                <div className="p-6">
-                    <div className="flex items-center gap-3 mb-8">
+                <div className="px-6">
+                    { challenge.active && (<div className="flex items-center gap-3 mb-5 -mt-5 max-w-max mx-auto">
                         <div className="flex -space-x-3">
-                            { MOCK_PARTICIPANTS.map((user) => (
-                                <img
-                                    key={ user.id }
-                                    src={ user.avatar }
-                                    alt="Avatar"
-                                    className="w-8 h-8 rounded-full border-2 border-zinc-950"
-                                />
+                            { challenge?.preview_participants?.map((user, index) => (
+                                user?.avatar ? (
+                                    <img
+                                        key={ index }
+                                        src={`http://localhost:8030${user.avatar}` }
+                                        alt="Avatar"
+                                        className="w-8 h-8 rounded-full border-2 border-zinc-950"
+                                    />
+                                ) : (
+                                    <div className="w-8 h-8 rounded-full border-2 bg-purple-800 relative" key={ user.id }>
+                                        <span className="absolute text-white font-semibold text-md left-[20%] top-[5%]">
+                                            { user.username.substring(0, 2) }
+                                        </span>
+                                    </div>
+                                )
                             )) }
                         </div>
-
-                        <div className="flex items-center gap-1 text-sm text-zinc-400">
-                            <Plus size={ 14 } className="text-blue-500" />
-                            <span>+67 читачів вже беруть участь</span>
+                        { user?.participants_count > 5 ? (
+                            <div className="flex items-center gap-1 text-sm text-zinc-400">
+                                <Plus size={ 14 } className="text-blue-500" />
+                                <span>+{ user?.pariticipants_count - 5 } читачів вже беруть участь</span>
+                            </div>    
+                        ) : (
+                            <span className="text-white font-semibold">Учасники челенджу</span>
+                        ) }
+                        
+                    </div>) }
+                    
+                    { challenge.active && (
+                        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 mb-8 text-sm space-y-3">
+                            <h3 className="font-semibold text-zinc-200">Що далі?</h3>
+                            <ol className="list-decimal list-inside space-y-1.5 text-zinc-400 marker:text-blue-500 marker:font-bold">
+                                <li className={`${isUserParticipating() ? "line-through" : ""}`}>Натисність "Взяти участь"</li>
+                                <li>Оберіть книгу для челенджу</li>
+                                <li>Прочитайте книгу</li>
+                                <li>Напишіть і опублікуйте книгу</li>
+                            </ol>
+                        </div>    
+                    ) }
+                    
+                    {!challenge.active && challenge.super_winners?.length > 0 && (
+                        <div className="w-full flex flex-col gap-2">
+                            <p className="text-white text-md">
+                                🥳 Ура! СУПЕР-переможці ці читачі:
+                            </p>
+                            <div className="p-4 flex flex-col gap-2 rounded-lg bg-black/90">
+                                { challenge.super_winners.map((winner, index) => (
+                                    <Link className="flex items-center gap-2" key={winner.id || index} href="#">
+                                        <img
+                                            alt={winner.username}
+                                            src={`http://localhost:8030${winner.avatar}`}
+                                            className="rounded-full w-12 h-12 object-cover"
+                                        />
+                                        <p className="text-white">{winner.username}</p>
+                                    </Link>
+                                )) }
+                            </div>
                         </div>
-                    </div>
+                    )}
 
-                    <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 mb-8 text-sm space-y-3">
-                        <h3 className="font-semibold text-zinc-200">Що далі?</h3>
-                        <ol className="list-decimal list-inside space-y-1.5 text-zinc-400 marker:text-blue-500 marker:font-bold">
-                            <li>Натисність "Взяти участь"</li>
-                            <li>Оберіть книгу для челенджу</li>
-                            <li>Прочитайте книгу</li>
-                            <li>Напишіть і опублікуйте книгу</li>
-                        </ol>
-                    </div>
+                    { !challenge.active && challenge.winners?.length > 0 && (
+                        <div className="w-full flex flex-col gap-2">
+                            <p className="text-white text-md">
+                                🥳 Ура, переможцями є наступні чудові читачі:
+                            </p>
 
+                            <div className="p-4 flex flex-col gap-2 rounded-lg bg-black/90">
+                                { challenge.winners.map((winner, index) => (
+                                    <Link className="flex items-center gap-2" key={winner.id || index}  href="#">
+                                        { winner.avatar ? (
+                                            <img
+                                                alt={winner.username}
+                                                src={`http://localhost:8030${winner.avatar}`}
+                                                className="rounded-full w-12 h-12 object-cover"
+                                            />    
+                                        ) : (
+                                            <div className="w-12 h-12 rounded-full bg-purple-500 relative">
+                                                <h4 className="text-white font-semibold text-md absolute top-[25%] left-[32%]">
+                                                    { winner.username.substring(0, 2) }
+                                                </h4>
+                                            </div>
+                                        ) }
+                                        
+                                        <p className="text-white">{winner.username}</p>
+                                    </Link>
+                                )) }
+                            </div>
+                        </div>
+                    ) }
                     <div
                         className={`prose prose-invert w-full text-white flex flex-col gap-3 
                         [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:space-y-1.5 [&_ul]:list-disc [&_ul]:pl-5 [&_h3]:text-lg 
@@ -164,18 +288,23 @@ export const ChallengeDetailsModal = () => {
                         dangerouslySetInnerHTML={{ __html: challenge.description }}
                         />
 
-                    {isParticipating ? (
-                        <div className="w-full mt-5 text-center py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-zinc-400 text-sm font-medium">
-                            Ви берете участь у цьому челенджі
-                        </div>
+                    { challenge.active && (!isUserParticipating() ? (
+                        <button
+                            onClick={ handleJoinChallenge }
+                            className="w-full bg-blue-600 mt-5 hover:bg-blue-500 text-white font-semibold text-base py-3 rounded-xl transition-colors cursor-pointer shadow-lg shadow-blue-600/20"
+                            >
+                                Взяти участь
+                        </button>  
                     ) : (
                         <button
-                        onClick={ handleJoinChallenge }
-                        className="w-full bg-blue-600 mt-5 hover:bg-blue-500 text-white font-semibold text-base py-3 rounded-xl transition-colors cursor-pointer shadow-lg shadow-blue-600/20"
+                            onClick={ handleLeaveChallenge }
+                            className="w-full bg-transparent mt-5 hover:opacity-80 text-white font-semibold text-base py-3 border-2 rounded-xl
+                            transition-colors cursor-pointer shadow-lg"
                         >
-                            Взяти участь
+                            Покинути челендж
                         </button>
-                    )}
+                    )     
+                    ) }
                 </div>
             </div>
         </div>
