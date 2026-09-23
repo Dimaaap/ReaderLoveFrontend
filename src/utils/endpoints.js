@@ -94,6 +94,11 @@ const Challenges = {
     LEAVE_CHALLENGE: (challengeId, username) => `${BASE_BACKEND_URL}/challenges/challenges/${challengeId}/leave/${username}`
 }
 
+const BookSelections = {
+    ALL_BOOK_SELECTIONS: (isActive=true) => `${BASE_BACKEND_URL}/books_selections/?is_active=${isActive}`,
+    BOOK_SELECTION_BY_IDENTIFIER: (identifier, username) => `${BASE_BACKEND_URL}/books_selections/${ identifier }?username=${ username }`
+}
+
 export const AllLinks = {
     socialLinks: SocialLinks,
     reviews: Reviews,
@@ -108,5 +113,6 @@ export const AllLinks = {
     bookGenres: BookGenres,
     bookPublishers: BookPublishers,
     bookAuthors: BookAuthors,
-    challenges: Challenges
+    challenges: Challenges,
+    bookSelections: BookSelections
 }
