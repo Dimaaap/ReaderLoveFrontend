@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import BookStatusDropdown from "./BookStatusDropdown";
+import { Star } from "lucide-react";
 
 export default function BookInfo({
     book,
@@ -45,6 +46,24 @@ export default function BookInfo({
                     {authorNames}
                 </p>
 
+                <div className="flex items-center gap-3 mb-3">
+                    <div className="flex items-center gap-1.5">
+                        <span className="text-yellow-400">
+                            ★
+                        </span>
+
+                        <span className="text-sm font-bold text-white">
+                            {book?.rating?.toFixed(1) ?? "0.0"}
+                        </span>
+                    </div>
+
+                    <div className="h-4 w-px bg-zinc-800" />
+
+                    <span className="text-sm text-zinc-500">
+                        {book?.reviews_count ?? 0} відгуків
+                    </span>
+                </div>               
+
                 <div className="flex flex-wrap gap-1.5 mb-3">
 
                     {book?.genres?.map((genre) => (
@@ -67,7 +86,7 @@ export default function BookInfo({
                     setBookStatus={setBookStatus}
                     statusMenuOpen={statusMenuOpen}
                     setStatusMenuOpen={setStatusMenuOpen}
-                    bookSlug={ book.slug }
+                    bookSlug={ book?.slug }
                 />
 
             </div>

@@ -36,13 +36,49 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "i.pinimg.com",
+        port: "",
+        pathname: "/**"
+      },
+      {
+        protocol: "https",
         hostname: "images.unsplash.com",
         port: "",
         pathname: "/**"
       },
       {
         protocol: "https",
+        hostname: "s3.vcdn.biz",
+        port: "",
+        pathname: "/**"
+      },
+      {
+        protocol: "https",
+        hostname: "s7.vcdn.biz",
+        port: "",
+        pathname: "/**"
+      },
+      {
+        protocol: "https",
         hostname: "media.istockphoto.com",
+        port: "",
+        pathname: "/**"
+      },
+      {
+        protocol: "https",
+        hostname: "s2.vcdn.biz",
+        port: "",
+        pathname: "/**"
+      },
+       {
+        protocol: "https",
+        hostname: "s8.vcdn.biz",
+        port: "",
+        pathname: "/**"
+      },
+      {
+        protocol: "https",
+        hostname: "s6.vcdn.biz",
         port: "",
         pathname: "/**"
       },

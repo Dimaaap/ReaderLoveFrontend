@@ -10,7 +10,7 @@ export const AllGenresSidebar = ({ pageSlug }) => {
     const { data: allGenres, isLoading, isError } = useQuery({
         queryKey: ["all-genres"],
         queryFn: async() => {
-            const data = await fetcher(AllLinks.bookGenres.ALL_BOOK_GENRES);
+            const data = await fetcher(AllLinks.bookGenres.ALL_BOOK_GENRES());
             return data;
         }
     })

@@ -9,12 +9,18 @@ import Link from "next/link";
 export default function BookGenrePage({genreSlug}) {
     
     const { data: genre, isLoading, isError } = useQuery({
-        queryKey: ["book-genre", genreSlug],
-        queryFn: async () => {
-            const data = await fetcher(AllLinks.bookGenres.BOOK_GENRE_BY_SLUG(genreSlug));
-            return data;
-        }
-    })
+    queryKey: ["book-genre", genreSlug],
+
+    queryFn: async () => {
+        const url = AllLinks.bookGenres.BOOK_GENRE_BY_SLUG(genreSlug);
+
+        console.log("GENRE URL:", url);
+
+        const data = await fetcher(url);
+
+        return data;
+    }
+});
     
     return (
         <div className="flex items-start w-full bg-[#0b0c10] min-h-screen overflow-y-auto">

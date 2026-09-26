@@ -26,4 +26,6 @@ export * from "./ChangeBookStatusPopup";
 export * from "./BookDetailsModal";
 export * from "./ChooseReadingPageModal";
 export * from "./BookFiltersModal";
-export * from "./BooksOrderModal"
+export * from "./BooksOrderModal";
+export * from "./BookSelectPopup";
+export * from "./BuyBookModal"

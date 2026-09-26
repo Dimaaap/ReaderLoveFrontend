@@ -1,7 +1,7 @@
 export const BookCharacteristics = ({ book }) => {
 
     const translateBookLanguage = (book) => {
-        if(book.language === "Ukrainian") {
+        if(book?.language === "Ukrainian") {
             return "Українська"
         } else {
             return "Англійська"
@@ -15,12 +15,12 @@ export const BookCharacteristics = ({ book }) => {
             </h3>
             <div className="flex justify-between items-center text-sm">
                 <p className="text-zinc-400 font-medium">Дата публікації</p>
-                <p className="text-white font-semibold">{book.publish_date || "1910"}</p>
+                <p className="text-white font-semibold">{book?.publish_date || "1910"}</p>
             </div>
 
             <div className="flex justify-between items-center text-sm">
                 <p className="text-zinc-400 font-medium">Кількість сторінок</p>
-                <p className="text-white font-semibold">{book.pages_count || "96"}</p>
+                <p className="text-white font-semibold">{book?.pages_count || "96"}</p>
             </div>
 
             <div className="flex justify-between items-center text-sm">

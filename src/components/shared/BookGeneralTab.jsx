@@ -9,7 +9,7 @@ export function BookGeneralTab({ book }) {
                 </h3>
 
                 <p className="text-sm font-normal leading-relaxed text-zinc-400 line-clamp-4">
-                    {book.description}
+                    {book?.description}
                 </p>
                 { book?.description && (
                     <button
