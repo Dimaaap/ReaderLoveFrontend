@@ -8,7 +8,7 @@ const TABS = [
   },
   {
     title: "Підписки",
-    slug: "subsribes"
+    slug: "subscribes"
   },
   {
     title: "Челенджі",

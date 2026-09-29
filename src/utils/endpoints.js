@@ -40,7 +40,8 @@ const Users = {
     UPLOAD_AVATAR: `${BASE_BACKEND_URL}/users/auth/me/avatar`,
     CHANGE_PASSWORD: `${BASE_BACKEND_URL}/users/auth/me/change-password`,
     UPDATE_USER_SETTINGS: `${BASE_BACKEND_URL}/users/auth/me/settings`,
-    GET_USER_BY_USERNAME: (username) => `${BASE_BACKEND_URL}/users/auth/user/${username}`
+    GET_USER_BY_USERNAME: (username) => `${BASE_BACKEND_URL}/users/auth/user/${username}`,
+    SEARCH_USERS: (search, limit=20) => `${ BASE_BACKEND_URL }/users/auth/users/search?q=${encodeURIComponent(search)}&limit=${limit}`
 }
 
 const TemporaryQuotes = {
