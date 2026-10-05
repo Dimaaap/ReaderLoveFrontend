@@ -41,7 +41,9 @@ const Users = {
     CHANGE_PASSWORD: `${BASE_BACKEND_URL}/users/auth/me/change-password`,
     UPDATE_USER_SETTINGS: `${BASE_BACKEND_URL}/users/auth/me/settings`,
     GET_USER_BY_USERNAME: (username) => `${BASE_BACKEND_URL}/users/auth/user/${username}`,
-    SEARCH_USERS: (search, limit=20) => `${ BASE_BACKEND_URL }/users/auth/users/search?q=${encodeURIComponent(search)}&limit=${limit}`
+    SEARCH_USERS: (search, limit=20) => `${ BASE_BACKEND_URL }/users/auth/users/search?q=${encodeURIComponent(search)}&limit=${limit}`,
+    TOGGLE_FOLLOW_USER: (userId) => `${ BASE_BACKEND_URL }/users/auth/users/${ userId }/follow`,
+    GET_USER_FOLLOWING: (userId, limit, offset) => `${ BASE_BACKEND_URL }/users/auth/users/${userId}/following?limit=${limit}&offset=${offset}`
 }
 
 const TemporaryQuotes = {

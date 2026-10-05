@@ -2,7 +2,8 @@
 
 import { useSearchModalStore } from "@/states"
 import { AllLinks } from "@/utils";
-import { Loader2, Search, UserPlus, Users, X } from "lucide-react";
+import { Loader2, Search, Users, X } from "lucide-react";
+import { UserListItem } from "@/components/shared/UserListItem";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
@@ -114,9 +115,9 @@ export const SearchUsersModal = () => {
                     </div>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-6 min-h-75 flex flex-col justify-center items-center">
+                <div className="flex-1 overflow-y-auto p-6 max-h-[60vh]">
                     {searchQuery.trim() === "" && searchResults.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center text-center">
+                        <div className="flex flex-col items-center justify-center text-center py-8">
                             <div className="relative w-40 h-40 mb-4 opacity-80">
                                 <Image
                                 src="/search-users.png"
@@ -135,55 +136,18 @@ export const SearchUsersModal = () => {
                             </p>
                         </div>
                     ) : isLoading ? (
-                        <div className="flex flex-col items-center justify-center py-8 text-zinc-400">
+                        <div className="flex flex-col items-center justify-center py-12 text-zinc-400">
                             <Loader2 className="w-6 h-6 animate-spin mb-2" />
                             <p className="text-sm">Шукаємо користувачів...</p>
                         </div>
                     ) : searchResults.length === 0 ? (
-                        <div className="text-center text-zinc-500 py-8">
+                        <div className="text-center text-zinc-500 py-12">
                             Користувачів за запитом "{searchQuery}" не знайдено
                         </div>
                     ) : (
                         <div className="w-full divide-y divide-zinc-800/50">
                         {searchResults.map((user) => (
-                            <div
-                            key={user.id}
-                            className="flex items-center justify-between py-3 px-2 hover:bg-zinc-800/30 rounded-xl transition-colors"
-                            >
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center text-white 
-                                    font-medium overflow-hidden relative">
-                                    {user.avatar ? (
-                                        <Image
-                                        src={
-                                            user.avatar.startsWith("http")
-                                            ? user.avatar
-                                            : `http://localhost:8030${user.avatar}`
-                                        }
-                                        alt={user.username}
-                                        fill
-                                        className="object-cover"
-                                        />
-                                    ) : (
-                                    <span>{user.username[0]?.toUpperCase()}</span>
-                                    )}
-                                </div>
-                                <div>
-                                <p className="text-sm font-medium text-white">
-                                    {user.username}
-                                </p>
-                                <p className="text-xs text-zinc-400">@{user.username}</p>
-                                </div>
-                            </div>
-
-                            <button
-                                type="button"
-                                className="flex items-center gap-1.5 px-3 py-1.5 bg-white text-black hover:bg-zinc-200 text-xs font-semibold rounded-lg transition-colors"
-                            >
-                                <UserPlus className="w-3.5 h-3.5" />
-                                Підписатися
-                            </button>
-                        </div>
+                            <UserListItem key={user.id} user={user} />
                         ))}
                     </div>
                 )}
