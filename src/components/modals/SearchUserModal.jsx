@@ -7,7 +7,7 @@ import { UserListItem } from "@/components/shared/UserListItem";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
-export const SearchUsersModal = () => {
+export const SearchUsersModal = ({ onFollowToggle }) => {
     const { isOpen, closeModal } = useSearchModalStore();
 
     const [searchQuery, setSearchQuery] = useState("");
@@ -147,7 +147,11 @@ export const SearchUsersModal = () => {
                     ) : (
                         <div className="w-full divide-y divide-zinc-800/50">
                         {searchResults.map((user) => (
-                            <UserListItem key={user.id} user={user} />
+                            <UserListItem key={user.username} user={user} onFollowToggle={(user, isFollowing) => {
+                                if (onFollowToggle) {
+                                    onFollowToggle(user, isFollowing);
+                                }
+                            }} />
                         ))}
                     </div>
                 )}

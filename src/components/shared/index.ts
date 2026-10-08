@@ -61,3 +61,7 @@ export * from "./MePageTabs"
 export * from "./ChallengeCard"
 export * from "./BookSelectionCard"
 export * from "./UserListItem"
+export * from "./UserAvatar"
+export * from "./SimilarBooksSection";
+export * from "./ActiveSessionTimer"
+export * from "./FlippingBookCover"

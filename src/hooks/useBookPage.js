@@ -11,7 +11,6 @@ import {
 import { AllLinks, fetcher } from "@/utils";
 import { useAuth } from "./useAuth";
 
-
 export const useBookPage = (bookSlug) => {
     const [activeTab, setActiveTab] = useState("general");
     const [statusMenuOpen, setStatusMenuOpen] = useState(false);
@@ -28,21 +27,17 @@ export const useBookPage = (bookSlug) => {
     } = useQuery({
         queryKey,
         enabled: !!user?.username && !!bookSlug,
-
         queryFn: async () => {
-            const data = await fetcher(
+            return await fetcher(
                 AllLinks.books.BOOK_WITH_READ_SESSIONS(
                     user.username,
                     bookSlug
                 )
             );
-
-            return data;
         },
     });
 
-
-    const { mutate: updateBookStatus } = useMutation({
+    const { mutateAsync: updateBookStatus, isPending: isUpdatingStatus } = useMutation({
         mutationFn: async (newStatus) => {
             const response = await fetch(
                 AllLinks.books.UPDATE_USER_BOOK_READING_STATUS(
@@ -66,49 +61,66 @@ export const useBookPage = (bookSlug) => {
 
             return response.json();
         },
-
         onMutate: async (newStatus) => {
-            await queryClient.cancelQueries({
-                queryKey,
-            });
-
-            const previousBook =
-                queryClient.getQueryData(queryKey);
+            await queryClient.cancelQueries({ queryKey });
+            const previousBook = queryClient.getQueryData(queryKey);
 
             queryClient.setQueryData(queryKey, (oldData) => {
                 if (!oldData) return oldData;
-
                 return {
                     ...oldData,
                     status: newStatus,
                 };
             });
 
-            return {
-                previousBook,
-            };
+            return { previousBook };
         },
-
         onError: (error, newStatus, context) => {
             if (context?.previousBook) {
-                queryClient.setQueryData(
-                    queryKey,
-                    context.previousBook
-                );
+                queryClient.setQueryData(queryKey, context.previousBook);
             }
         },
-
         onSettled: () => {
-            queryClient.invalidateQueries({
-                queryKey,
-            });
-
-            queryClient.invalidateQueries({
-                queryKey: ["books", user.username],
-            });
+            queryClient.invalidateQueries({ queryKey });
+            queryClient.invalidateQueries({ queryKey: ["books", user?.username] });
         },
     });
 
+    const { mutateAsync: deleteBookStatus, isPending: isDeletingStatus } = useMutation({
+        mutationFn: async () => {
+            const response = await fetch(
+                AllLinks.books.DELETE_BOOK_STATUS(user.username, bookSlug),
+                { method: "DELETE" }
+            );
+
+            if (!response.ok) {
+                throw new Error("Не вдалося видалити книгу з бібліотеки");
+            }
+        },
+        onMutate: async () => {
+            await queryClient.cancelQueries({ queryKey });
+            const previousBook = queryClient.getQueryData(queryKey);
+
+            queryClient.setQueryData(queryKey, (oldData) => {
+                if (!oldData) return oldData;
+                return {
+                    ...oldData,
+                    status: null,
+                };
+            });
+
+            return { previousBook };
+        },
+        onError: (error, variables, context) => {
+            if (context?.previousBook) {
+                queryClient.setQueryData(queryKey, context.previousBook);
+            }
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey });
+            queryClient.invalidateQueries({ queryKey: ["books", user?.username] });
+        },
+    });
 
     const {
         data,
@@ -117,9 +129,7 @@ export const useBookPage = (bookSlug) => {
         isFetchingNextPage,
     } = useInfiniteQuery({
         queryKey: ["reviews", book?.id],
-
         enabled: !!book?.id,
-
         queryFn: ({ pageParam }) =>
             fetcher(
                 AllLinks.bookReviews.bookReviewsByBookId(
@@ -128,37 +138,23 @@ export const useBookPage = (bookSlug) => {
                     pageParam
                 )
             ),
-
         initialPageParam: 0,
-
         getNextPageParam: (lastPage, pages) => {
-            if (lastPage.length < 5) {
-                return undefined;
-            }
-
+            if (lastPage.length < 5) return undefined;
             return pages.length * 5;
         },
     });
 
-
     const authorNames = useMemo(() => {
-        if (!book?.authors) {
-            return "";
-        }
-
+        if (!book?.authors) return "";
         return book.authors
-            .map(
-                (author) =>
-                    `${author.first_name} ${author.last_name}`
-            )
+            .map((author) => `${author.first_name} ${author.last_name}`)
             .join(", ");
     }, [book]);
-
 
     const reviews = useMemo(() => {
         return data?.pages.flatMap((page) => page) ?? [];
     }, [data]);
-
 
     return {
         book,
@@ -171,10 +167,11 @@ export const useBookPage = (bookSlug) => {
         statusMenuOpen,
         setStatusMenuOpen,
 
-        updateBookStatus,
+        setBookStatus: updateBookStatus,
+        deleteBookStatus,
+        isStatusLoading: isUpdatingStatus || isDeletingStatus,
 
         authorNames,
-
         reviews,
 
         fetchNextPage,

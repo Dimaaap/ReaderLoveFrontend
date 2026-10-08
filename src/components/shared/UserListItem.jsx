@@ -4,11 +4,14 @@ import { Loader2, UserCheck, UserPlus } from "lucide-react";
 import { useState } from "react";
 import { AllLinks } from "@/utils/endpoints"
 import Image from "next/image";
+import { useSearchModalStore } from "@/states/SearchModalState";
 
 export const UserListItem = ({ user, onFollowToggle }) => {
     const [imageError, setImageError] = useState(false);
     const [isFollowing, setIsFollowing] = useState(Boolean(user.is_following));
     const [isLoading, setIsLoading] = useState(false);
+
+    const closeModal = useSearchModalStore((state) => state.closeModal);
 
     const getAvatarUrl = (path) => {
         if (!path) return null;
@@ -45,7 +48,11 @@ export const UserListItem = ({ user, onFollowToggle }) => {
             setIsFollowing(newStatus);
 
             if (onFollowToggle) {
-                onFollowToggle(user.id, newStatus);
+                onFollowToggle(user, newStatus);
+            }
+
+            if (newStatus) {
+                closeModal();
             }
 
         } catch (error) {
@@ -70,7 +77,7 @@ export const UserListItem = ({ user, onFollowToggle }) => {
                         onError={ () => setImageError(true) }
                         />
                     ) : (
-                        <span>{user.username[0]?.toUpperCase()}</span>
+                        <span>{user?.username?.substring(0, 2).toUpperCase()}</span>
                     )}
                 </div>
                 <div>

@@ -3,7 +3,7 @@
 import { useCreateReviewModalState } from "@/states";
 import { CreateReviewModal } from "@/components/modals/CreateReviewModal";
 import { useBookPage } from "@/hooks/useBookPage"
-import { BookGeneralTab, BookHeader } from "@/components";
+import { BookGeneralTab, BookHeader, SimilarBooksSection } from "@/components";
 import BookInfo from "@/components/shared/BookInfo";
 import BookReviewsTab from "@/components/shared/BookReviewTab";
 import BookTabs from "@/components/shared/BookTabs";
@@ -31,6 +31,8 @@ export default function BookPage({ bookSlug }) {
             authorNames={page.authorNames}
             bookStatus={page.book?.status}
             setBookStatus={page.setBookStatus}
+            deleteBookStatus={page.deleteBookStatus}
+            isStatusLoading={page.isStatusLoading}
             statusMenuOpen={page.statusMenuOpen}
             setStatusMenuOpen={page.setStatusMenuOpen}
         />
@@ -51,6 +53,7 @@ export default function BookPage({ bookSlug }) {
             />
         )}
       </div>
+      <SimilarBooksSection bookSlug={ bookSlug } />
     </div>
   );
 }

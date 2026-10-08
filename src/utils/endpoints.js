@@ -20,7 +20,8 @@ const Books = {
     EXPORT_USER_BOOKS: (username) => `${BASE_BACKEND_URL}/books/${username}/export`,
     CREATE_BOOK: `${BASE_BACKEND_URL}/books/`,
     UPLOAD_COVER: `${BASE_BACKEND_URL}/books/upload-cover`,
-    ALL_BOOKS: (limit, searchQuery) => `${BASE_BACKEND_URL}/books/?search=${searchQuery}&limit=${limit}`
+    ALL_BOOKS: (limit, searchQuery) => `${BASE_BACKEND_URL}/books/?search=${searchQuery}&limit=${limit}`,
+    GET_SIMILAR_BOOKS: (bookSlug, limit=6) => `${BASE_BACKEND_URL}/books/${bookSlug}/similar?limit=${limit}`
 }
 
 const BookGenres = {
@@ -43,7 +44,9 @@ const Users = {
     GET_USER_BY_USERNAME: (username) => `${BASE_BACKEND_URL}/users/auth/user/${username}`,
     SEARCH_USERS: (search, limit=20) => `${ BASE_BACKEND_URL }/users/auth/users/search?q=${encodeURIComponent(search)}&limit=${limit}`,
     TOGGLE_FOLLOW_USER: (userId) => `${ BASE_BACKEND_URL }/users/auth/users/${ userId }/follow`,
-    GET_USER_FOLLOWING: (userId, limit, offset) => `${ BASE_BACKEND_URL }/users/auth/users/${userId}/following?limit=${limit}&offset=${offset}`
+    GET_USER_FOLLOWING: (username, limit, offset) => `${ BASE_BACKEND_URL }/users/auth/users/${username}/following?limit=${limit}&offset=${offset}`,
+    GET_USER_FOLLOWING_WITH_READING_SESSIONS: (daysCount=30, limit, offset) => `${ BASE_BACKEND_URL }/users/auth/users/following/reading-sessions?days=${daysCount}&limit=${limit}&offset=${offset}`
+
 }
 
 const TemporaryQuotes = {
