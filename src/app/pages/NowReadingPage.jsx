@@ -19,13 +19,13 @@ import { AddManualReadingSession } from "@/components/modals/AddManualReadingSes
 import { EditProgressModal } from "@/components/modals/EditProgressModal";
 import SharePreviewModal from "@/components/modals/SharePreviewModal";
 import { useChooseBookForReadingModalStore, useShareModalState } from "@/states";
-import { Clock, Zap } from "lucide-react";
 import { ChooseBookForReadingModal } from "@/components/modals/ChooseBookForReadingModal";
 import { BookDetailsModal } from "@/components/modals/BookDetailsModal";
 import { ChooseReadingPageModal } from "@/components/modals/ChooseReadingPageModal";
 import { Toast } from "@/components/shared/Toast";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { calculateReadingTempo } from "@/utils/readingTempo";
+import { AddBookmarkModal } from "@/components/modals/AddBookmarkModal";
 
 function NowReadingContent() {
   const {
@@ -44,6 +44,7 @@ function NowReadingContent() {
   } = useNowReadingPage();
 
   const { shareModalOpen, setShareModalOpen } = useShareModalState();
+  const [bookmarkModalOpen, setBookmarkModalOpen] = useState(false);
   const {
     chooseBookForReadingModalOpen,
     activeModal,
@@ -95,6 +96,16 @@ function NowReadingContent() {
         />
       )}
 
+      { bookmarkModalOpen && (
+        <AddBookmarkModal
+          book={ currentBook }
+          onClose={ () => setBookmarkModalOpen(false) }
+          onSave={ async (data) => {
+            console.log("Saving bookmark: ", data)
+          } }
+        />
+      ) }
+
       {chooseBookForReadingModalOpen && (
         <>
           {activeModal === "choose-book" && <ChooseBookForReadingModal user={user} />}
@@ -119,13 +130,6 @@ function NowReadingContent() {
             <div className="flex flex-col gap-6">
               <div className="flex gap-6 items-start p-6 bg-[#141113] rounded-2xl border border-zinc-900">
                 <div className="w-32 aspect-2/3 relative rounded-xl overflow-hidden shadow-lg border border-zinc-800/40 shrink-0">
-                  {/* <Image
-                    src={currentBook.image_link || "/placeholder-book.png"}
-                    alt={currentBook.title || "Обкладинка"}
-                    fill
-                    className="object-cover"
-                    priority
-                  /> */}
                   <FlippingBookCover 
                     imageSrc={ currentBook.image_link }
                     title={ currentBook.title }
@@ -204,7 +208,10 @@ function NowReadingContent() {
                     
                     { currentBook.active_session_id ? (
                       <ActiveSessionTimer
+                        sessionId={ currentBook.active_session_id }
                         startedAt={ currentBook.active_session_started_at }
+                        initialNetDuration={ currentBook.active_session_net_duration || 0 }
+                        isPausedInitial={ currentBook.active_session_is_paused || false }
                         onStop={() => setStartReadingSessionOpen(true)}
                       />
                     ) : (
@@ -218,15 +225,18 @@ function NowReadingContent() {
                       </button>
                     ) }
 
-                    <button className="p-3.5 bg-[#0D0B0C] cursor-pointer border border-zinc-800 rounded-xl 
-                    hover:border-zinc-700 transition">
-                      <Image
-                        src="/icons/bookmark.svg"
-                        alt="Bookmark"
-                        width={18}
-                        height={18}
-                        className="opacity-80"
-                      />
+                    <button 
+                      onClick={() => setBookmarkModalOpen(true)}
+                      title="Додати швидку нотатку"
+                      className="p-3.5 bg-[#0D0B0C] cursor-pointer border border-zinc-800 rounded-xl 
+                    hover:border-[#FF4B6B]/50 hover:text-[#FF4B6B] transition group">
+                        <Image
+                          src="/icons/bookmark.svg"
+                          alt="Bookmark"
+                          width={18}
+                          height={18}
+                          className="opacity-80 group-hover:brightness-200 transition"
+                        />
                     </button>
 
                     <div className="relative">

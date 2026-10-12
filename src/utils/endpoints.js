@@ -60,7 +60,9 @@ const ReadingSessions = {
     DELETE_READING_SESSION: (sessionId) => `${BASE_BACKEND_URL}/reading-sessions/${sessionId}`,
     USER_READING_SESSIONS_FOR_YEAR_AND_MONTH: (username, year, month) => `${BASE_BACKEND_URL}/reading-sessions/calendar/${username}?year=${year}&month=${month}`,
     ACTIVE_SESSIONS: (username) => `${BASE_BACKEND_URL}/reading-sessions/active?current_username=${username}`,
-    TOGGLE_REACTION: (sessionId, username) => `${BASE_BACKEND_URL}/session_reactions/session_reactions/${sessionId}?username=${username}`
+    TOGGLE_REACTION: (sessionId, username) => `${BASE_BACKEND_URL}/session_reactions/session_reactions/${sessionId}?username=${username}`,
+    PAUSE_SESSION: (sessionId) => `${BASE_BACKEND_URL}/reading-sessions/${ sessionId }/pause`,
+    RESUME_SESSION: (sessionId) => `${BASE_BACKEND_URL}/reading-sessions/${ sessionId }/resume`
 }
 
 const BookNotes = {

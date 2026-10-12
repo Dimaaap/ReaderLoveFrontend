@@ -30,4 +30,5 @@ export * from "./BooksOrderModal";
 export * from "./BookSelectPopup";
 export * from "./BuyBookModal";
 export * from "./SessionMenuPopup"
-export * from "./ReadingSessionDetailPopup"
+export * from "./ReadingSessionDetailPopup";
+export * from "./AddBookmarkModal";
