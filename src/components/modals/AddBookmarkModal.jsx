@@ -3,9 +3,9 @@
 import { AllLinks } from "@/utils";
 import { Bookmark, X } from "lucide-react";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
-
-export const AddBookmarkModal = ({ book, username, onClose, onSaveSuccess }) => {
+export const AddBookmarkModal = ({ book, username, onClose, onSave }) => {
     const [formData, setFormData] = useState({
         noteText: "",
         noteCategory: "Думки",
@@ -17,19 +17,17 @@ export const AddBookmarkModal = ({ book, username, onClose, onSaveSuccess }) => 
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
-
         setFormData((prev) => ({
             ...prev,
             [name]: type === "checkbox" ? checked : value
         }))
     }
 
-
-    const handleSubmit = async(e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (!formData.noteText.trim()) return;
 
-        setIsLoading(true)
+        setIsLoading(true);
 
         try {
             const response = await fetch(AllLinks.bookNotes.CREATE_BOOK_NOTE, {
@@ -37,35 +35,43 @@ export const AddBookmarkModal = ({ book, username, onClose, onSaveSuccess }) => 
                 headers: {
                     "Content-Type": "application/json"
                 },
+                credentials: "include",
                 body: JSON.stringify({
                     book_id: book.id,
                     user_username: username,
                     note_text: formData.noteText,
                     note_category: formData.noteCategory,
                     book_page: Number(formData.bookPage),
-                    is_important: formData.isImortant
+                    is_important: formData.isImportant
                 })
-            })
+            });
 
-            if (!response.ok) throw new Error("Помилка створення нотатки")
+            if (!response.ok) throw new Error("Помилка створення нотатки");
 
             const newNote = await response.json();
-            if (onSaveSuccess) {
-                onSaveSuccess(newNote);
+            
+            toast.success(`Нотатку до сторінки ${newNote.book_page} успішно додано!`, {
+                duration: 4000,
+            });
+
+            if (onSave) {
+                onSave(newNote);
             }
+            
             onClose();
         } catch (error) {
             console.error("Failed to save book note: ", error);
+            toast.error("Не вдалося зберегти нотатку");
         } finally {
             setIsLoading(false);
         }
     }
-  
+ 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
             <div className="w-full max-w-md border border-zinc-800 bg-[#141113] rounded-2xl p-6 shadow-2xl text-white relative">
                 <button
-                    onClick={ onClose }
+                    onClick={onClose}
                     className="absolute top-4 right-4 text-zinc-400 hover:text-white transition cursor-pointer"
                 >
                     <X className="w-5 h-5" />
@@ -81,15 +87,15 @@ export const AddBookmarkModal = ({ book, username, onClose, onSaveSuccess }) => 
                     </div>
                 </div>
 
-                <form onSubmit={ handleSubmit } className="flex flex-col gap-4">
+                <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                     <div>
                         <label className="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1.5">
                             Категорія
                         </label>
                         <select
                             name="noteCategory"
-                            value={ formData.noteCategory }
-                            onChange={ handleChange }
+                            value={formData.noteCategory}
+                            onChange={handleChange}
                             className="w-full bg-[#0D0B0C] border border-zinc-800 rounded-xl px-4 py-2.5 text-white
                             text-sm focus:outline-none focus:border-[#FF4B6B] transition"
                         >
@@ -116,12 +122,28 @@ export const AddBookmarkModal = ({ book, username, onClose, onSaveSuccess }) => 
                         />
                     </div>
 
+                    <div>
+                        <label className="block text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1.5">
+                            Текст / Цитата
+                        </label>
+                        <textarea
+                            name="noteText"
+                            rows={4}
+                            value={formData.noteText}
+                            onChange={handleChange}
+                            placeholder="Ваші враження чи цитата з книги..."
+                            className="w-full bg-[#0D0B0C] border border-zinc-800 rounded-xl p-3 text-white text-sm 
+                            focus:outline-none focus:border-[#FF4B6B] transition resize-none"
+                            required
+                        />
+                    </div>
+
                     <label className="flex items-center gap-2 cursor-pointer text-sm text-zinc-300">
                         <input
                             type="checkbox"
                             name="isImportant"
-                            checked={ formData.isImportant }
-                            onChange={ handleChange }
+                            checked={formData.isImportant}
+                            onChange={handleChange}
                             className="w-4 h-4 rounded bg-[#0D0B0C] border-zinc-800 text-[#FF4B6B] focus:ring-0
                             cursor-pointer"
                         />

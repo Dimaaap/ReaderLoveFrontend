@@ -1,46 +1,58 @@
-"use client"
+"use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { AllLinks } from "../utils"
+import { AllLinks } from "../utils";
 
+let cachedUser = undefined;
 
 export const useAuth = () => {
-    const [user, setUser] = useState(null)
-    const [isAuthenticated, setIsAuthenticated] = useState(false)
-    const [isLoading, setIsLoading] = useState(true)
+    const [user, setUser] = useState(cachedUser);
+    const [isLoading, setIsLoading] = useState(cachedUser === undefined);
 
-    const checkAuth = useCallback(async () => {
-        setIsLoading(true)
-        
-        
+    const checkAuth = useCallback(async (force = false) => {
+        if (!force && cachedUser !== undefined) {
+            setUser(cachedUser);
+            setIsLoading(false);
+            return;
+        }
+
+        setIsLoading(true);
         try {
             const response = await fetch(AllLinks.users.ME, {
                 method: "GET",
-                credentials: "include"
-            })
+                credentials: "include",
+            });
 
-            if(!response.ok){
+            if (!response.ok) {
+                cachedUser = null;
                 setUser(null);
-                setIsAuthenticated(false);
-                return
+                return;
             }
 
             const data = await response.json();
-            setUser(data)
-            setIsAuthenticated(true)
-
-        } catch(err) {
-            console.error(err)
+            cachedUser = data;
+            setUser(data);
+        } catch (err) {
+            cachedUser = null;
             setUser(null);
-            setIsAuthenticated(false)
         } finally {
-            setIsLoading(false)
+            setIsLoading(false);
         }
     }, []);
 
     useEffect(() => {
-        checkAuth()
-    }, [])
+        if (cachedUser === undefined) {
+            checkAuth();
+        } else {
+            setIsLoading(false);
+        }
+    }, [checkAuth]);
 
-    return { user, setUser, isAuthenticated, isLoading, refreshAuth: checkAuth }
-}  
+    return { 
+        user, 
+        setUser: (newUser) => { cachedUser = newUser; setUser(newUser); }, 
+        isAuthenticated: !!user, 
+        isLoading, 
+        refreshAuth: () => checkAuth(true) 
+    };
+};

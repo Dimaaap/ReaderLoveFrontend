@@ -4,21 +4,40 @@ import { AllLinks } from '@/utils';
 import { Pause, Play, Square } from 'lucide-react';
 import { useState, useEffect } from 'react'
 
-export const ActiveSessionTimer = ({ sessionId, startedAt, initialNetDuration=0, isPausedInitial=false, onStop, onStatusChange }) => {
+export const ActiveSessionTimer = ({ sessionId, startedAt, initialNetDuration = 0, isPausedInitial = false, onStop, onStatusChange }) => {
     const [isPaused, setIsPaused] = useState(isPausedInitial);
-    const [elapsedSeconds, setElapsedSeconds] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
+    
+    const [elapsedSeconds, setElapsedSeconds] = useState(() => {
+        if (isPausedInitial || !startedAt) {
+            return initialNetDuration
+        }
+
+        const startTime = new Date(startedAt).getTime();
+        const now = new Date().getTime();
+
+        if (isNaN(startTime)) {
+            return initialNetDuration;
+        }
+
+        const secondPassed = Math.max(0, Math.floor((now - startTime) / 1000));
+
+        return initialNetDuration + secondPassed
+    });
+
+    useEffect(() => {
+        setIsPaused(isPausedInitial);
+    }, [isPausedInitial]);
 
     useEffect(() => {
         if (isPaused) return;
 
         const interval = setInterval(() => {
-            setElapsedSeconds((prev) => prev + 1)
-        }, 1000)
+            setElapsedSeconds((prev) => prev + 1);
+        }, 1000);
 
-        return () => clearInterval(interval)
-    }, [isPaused])
-
+        return () => clearInterval(interval);
+    }, [isPaused]);
     
     const handleTogglePause = async () => {
         try {
@@ -38,15 +57,14 @@ export const ActiveSessionTimer = ({ sessionId, startedAt, initialNetDuration=0,
             setElapsedSeconds(updatedSession.net_duration_seconds);
 
             if (onStatusChange) {
-                onStatusChange(updatedSession)
+                onStatusChange(updatedSession);
             }
         } catch (error) {
             console.error("Error loading session pause: ", error);
         } finally {
-            setIsLoading(false)
+            setIsLoading(false);
         }
     }
-
 
     const formatTime = (totalSeconds) => {
         const hrs = Math.floor(totalSeconds / 3600);

@@ -3,6 +3,7 @@ import { Montserrat } from "next/font/google"
 import "./globals.css";
 import { Header } from "@/components";
 import Providers from "../../providers"
+import { Toaster } from "react-hot-toast";
 
 
 const montserrat = Montserrat({
@@ -28,7 +29,19 @@ export default function RootLayout({
       <body className="flex flex-col h-dvh overflow-hidden">
         <Header />
         <Providers>{children}</Providers>
-        </body>
+
+        <Toaster
+          position="bottom-right"
+          toastOptions={{
+            style: {
+              background: "#141113",
+              color: "#ffffff",
+              border: "1px solid #27272a",
+              borderRadius: "0.75rem"
+            }
+          }}
+        />
+      </body>
     </html>
   );
 }

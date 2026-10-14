@@ -45,11 +45,11 @@ function NowReadingContent() {
 
   const { shareModalOpen, setShareModalOpen } = useShareModalState();
   const [bookmarkModalOpen, setBookmarkModalOpen] = useState(false);
+  
   const {
     chooseBookForReadingModalOpen,
     activeModal,
-    setChooseBookForReadingModalOpen,
-    toast,
+    toast: chooseBookToast,
     showToast,
   } = useChooseBookForReadingModalStore();
 
@@ -86,25 +86,27 @@ function NowReadingContent() {
 
   return (
     <div className="flex items-start gap-0 w-full bg-[#0D0B0C] overflow-y-auto text-white overflow-hidden">
+      { console.log(currentBook) }
       <Sidebar username={user?.username} />
 
       {startReadingSessionOpen && (
         <StartReadingSessionModal
           book={currentBook}
-          activeSessionId={currentBook?.active_session_id}
-          start={currentBook?.active_session_id === null}
+          activeSessionId={currentBook?.active_session?.id}
+          start={currentBook?.active_session === null}
         />
       )}
 
-      { bookmarkModalOpen && (
+      {bookmarkModalOpen && currentBook && (
         <AddBookmarkModal
-          book={ currentBook }
-          onClose={ () => setBookmarkModalOpen(false) }
-          onSave={ async (data) => {
-            console.log("Saving bookmark: ", data)
-          } }
+          book={currentBook}
+          username={user?.username}
+          onClose={() => setBookmarkModalOpen(false)}
+          onSave={(newNote) => {
+            console.log("Нотатку створено", newNote)
+          }}
         />
-      ) }
+      )}
 
       {chooseBookForReadingModalOpen && (
         <>
@@ -206,12 +208,12 @@ function NowReadingContent() {
 
                   <div className="relative flex gap-2 items-center mt-4">
                     
-                    { currentBook.active_session_id ? (
+                    { currentBook.active_session ? (
                       <ActiveSessionTimer
-                        sessionId={ currentBook.active_session_id }
-                        startedAt={ currentBook.active_session_started_at }
-                        initialNetDuration={ currentBook.active_session_net_duration || 0 }
-                        isPausedInitial={ currentBook.active_session_is_paused || false }
+                        sessionId={ currentBook?.active_session?.id }
+                        startedAt={ currentBook?.active_session?.started_at }
+                        initialNetDuration={ currentBook?.active_session?.net_duration_seconds || 0 }
+                        isPausedInitial={ currentBook?.active_session?.is_paused || false }
                         onStop={() => setStartReadingSessionOpen(true)}
                       />
                     ) : (
@@ -266,51 +268,17 @@ function NowReadingContent() {
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center text-center py-12 px-6 bg-[#141113]/50 
             rounded-2xl border border-zinc-900/50 my-auto">
-              <div className="relative w-64 h-52 mb-6">
-                <div className="absolute inset-5 rounded-[45%] bg-linear-to-br from-zinc-900 via-[#151214] to-[#211519]" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="relative w-48 h-36">
-                    <div className="absolute bottom-2 left-2 w-44 h-10 bg-[#FF4B6B] rounded-md rotate-[-4deg]" />
-                    <div className="absolute bottom-9 left-5 w-40 h-10 bg-zinc-300 rounded-md rotate-3" />
-                    <div className="absolute bottom-16 left-9 w-32 h-9 bg-zinc-500 rounded-md -rotate-2" />
-                    <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex">
-                      <div className="w-20 h-14 bg-zinc-100 rounded-l-[100%] rotate-6" />
-                      <div className="w-20 h-14 bg-zinc-200 rounded-r-[100%] -rotate-6" />
-                    </div>
-                  </div>
-                </div>
-                <span className="absolute top-5 left-12 text-zinc-400 text-lg">✦</span>
-                <span className="absolute top-10 right-12 text-[#FF4B6B] text-xl">✦</span>
-                <span className="absolute bottom-12 left-8 text-zinc-500">✦</span>
-              </div>
-
-              <h2 className="text-2xl font-bold text-white mb-2">
-                Ви ще нічого не читаєте
-              </h2>
-              <p className="max-w-md text-zinc-400 text-sm leading-relaxed mb-6">
-                Почніть нову книгу, щоб відстежувати прогрес, темп читання та отримувати точний прогноз завершення.
-              </p>
-
-              <button
-                className="flex items-center gap-2 px-6 py-3.5 bg-[#FF4B6B] hover:bg-[#e03f5d] text-white 
-                font-semibold text-sm rounded-xl shadow-md shadow-[#FF4B6B]/10 transition-all duration-200 active:scale-[0.98] cursor-pointer"
-                onClick={() => setChooseBookForReadingModalOpen(true)}
-              >
-                <Image src="/icons/book.svg" alt="" width={18} height={18} />
-                Обрати книгу
-              </button>
             </div>
           )}
         </div>
 
         <div className="w-80 shrink-0 flex flex-col gap-6">
           <LastUserReadingSessions />
-
           {!isLoading && quote && <TemplateQuote quote={quote} />}
         </div>
       </main>
 
-      {toast.isOpen && <Toast toast={toast} />}
+      {chooseBookToast.isOpen && <Toast toast={chooseBookToast} />}
     </div>
   );
 }
