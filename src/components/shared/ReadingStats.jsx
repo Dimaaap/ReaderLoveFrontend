@@ -15,11 +15,11 @@ const genreData = [
     { name: "Інше", value: 5, color: "#6c5a81" }
 ]
 
-export default function ReadingStats() {
+export default function ReadingStats({ readingTimes=[], topGenres=[] }) {
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full px-4">
-            <ChartCard title="Періоди читання" data={ timeData } />
-            <ChartCard title="Топ жанри" data={ genreData } />
+            <ChartCard title="Періоди читання" data={ readingTimes } />
+            <ChartCard title="Топ жанри" data={ topGenres } />
         </div>
     )
 }

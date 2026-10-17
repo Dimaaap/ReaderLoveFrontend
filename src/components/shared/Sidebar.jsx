@@ -12,7 +12,6 @@ const sidebarLinks = [
     { name: "Статистика", icon: "stats.svg", link: "stats" },
     { name: "Цілі", icon: "target.svg", link: "aims" },
     { name: "Замітки", icon: "notes.svg", link: "notes" },
-    { name: "Цитати", icon: "quotes.svg", link: "quotes" },
     { name: "Друзі", icon: "friends.svg", link: "friends" }
 ]
 

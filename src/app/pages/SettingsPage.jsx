@@ -21,7 +21,13 @@ function SettingsContent () {
     const { libraryModalOpen, setLibraryModalOpen } = useLibraryModalStore();
     const { confirmDeleteAccountModalOpen, setConfirmDeleteAccountModalOpen } = useConfirmDeleteAccountModalStore()
 
-    const [settings, setSettings] = useState(user?.settings)
+    const [settings, setSettings] = useState(user?.settings || {})
+
+    useEffect(() => {
+        if (user?.settings) {
+            setSettings(user.settings)
+        }
+    }, [user])
 
     const avatarColors = {
         pink: "from-pink-500 to-fuchsia-700",
@@ -30,13 +36,13 @@ function SettingsContent () {
         green: "from-green-500 to-emerald-700",
         orange: "from-orange-500 to-amber-600",
         red: "from-rose-500 to-red-700"
-    }
+    };
 
     const handleImageLink = avatarSrc => {
-        let avatar = avatarSrc?.split("/")?.slice(-3)
-        let validSrc = `http://localhost:8030/${avatar?.join("/")}`
-        return validSrc
-    }
+        let avatar = avatarSrc?.split("/")?.slice(-3);
+        let validSrc = `http://localhost:8030/${avatar?.join("/")}`;
+        return validSrc;
+    };
 
     const avatarSrc = user?.avatar
         ? `http://localhost:8030/${user.avatar.replace(/^\/+/, "")}`
@@ -66,20 +72,53 @@ function SettingsContent () {
     const userConfidencyMap = [
         {
             title: "Публічний профіль",
+            description: "Дозволити іншим користувачам бачити ваш профіль",
             value: settings?.is_public_profile,
             key: "is_public_profile"
         },
         {
             title: "Показувати прогрес читання",
+            description: "Відображати поточний прогрес книг",
             value: settings?.is_show_reading_progress,
             key: "is_show_reading_progress"
         },
         {
             title: "Дозволити рекомендації друзям",
+            description: "Отримувати книжкові поради від друзів",
             value: settings?.allow_friends_recommendations,
             key: "allow_friends_recommendations"
+        },
+        {
+            title: "Показувати статистику",
+            description: "Відображати годинники читання та графіки",
+            value: settings?.show_statistics,
+            key: "show_statistics"
+        },
+        {
+            title: "Показувати книжкову полицю",
+            description: "Відкрити доступ до вашої бібліотеки",
+            value: settings?.show_bookshelf,
+            key: "show_bookshelf"
+        },
+        {
+            title: "Показувати нотатки",
+            description: "Дозволити друзям переглядати ваші нотатки",
+            value: settings?.show_notes,
+            key: "show_notes"
+        },
+        {
+            title: "Показувати цілі",
+            description: "Відображати ваші книжкові цілі",
+            value: settings?.show_goals,
+            key: "show_goals"
+        },
+        {
+            title: "Показувати онлайн-статус",
+            description: "Показувати, коли ви в мережі",
+            value: settings?.show_online_status,
+            key: "show_online_status"
         }
-    ]
+    ];
 
     const exportMap = [
         {
@@ -96,9 +135,6 @@ function SettingsContent () {
         }
     ]
 
-    useEffect(() => {
-        setSettings(user?.settings)
-    }, [user])
 
     const handleUpdateUserSettings = async (key, value) => {
         setSettings((prev) => ({
@@ -106,17 +142,24 @@ function SettingsContent () {
             [key]: value
         }));
 
-        await fetch(AllLinks.users.UPDATE_USER_SETTINGS, {
-            method: "PATCH",
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json",
-                
-            },
-            body: JSON.stringify({
-                [key]: value
-            })
-        })
+        try {
+            await fetch(AllLinks.users.UPDATE_USER_SETTINGS, {
+                method: "PATCH",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    [key]: value
+                })
+            });
+        } catch (error) {
+            console.error("Помилка при оновленні налаштувань:", error);
+            setSettings((prev) => ({
+                ...prev,
+                [key]: !value
+            }));
+        }
     }
     
     return (
@@ -128,11 +171,11 @@ function SettingsContent () {
             
             <Sidebar username={ user?.username } />
 
-            <div className="min-h-screen bg-[#0D0B0C] text-white p-8">
+            <div className="min-h-screen bg-[#0D0B0C] text-white p-8 w-full">
                 <div className="max-w-7xl mx-auto flex flex-col gap-8">
                     <h1 className="text-3xl font-bold">Налаштування</h1>
 
-                    <div className="grid grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div className="rounded-2xl max-h-max border border-zinc-700 bg-[#141113] p-6">
                             <h2 className="text-2xl font-semibold mb-6">Профіль</h2>
                             <div className="flex items-center gap-5">
@@ -168,36 +211,38 @@ function SettingsContent () {
 
                         <div className="rounded-2xl border border-zinc-700 bg-[#141113] p-6">
                             <h2 className="text-2xl font-semibold mb-6">Сповіщення</h2>
-                                {userSettingsMap.map((setting, index) => (
-                                    <div key={ index } className="flex justify-between items-center py-4 border-b border-zinc-800 
-                                    last:border-0">
-                                        <div><div>{setting.title}</div><div className="text-sm text-zinc-500">{ setting.description }</div></div>
-                                        <Switch checked={ setting.value } onChange={( value ) => handleUpdateUserSettings(setting.key, value)} />
+                            {userSettingsMap.map((setting, index) => (
+                                <div key={ index } className="flex justify-between items-center py-4 border-b border-zinc-800 last:border-0">
+                                    <div>
+                                        <div>{setting.title}</div>
+                                        <div className="text-sm text-zinc-500">{ setting.description }</div>
                                     </div>
-                                ))}
+                                    <Switch checked={ !!setting.value } onChange={( value ) => handleUpdateUserSettings(setting.key, value)} />
+                                </div>
+                            ))}
                         </div>
 
                         <div className="max-h-max rounded-2xl border border-zinc-700 bg-[#141113] p-6">
                             <h2 className="text-2xl font-semibold mb-6">Дані та експорт</h2>
                             { exportMap.map((map, index)=>(
-                            <button key={ index } className="w-full flex justify-between cursor-pointer items-center py-4 
-                            border-b border-zinc-800 last:border-0 hover:opacity-80 transition-all duration-250"
-                            onClick={ map.onClick }>
-                                <span className={map.title ==="Видалити акаунт"?"text-red-500":""}>{ map.title }</span>
-                                <Image src={map.title === "Видалити акаунт" ? "/icons/right-chevron-red.svg" : "/icons/right-chevron.svg"}
-                                alt="" width="18" height="18" />
-                            </button>
+                                <button key={ index } className="w-full flex justify-between cursor-pointer items-center py-4 border-b border-zinc-800 last:border-0 hover:opacity-80 transition-all duration-250"
+                                onClick={ map.onClick }>
+                                    <span className={map.title ==="Видалити акаунт"?"text-red-500":""}>{ map.title }</span>
+                                    <Image src={map.title === "Видалити акаунт" ? "/icons/right-chevron-red.svg" : "/icons/right-chevron.svg"}
+                                    alt="" width="18" height="18" />
+                                </button>
                             )) }
                         </div>
 
-                        <div className="rounded-2xl border border-zinc-700 bg-[#141113] p-6 col-span-2">
+                        <div className="rounded-2xl border border-zinc-700 bg-[#141113] p-6 lg:col-span-2">
                             <h2 className="text-2xl font-semibold mb-6">Конфіденційність</h2>
                             { userConfidencyMap.map((setting, id)=> (
-                                <div key={ id } className="flex cursor-pointer justify-between 
-                                hover:opacity-80 duration-250 transition-all
-                                items-center py-4 border-b border-zinc-800 last:border-0">
-                                    <span>{ setting.title }</span>
-                                    <Switch checked={ setting.value } onChange={(value) => handleUpdateUserSettings(setting.key, value)} />
+                                <div key={ id } className="flex justify-between hover:opacity-80 duration-250 transition-all items-center py-4 border-b border-zinc-800 last:border-0">
+                                    <div>
+                                        <div>{ setting.title }</div>
+                                        <div className="text-sm text-zinc-500">{ setting.description }</div>
+                                    </div>
+                                    <Switch checked={ !!setting.value } onChange={(value) => handleUpdateUserSettings(setting.key, value)} />
                                 </div>
                             )) }
                         </div>
@@ -205,67 +250,31 @@ function SettingsContent () {
                         <div className="rounded-2xl border border-zinc-700 bg-[#141113] p-6">
                             <h2 className="text-2xl font-semibold mb-4">Про додаток</h2>
                             <div className="space-y-3 text-zinc-400">
-                                <div className="flex items-center gap-2 w-full justify-between border-b border-zinc-400 pb-3">
-                                    <p className="text-zinc-400 font-normal text-md">
-                                        Версія
-                                    </p>
-                                    <p className="text-zinc-400 font-normal text-md">
-                                        1.0.0
-                                    </p>
+                                <div className="flex items-center gap-2 w-full justify-between border-b border-zinc-700 pb-3">
+                                    <p className="text-zinc-400 font-normal text-md">Версія</p>
+                                    <p className="text-white font-normal text-md">1.0.0</p>
                                 </div>
-                                <div className="flex items-center gap-2 w-full justify-between border-b border-zinc-400 pb-3">
+                                <div className="flex items-center gap-2 w-full justify-between border-b border-zinc-700 pb-3 cursor-pointer">
                                     <div className="flex flex-col gap-1">
-                                        <p className="text-white font-normal text-md">
-                                            Що нового
-                                        </p>
-                                        <p className="text-zinc-400 font-normal text-md">
-                                            Переглянути список змін
-                                        </p>
+                                        <p className="text-white font-normal text-md">Що нового</p>
+                                        <p className="text-zinc-400 font-normal text-sm">Переглянути список змін</p>
                                     </div>
                                     <Image src="/icons/right-chevron.svg" alt="" width="20" height="20" />
                                 </div>
-                                <div className="flex items-center gap-2 w-full justify-between pb-3">
+                                <div className="flex items-center gap-2 w-full justify-between pb-3 cursor-pointer">
                                     <div className="flex flex-col gap-1">
-                                        <p className="text-white font-normal text-md">
-                                            Підтримка
-                                        </p>
-                                        <p className="text-zinc-400 font-normal text-md">
-                                            FAQ та список змін
-                                        </p>
+                                        <p className="text-white font-normal text-md">Підтримка</p>
+                                        <p className="text-zinc-400 font-normal text-sm">FAQ та список змін</p>
                                     </div>
                                     <Image src="/icons/right-chevron.svg" alt="" width="20" height="20" />
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <div className="flex flex-col gap-2">
-                        <p className="text-lg text-white font-bold">
-                            Статистика читання
-                        </p>
-
-                        <div className="grid grid-cols-4 rounded-md border border-zinc-600">
-                            {[
-                                ["24","Прочитано книг"],
-                                ["156","Годин читання"],
-                                ["12","Днів поспіль"],
-                                ["3/12","Цілей виконано"],
-                            ].map(([v,l])=>(
-                                <div key={l} className="relative bg-[#141113] p-6">
-                                    <div className="text-4xl font-bold">{ v }</div>
-                                    <div className="text-zinc-500 mt-2">{ l }</div>
-
-                                    {l !== "Цілей виконано" && (
-                                        <div className="absolute right-0 top-1/2 -translate-y-1/2 h-12 w-px bg-zinc-600" />
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
-    )
+    );
 }
 
 

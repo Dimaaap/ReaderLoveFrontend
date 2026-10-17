@@ -40,6 +40,7 @@ const Users = {
     RESET_PASSWORD: `${BASE_BACKEND_URL}/users/auth/reset-password`,
     UPLOAD_AVATAR: `${BASE_BACKEND_URL}/users/auth/me/avatar`,
     CHANGE_PASSWORD: `${BASE_BACKEND_URL}/users/auth/me/change-password`,
+    GET_USER_SETTINGS: `${BASE_BACKEND_URL}/users/auth/me/settings`,
     UPDATE_USER_SETTINGS: `${BASE_BACKEND_URL}/users/auth/me/settings`,
     GET_USER_BY_USERNAME: (username) => `${BASE_BACKEND_URL}/users/auth/user/${username}`,
     SEARCH_USERS: (search, limit=20) => `${ BASE_BACKEND_URL }/users/auth/users/search?q=${encodeURIComponent(search)}&limit=${limit}`,
@@ -107,6 +108,10 @@ const BookSelections = {
     BOOK_SELECTION_BY_IDENTIFIER: (identifier, username) => `${BASE_BACKEND_URL}/books_selections/${ identifier }?username=${ username }`
 }
 
+const Statistics = {
+    USER_STATS: (username, period="3m") => `${ BASE_BACKEND_URL }/statistics/${ username }/?period=${ period }`
+}
+
 export const AllLinks = {
     socialLinks: SocialLinks,
     reviews: Reviews,
@@ -122,5 +127,6 @@ export const AllLinks = {
     bookPublishers: BookPublishers,
     bookAuthors: BookAuthors,
     challenges: Challenges,
-    bookSelections: BookSelections
+    bookSelections: BookSelections,
+    statistics: Statistics
 }

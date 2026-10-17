@@ -2,23 +2,8 @@
 
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip } from 'recharts';
 
-const data = [
-    {date: "Лют 24", pages: 35},
-    {date: "Лют 25", pages: 42},
-    {date: "Лют 26", pages: 28},
-    {date: "Лют 27", pages: 50},
-    {date: "Бер 01", pages: 60},
-    {date: "Бер 10", pages: 15},
-    {date: "Бер 15", pages: 40},
-    {date: "Бер 16", pages: 20},
-    {date: "Бер 17", pages: 15},
-    {date: "Бер 18", pages: 20},
-    {date: "Бер 25", pages: 50},
-    {date: "Кві 25", pages: 20},
-    {date: "Кві 26", pages: 30}
-]
 
-export function PagesReadChart() {
+export function PagesReadChart({ data=[] }) {
   return (
     <div className="w-full p-6 bg-[#121318] text-white rounded-xl shadow-md">
         <div className="">

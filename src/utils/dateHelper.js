@@ -81,3 +81,9 @@ export const getTodayReadPages = sessions => {
         return total;
     }, 0)
 }
+
+export const formatReadingTime = (totalSeconds = 0) => {
+    const hrs = Math.floor(totalSeconds / 3600);
+    const mins = Math.floor((totalSeconds % 3600) / 60);
+    return `${ hrs } год ${ mins } хв` 
+}
