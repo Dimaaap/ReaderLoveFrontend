@@ -25,4 +25,7 @@ export * from "./ChooseBookForReadingModalState";
 export * from "./BookFiltersModalState";
 export * from "./BookSortingModalState";
 export * from "./ChallengeModalStore";
-export * from "./SearchModalState"
+export * from "./SearchModalState";
+export * from "./UserSettingsStore";
+export * from "./QuoteModalState"
+export * from "./WhatsNewModalState"

@@ -1,42 +1,40 @@
 "use client";
 
-import { Sidebar, Switch } from "@/components";
+import { SettingsSection, Sidebar } from "@/components";
 import { ChangePasswordModal } from "@/components/modals/ChangePasswordModal";
 import { ConfirmDeleteAccount } from "@/components/modals/ConfirmDeleteAccount";
 import { LibraryModal } from "@/components/modals/LibraryModal";
 import { UserSettingsModal } from "@/components/modals/UserSettingsModal";
 import { withAuth } from "@/components/WithAuth";
 import { useAuth } from "@/hooks/useAuth";
-import { useChangePasswordModalStore, useConfirmDeleteAccountModalStore, useLibraryModalStore, useUserSettingsModalState } from "@/states";
-import { AllLinks } from "@/utils";
+import { AVATAR_COLORS, NOTIFICATION_SETTINGS, PRIVACY_SETTINGS } from "../../data/settings"
+import { useChangePasswordModalStore, useConfirmDeleteAccountModalStore, useLibraryModalStore, useQuotesModalStore, 
+    useSettingsStore, useUserSettingsModalState, 
+    useWhatsNewModalStore} from "@/states";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { QuotesModal } from "@/components/modals/QuotesModal";
+import { WhatsNewModal } from "@/components/modals/WhatsNewModal";
 
 
 function SettingsContent () {
     const { user } = useAuth();
+
+    const { settings, setSettings, updateSettings } = useSettingsStore()
+    const { quotesModalOpen, setQuotesModalOpen } = useQuotesModalStore();
+    const { isWhatsNewModalOpen, setWhatsNewModalOpen } = useWhatsNewModalStore();
 
     const { userSettingsModalOpen, setUserSettingsModalOpen } = useUserSettingsModalState();
     const { changePasswordModalOpen } = useChangePasswordModalStore();
     const { libraryModalOpen, setLibraryModalOpen } = useLibraryModalStore();
     const { confirmDeleteAccountModalOpen, setConfirmDeleteAccountModalOpen } = useConfirmDeleteAccountModalStore()
 
-    const [settings, setSettings] = useState(user?.settings || {})
 
     useEffect(() => {
         if (user?.settings) {
             setSettings(user.settings)
         }
-    }, [user])
-
-    const avatarColors = {
-        pink: "from-pink-500 to-fuchsia-700",
-        purple: "from-purple-500 to-violet-700",
-        blue: "from-sky-500 to-blue-700",
-        green: "from-green-500 to-emerald-700",
-        orange: "from-orange-500 to-amber-600",
-        red: "from-rose-500 to-red-700"
-    };
+    }, [user, setSettings])
 
     const handleImageLink = avatarSrc => {
         let avatar = avatarSrc?.split("/")?.slice(-3);
@@ -48,128 +46,22 @@ function SettingsContent () {
         ? `http://localhost:8030/${user.avatar.replace(/^\/+/, "")}`
         : null;
 
-    const userSettingsMap = [
-        {
-            title: "Email-сповіщення",
-            description: "Надсилати сповіщення на пошту",
-            value: settings?.email_notifications,
-            key: "email_notifications"
-        },
-        {
-            title: "Нагадування читати",
-            description: "Надсилати щоденні нагадування",
-            value: settings?.reading_reminders,
-            key: "reading_reminders"
-        },
-        {
-            title: "Рекомендації книг",
-            description: "Рекомендувати книги",
-            value: settings?.book_recommendations,
-            key: "book_recommendations"
-        }
-    ]
-
-    const userConfidencyMap = [
-        {
-            title: "Публічний профіль",
-            description: "Дозволити іншим користувачам бачити ваш профіль",
-            value: settings?.is_public_profile,
-            key: "is_public_profile"
-        },
-        {
-            title: "Показувати прогрес читання",
-            description: "Відображати поточний прогрес книг",
-            value: settings?.is_show_reading_progress,
-            key: "is_show_reading_progress"
-        },
-        {
-            title: "Дозволити рекомендації друзям",
-            description: "Отримувати книжкові поради від друзів",
-            value: settings?.allow_friends_recommendations,
-            key: "allow_friends_recommendations"
-        },
-        {
-            title: "Показувати статистику",
-            description: "Відображати годинники читання та графіки",
-            value: settings?.show_statistics,
-            key: "show_statistics"
-        },
-        {
-            title: "Показувати книжкову полицю",
-            description: "Відкрити доступ до вашої бібліотеки",
-            value: settings?.show_bookshelf,
-            key: "show_bookshelf"
-        },
-        {
-            title: "Показувати нотатки",
-            description: "Дозволити друзям переглядати ваші нотатки",
-            value: settings?.show_notes,
-            key: "show_notes"
-        },
-        {
-            title: "Показувати цілі",
-            description: "Відображати ваші книжкові цілі",
-            value: settings?.show_goals,
-            key: "show_goals"
-        },
-        {
-            title: "Показувати онлайн-статус",
-            description: "Показувати, коли ви в мережі",
-            value: settings?.show_online_status,
-            key: "show_online_status"
-        }
-    ];
 
     const exportMap = [
-        {
-            title: "Експорт бібліотеки",
-            onClick: () => setLibraryModalOpen(true)
-        },
-        {
-            title: "Експорт цитат",
-            onClick: () => {}
-        },
-        {
-            title: "Видалити акаунт",
-            onClick: () => setConfirmDeleteAccountModalOpen(true)
-        }
-    ]
+        { title: "Експорт бібліотеки", onClick: () => setLibraryModalOpen(true) },
+        { title: "Експорт цитат", onClick: () => setQuotesModalOpen(true) },
+        { title: "Видалити акаунт", onClick: () => setConfirmDeleteAccountModalOpen(true) }
+    ];
 
-
-    const handleUpdateUserSettings = async (key, value) => {
-        setSettings((prev) => ({
-            ...prev,
-            [key]: value
-        }));
-
-        try {
-            await fetch(AllLinks.users.UPDATE_USER_SETTINGS, {
-                method: "PATCH",
-                credentials: "include",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    [key]: value
-                })
-            });
-        } catch (error) {
-            console.error("Помилка при оновленні налаштувань:", error);
-            setSettings((prev) => ({
-                ...prev,
-                [key]: !value
-            }));
-        }
-    }
-    
     return (
         <div className="flex items-start gap-0 w-full bg-[#0D0B0C] flex-1 h-full overflow-auto">
-            { userSettingsModalOpen && <UserSettingsModal /> }
-            { changePasswordModalOpen && <ChangePasswordModal /> }
-            { libraryModalOpen && <LibraryModal /> }
-            { confirmDeleteAccountModalOpen && <ConfirmDeleteAccount /> }
+            {userSettingsModalOpen && <UserSettingsModal />}
+            {changePasswordModalOpen && <ChangePasswordModal />}
+            {libraryModalOpen && <LibraryModal />}
+            {confirmDeleteAccountModalOpen && <ConfirmDeleteAccount />}
+            {quotesModalOpen && <QuotesModal />}
             
-            <Sidebar username={ user?.username } />
+            <Sidebar username={user?.username} />
 
             <div className="min-h-screen bg-[#0D0B0C] text-white p-8 w-full">
                 <div className="max-w-7xl mx-auto flex flex-col gap-8">
@@ -179,14 +71,15 @@ function SettingsContent () {
                         <div className="rounded-2xl max-h-max border border-zinc-700 bg-[#141113] p-6">
                             <h2 className="text-2xl font-semibold mb-6">Профіль</h2>
                             <div className="flex items-center gap-5">
-                               <div className={`w-25 h-25 rounded-full relative overflow-hidden cursor-pointer flex items-center justify-center 
-                                    ${!user?.avatar ? `bg-linear-to-tr ${avatarColors[user?.avatar_color]}` : ""}`}>    
+                                <div className={`w-25 h-25 rounded-full relative overflow-hidden cursor-pointer flex 
+                                items-center justify-center 
+                                    ${!user?.avatar ? `bg-linear-to-tr ${AVATAR_COLORS[user?.avatar_color]}` : ""}`}>    
 
                                     {avatarSrc ? (
                                         <img
-                                            src={ handleImageLink(avatarSrc) }
+                                            src={handleImageLink(avatarSrc)}
                                             alt="Avatar"
-                                            fill={ true }
+                                            fill={true}
                                             className="object-cover"
                                         />
                                     ) : (
@@ -196,12 +89,14 @@ function SettingsContent () {
                                     )}
                                 </div>
                                 <div className="flex-1">
-                                    <div className="text-xl font-semibold">{ user?.username }</div>
-                                    <div className="text-zinc-400">{ user?.email }</div>
+                                    <div className="text-xl font-semibold">{user?.username}</div>
+                                    <div className="text-zinc-400">{user?.email}</div>
 
-                                    <button className="mt-4 px-4 py-2 rounded-xl border border-zinc-600 bg-[#0D0B0C] cursor-pointer 
-                                    flex items-center gap-2 hover:border-pink-500"
-                                    onClick={ () => setUserSettingsModalOpen(true) }>
+                                    <button 
+                                        className="mt-4 px-4 py-2 rounded-xl border border-zinc-600 bg-[#0D0B0C] 
+                                        cursor-pointer flex items-center gap-2 hover:border-pink-500"
+                                        onClick={() => setUserSettingsModalOpen(true)}
+                                    >
                                         <Image src="/icons/edit.svg" alt="" width={18} height={18}/>
                                         Редагувати профіль
                                     </button>
@@ -209,66 +104,78 @@ function SettingsContent () {
                             </div>
                         </div>
 
-                        <div className="rounded-2xl border border-zinc-700 bg-[#141113] p-6">
-                            <h2 className="text-2xl font-semibold mb-6">Сповіщення</h2>
-                            {userSettingsMap.map((setting, index) => (
-                                <div key={ index } className="flex justify-between items-center py-4 border-b border-zinc-800 last:border-0">
-                                    <div>
-                                        <div>{setting.title}</div>
-                                        <div className="text-sm text-zinc-500">{ setting.description }</div>
-                                    </div>
-                                    <Switch checked={ !!setting.value } onChange={( value ) => handleUpdateUserSettings(setting.key, value)} />
-                                </div>
-                            ))}
-                        </div>
+                        <SettingsSection 
+                            title="Сповіщення" 
+                            items={NOTIFICATION_SETTINGS} 
+                            settings={settings} 
+                            onUpdate={updateSettings} 
+                        />
 
                         <div className="max-h-max rounded-2xl border border-zinc-700 bg-[#141113] p-6">
                             <h2 className="text-2xl font-semibold mb-6">Дані та експорт</h2>
-                            { exportMap.map((map, index)=>(
-                                <button key={ index } className="w-full flex justify-between cursor-pointer items-center py-4 border-b border-zinc-800 last:border-0 hover:opacity-80 transition-all duration-250"
-                                onClick={ map.onClick }>
-                                    <span className={map.title ==="Видалити акаунт"?"text-red-500":""}>{ map.title }</span>
-                                    <Image src={map.title === "Видалити акаунт" ? "/icons/right-chevron-red.svg" : "/icons/right-chevron.svg"}
-                                    alt="" width="18" height="18" />
-                                </button>
-                            )) }
+                            {exportMap.map((map, index) => {
+                                const isDelete = map.title === "Видалити акаунт";
+                                return (
+                                    <button 
+                                        key={index} 
+                                        className="w-full flex justify-between cursor-pointer items-center py-4 border-b 
+                                        border-zinc-800 last:border-0 hover:opacity-80 transition-all duration-250"
+                                        onClick={map.onClick}
+                                    >
+                                        <span className={isDelete ? "text-red-500" : ""}>{map.title}</span>
+                                        <Image 
+                                            src={isDelete ? "/icons/right-chevron-red.svg" : "/icons/right-chevron.svg"} 
+                                            alt="" 
+                                            width="18" 
+                                            height="18" 
+                                        />
+                                    </button>
+                                );
+                            })}
                         </div>
 
-                        <div className="rounded-2xl border border-zinc-700 bg-[#141113] p-6 lg:col-span-2">
-                            <h2 className="text-2xl font-semibold mb-6">Конфіденційність</h2>
-                            { userConfidencyMap.map((setting, id)=> (
-                                <div key={ id } className="flex justify-between hover:opacity-80 duration-250 transition-all items-center py-4 border-b border-zinc-800 last:border-0">
-                                    <div>
-                                        <div>{ setting.title }</div>
-                                        <div className="text-sm text-zinc-500">{ setting.description }</div>
-                                    </div>
-                                    <Switch checked={ !!setting.value } onChange={(value) => handleUpdateUserSettings(setting.key, value)} />
-                                </div>
-                            )) }
-                        </div>
+                        <SettingsSection 
+                            title="Конфіденційність" 
+                            items={PRIVACY_SETTINGS} 
+                            settings={settings} 
+                            onUpdate={updateSettings} 
+                            className="lg:col-span-2"
+                        />
 
-                        <div className="rounded-2xl border border-zinc-700 bg-[#141113] p-6">
-                            <h2 className="text-2xl font-semibold mb-4">Про додаток</h2>
-                            <div className="space-y-3 text-zinc-400">
-                                <div className="flex items-center gap-2 w-full justify-between border-b border-zinc-700 pb-3">
-                                    <p className="text-zinc-400 font-normal text-md">Версія</p>
-                                    <p className="text-white font-normal text-md">1.0.0</p>
+                        <div className="flex flex-col gap-6 w-full max-w-2xl p-6 bg-[#121111] rounded-2xl border border-zinc-900">
+                            <h3 className="text-xl font-bold text-white">Про додаток</h3>
+                            
+                            <div className="flex flex-col divide-y divide-zinc-800">
+                                <div className="flex items-center justify-between py-3">
+                                    <span className="text-zinc-300 font-medium">Версія</span>
+                                    <span className="text-white font-bold">1.0.0</span>
                                 </div>
-                                <div className="flex items-center gap-2 w-full justify-between border-b border-zinc-700 pb-3 cursor-pointer">
-                                    <div className="flex flex-col gap-1">
-                                        <p className="text-white font-normal text-md">Що нового</p>
-                                        <p className="text-zinc-400 font-normal text-sm">Переглянути список змін</p>
+
+                                <div 
+                                    onClick={() => setWhatsNewModalOpen(true)}
+                                    className="flex items-center justify-between py-3.5 cursor-pointer hover:bg-white/5 
+                                    transition-all px-2 rounded-lg"
+                                >
+                                    <div className="flex flex-col">
+                                        <span className="text-white font-semibold">Що нового</span>
+                                        <span className="text-xs text-zinc-400">Переглянути список змін</span>
                                     </div>
-                                    <Image src="/icons/right-chevron.svg" alt="" width="20" height="20" />
+                                    <span className="text-zinc-400 text-lg">›</span>
                                 </div>
-                                <div className="flex items-center gap-2 w-full justify-between pb-3 cursor-pointer">
-                                    <div className="flex flex-col gap-1">
-                                        <p className="text-white font-normal text-md">Підтримка</p>
-                                        <p className="text-zinc-400 font-normal text-sm">FAQ та список змін</p>
+
+                                <div className="flex items-center justify-between py-3.5 cursor-pointer hover:bg-white/5 
+                                transition-all px-2 rounded-lg">
+                                    <div className="flex flex-col">
+                                        <span className="text-white font-semibold">Підтримка</span>
+                                        <span className="text-xs text-zinc-400">FAQ та список змін</span>
                                     </div>
-                                    <Image src="/icons/right-chevron.svg" alt="" width="20" height="20" />
+                                    <span className="text-zinc-400 text-lg">›</span>
                                 </div>
                             </div>
+                            <WhatsNewModal
+                                isOpen={isWhatsNewModalOpen} 
+                                onClose={() => setWhatsNewModalOpen(false)} 
+                            />
                         </div>
                     </div>
                 </div>

@@ -72,7 +72,8 @@ const BookNotes = {
     TOGGLE_NOTE_IMPORTANCE: (noteId) => `${BASE_BACKEND_URL}/book-notes/${noteId}/toggle-importance`,
     CREATE_BOOK_NOTE: `${BASE_BACKEND_URL}/book-notes/`,
     PARTIAL_UPDATE_NOTE: (noteId) => `${BASE_BACKEND_URL}/book-notes/${noteId}`,
-    DELETE_NOTE: (noteId) => `${BASE_BACKEND_URL}/book-notes/${noteId}`
+    DELETE_NOTE: (noteId) => `${BASE_BACKEND_URL}/book-notes/${noteId}`,
+    EXPORT_BOOK_NOTES: (username) => `${BASE_BACKEND_URL}/book-notes/${username}/export-notes`
 }
 
 const UserGoals = {
@@ -112,6 +113,10 @@ const Statistics = {
     USER_STATS: (username, period="3m") => `${ BASE_BACKEND_URL }/statistics/${ username }/?period=${ period }`
 }
 
+const Changelog = {
+    GET_CHANGELOG: `${BASE_BACKEND_URL}/changelog/`
+}
+
 export const AllLinks = {
     socialLinks: SocialLinks,
     reviews: Reviews,
@@ -128,5 +133,6 @@ export const AllLinks = {
     bookAuthors: BookAuthors,
     challenges: Challenges,
     bookSelections: BookSelections,
-    statistics: Statistics
+    statistics: Statistics,
+    changelog: Changelog
 }

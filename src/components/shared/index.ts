@@ -64,4 +64,5 @@ export * from "./UserListItem"
 export * from "./UserAvatar"
 export * from "./SimilarBooksSection";
 export * from "./ActiveSessionTimer"
-export * from "./FlippingBookCover"
+export * from "./FlippingBookCover";
+export * from "./SettingsSection"
