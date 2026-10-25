@@ -23,7 +23,7 @@ export const AddBookModal = () => {
     }
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+        <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/70 backdrop-blur-sm">
             <div className="w-full max-w-130 overflow-hidden rounded-2xl border border-zinc-800 bg-[#0D0B0C] shadow-2xl">
                 <div className="flex items-center justify-between border-b border-zinc-900 px-6 py-5">
                     <div className="flex items-center gap-3">

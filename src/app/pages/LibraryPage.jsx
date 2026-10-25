@@ -8,13 +8,18 @@ import { bookStatusMenu } from "@/data"
 import { useBookFiltering } from "../../hooks/useBookFiltering";
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
-import { useAddBookModalStore, useBookFiltersModalState, useBookOptionsPopupStore, useBookSortingModalState, useStartReadingSessionStore } from '@/states';
+import { useAddBookModalStore, useBookFiltersModalState, useBookOptionsPopupStore, useBookSortingModalState, 
+  useStartReadingSessionStore, useCollectionModalState, 
+  useChangeCoverModalState} from '@/states';
 import { AddBookModal } from '@/components/modals/AddBookModal';
 import { StartReadingSessionModal } from '@/components/modals/StartReadingSessionModal';
 import { useState } from 'react';
 import BookFiltersModal from '@/components/modals/BookFiltersModal';
 import { usePathname, useRouter } from 'next/navigation';
 import { BooksOrderModal } from '@/components/modals/BooksOrderModal';
+import { Group } from 'lucide-react';
+import { CollectionModal } from '@/components/modals/CollectionModal';
+import { ChangeBookCoverModal } from '@/components/modals/ChangeBookCoverModal';
 
 function MeContent() {
 
@@ -28,6 +33,8 @@ function MeContent() {
   const { startReadingSessionOpen } = useStartReadingSessionStore()
   const { bookFiltersModalOpen, setBookFiltersModalOpen } = useBookFiltersModalState();
   const { bookSortingModalOpen, setBookSortingModalOpen } = useBookSortingModalState();
+  const { collectionModalOpen, setCollectionModalOpen } = useCollectionModalState();
+  const { changeCoverModalOpen, selectedBookForCover, closeChangeCoverModal } = useChangeCoverModalState();
 
   const { data: allBooks } = useQuery({
     queryKey: ["books", user?.username],
@@ -81,12 +88,37 @@ function MeContent() {
       { startReadingSessionOpen && currentBook && <StartReadingSessionModal book={ currentBook } firstSession={ !currentBook?.last_read_page } /> }
       { bookFiltersModalOpen && <BookFiltersModal /> }
       { bookSortingModalOpen && <BooksOrderModal /> }
+      { changeCoverModalOpen && selectedBookForCover && (
+        <ChangeBookCoverModal
+          isOpen={ changeCoverModalOpen }
+          onClose={ closeChangeCoverModal }
+          book={ selectedBookForCover }
+          username={ user?.username }
+        />
+      ) }
+
+      <CollectionModal
+        isOpen={ collectionModalOpen }
+        onClose={() => setCollectionModalOpen(false)}
+        username={ user?.username }
+      />
       
       <main className="flex-1 h-full overflow-y-auto p-8 text-white">
         <div className="flex items-center justify-between mb-8">
             <h1 className="text-3xl font-bold tracking-tight">Моя бібліотека</h1>
             <div className="flex items-center gap-6">
               
+              <button
+                type="button"
+                className="flex items-center text-white tracking-tight gap-2.5 text-sm font-semibold border 
+                bg-[#141113] border-white/30 cursor-pointer rounded-lg p-2 px-3 transition-all duration-150 
+                hover:border-[#F43F5E]"
+                onClick={() => setCollectionModalOpen(true)}
+              >
+                <Group width="18" height="18" />
+                <span>Колекції</span>
+              </button>
+
               <button 
               type="button"
               className="background-transparent flex items-center text-white gap-2.5 tracking-tight 

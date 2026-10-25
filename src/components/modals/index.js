@@ -33,3 +33,6 @@ export * from "./SessionMenuPopup"
 export * from "./ReadingSessionDetailPopup";
 export * from "./AddBookmarkModal";
 export * from "./WhatsNewModal"
+export * from "./SupportModal";
+export * from "./CollectionModal"
+export * from "./ChangeBookCoverModal"

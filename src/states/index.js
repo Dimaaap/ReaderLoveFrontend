@@ -29,3 +29,6 @@ export * from "./SearchModalState";
 export * from "./UserSettingsStore";
 export * from "./QuoteModalState"
 export * from "./WhatsNewModalState"
+export * from "./SupportModalState"
+export * from "./CollectionModalState"
+export * from "./ChangeCoverModalState";

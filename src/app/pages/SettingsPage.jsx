@@ -9,12 +9,13 @@ import { withAuth } from "@/components/WithAuth";
 import { useAuth } from "@/hooks/useAuth";
 import { AVATAR_COLORS, NOTIFICATION_SETTINGS, PRIVACY_SETTINGS } from "../../data/settings"
 import { useChangePasswordModalStore, useConfirmDeleteAccountModalStore, useLibraryModalStore, useQuotesModalStore, 
-    useSettingsStore, useUserSettingsModalState, 
+    useSettingsStore, useSupportModalState, useUserSettingsModalState, 
     useWhatsNewModalStore} from "@/states";
 import Image from "next/image";
 import { useEffect } from "react";
 import { QuotesModal } from "@/components/modals/QuotesModal";
 import { WhatsNewModal } from "@/components/modals/WhatsNewModal";
+import { SupportModal } from "@/components/modals/SupportModal";
 
 
 function SettingsContent () {
@@ -23,6 +24,7 @@ function SettingsContent () {
     const { settings, setSettings, updateSettings } = useSettingsStore()
     const { quotesModalOpen, setQuotesModalOpen } = useQuotesModalStore();
     const { isWhatsNewModalOpen, setWhatsNewModalOpen } = useWhatsNewModalStore();
+    const { supportModalOpen, setSupportModalOpen } = useSupportModalState();
 
     const { userSettingsModalOpen, setUserSettingsModalOpen } = useUserSettingsModalState();
     const { changePasswordModalOpen } = useChangePasswordModalStore();
@@ -163,8 +165,10 @@ function SettingsContent () {
                                     <span className="text-zinc-400 text-lg">›</span>
                                 </div>
 
-                                <div className="flex items-center justify-between py-3.5 cursor-pointer hover:bg-white/5 
-                                transition-all px-2 rounded-lg">
+                                <div 
+                                    onClick={() => setSupportModalOpen(true)}
+                                    className="flex items-center justify-between py-3.5 cursor-pointer hover:bg-white/5 
+                                    transition-all px-2 rounded-lg">
                                     <div className="flex flex-col">
                                         <span className="text-white font-semibold">Підтримка</span>
                                         <span className="text-xs text-zinc-400">FAQ та список змін</span>
@@ -175,6 +179,11 @@ function SettingsContent () {
                             <WhatsNewModal
                                 isOpen={isWhatsNewModalOpen} 
                                 onClose={() => setWhatsNewModalOpen(false)} 
+                            />
+
+                            <SupportModal
+                                isOpen={ supportModalOpen }
+                                onClose={() => setSupportModalOpen(false)}
                             />
                         </div>
                     </div>

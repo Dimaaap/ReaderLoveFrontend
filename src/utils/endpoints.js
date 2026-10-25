@@ -117,6 +117,12 @@ const Changelog = {
     GET_CHANGELOG: `${BASE_BACKEND_URL}/changelog/`
 }
 
+const BookCollections = {
+    GET_USER_COLLECTIONS: (username) => `${BASE_BACKEND_URL}/book-collections/${ username }`,
+    DELETE_USER_COLLECTION: (collectionId, username) => `${BASE_BACKEND_URL}/book-collections/${collectionId}/${username}`,
+    REMOVE_BOOK_FROM_USER_COLLECTION: (collectionId, bookId, username) => `${BASE_BACKEND_URL}/book-collections/${collectionId}/books/${bookId}/${username}`
+}
+
 export const AllLinks = {
     socialLinks: SocialLinks,
     reviews: Reviews,
@@ -134,5 +140,6 @@ export const AllLinks = {
     challenges: Challenges,
     bookSelections: BookSelections,
     statistics: Statistics,
-    changelog: Changelog
+    changelog: Changelog,
+    bookCollections: BookCollections
 }
