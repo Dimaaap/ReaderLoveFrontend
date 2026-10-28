@@ -17,7 +17,7 @@ export const BookOptionsPopup = ({ book, onOpenEditModal }) => {
     const { openChangeCoverModal } = useChangeCoverModalState()
     const { removeBook, isDeleting } = useBookPage(book.slug)
     const { setStartReadingSessionOpen } = useStartReadingSessionStore();
-    const { setCollectionsModalOpen } = useCollectionModalState();
+    const { setCollectionModalOpen } = useCollectionModalState();
      
     const handleDeleteBook = () => {
         removeBook(undefined, {
@@ -104,7 +104,7 @@ export const BookOptionsPopup = ({ book, onOpenEditModal }) => {
 
             <button
                 onClick={() => {
-                    setCollectionsModalOpen(true);
+                    setCollectionModalOpen(true, book);
                     onOpenEditModal();
                 }}
                 className="w-full flex items-center gap-2.5 p-2 rounded-lg hover:bg-white/5 transition-colors 

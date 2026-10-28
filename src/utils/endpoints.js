@@ -21,7 +21,8 @@ const Books = {
     CREATE_BOOK: `${BASE_BACKEND_URL}/books/`,
     UPLOAD_COVER: `${BASE_BACKEND_URL}/books/upload-cover`,
     ALL_BOOKS: (limit, searchQuery) => `${BASE_BACKEND_URL}/books/?search=${searchQuery}&limit=${limit}`,
-    GET_SIMILAR_BOOKS: (bookSlug, limit=6) => `${BASE_BACKEND_URL}/books/${bookSlug}/similar?limit=${limit}`
+    GET_SIMILAR_BOOKS: (bookSlug, limit=6) => `${BASE_BACKEND_URL}/books/${bookSlug}/similar?limit=${limit}`,
+    UPLOAD_BOOK_COVER: (username, bookSlug) => `${BASE_BACKEND_URL}/books/${username}/cover/${bookSlug}`
 }
 
 const BookGenres = {
@@ -119,7 +120,9 @@ const Changelog = {
 
 const BookCollections = {
     GET_USER_COLLECTIONS: (username) => `${BASE_BACKEND_URL}/book-collections/${ username }`,
+    GET_USER_COLLECTIONS_DETAILS: (collectionId, username) => `${BASE_BACKEND_URL}/book-collections/detail/${collectionId}?username=${username}`,
     DELETE_USER_COLLECTION: (collectionId, username) => `${BASE_BACKEND_URL}/book-collections/${collectionId}/${username}`,
+    ADD_BOOK_TO_USER_COLLECTION: (collectionId, bookId, username) => `${BASE_BACKEND_URL}/book-collections/${collectionId}/books/${bookId}/${username}`,
     REMOVE_BOOK_FROM_USER_COLLECTION: (collectionId, bookId, username) => `${BASE_BACKEND_URL}/book-collections/${collectionId}/books/${bookId}/${username}`
 }
 

@@ -20,6 +20,7 @@ import { BooksOrderModal } from '@/components/modals/BooksOrderModal';
 import { Group } from 'lucide-react';
 import { CollectionModal } from '@/components/modals/CollectionModal';
 import { ChangeBookCoverModal } from '@/components/modals/ChangeBookCoverModal';
+import toast, { Toaster } from 'react-hot-toast';
 
 function MeContent() {
 
@@ -33,7 +34,7 @@ function MeContent() {
   const { startReadingSessionOpen } = useStartReadingSessionStore()
   const { bookFiltersModalOpen, setBookFiltersModalOpen } = useBookFiltersModalState();
   const { bookSortingModalOpen, setBookSortingModalOpen } = useBookSortingModalState();
-  const { collectionModalOpen, setCollectionModalOpen } = useCollectionModalState();
+  const { collectionModalOpen, setCollectionModalOpen, selectedBookForCollection } = useCollectionModalState();
   const { changeCoverModalOpen, selectedBookForCover, closeChangeCoverModal } = useChangeCoverModalState();
 
   const { data: allBooks } = useQuery({
@@ -99,9 +100,25 @@ function MeContent() {
 
       <CollectionModal
         isOpen={ collectionModalOpen }
-        onClose={() => setCollectionModalOpen(false)}
+        onClose={() => setCollectionModalOpen(false, null)}
         username={ user?.username }
+        book={ selectedBookForCollection }
+        onSuccessUpdate={() => {
+            toast.success("Колекції успішно оновлено!", {
+                style: {
+                    background: '#141113',
+                    color: '#fff',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                },
+                iconTheme: {
+                    primary: '#F43F5E',
+                    secondary: '#fff',
+                },
+            });
+        }}
       />
+
+      <Toaster position="bottom-right" />
       
       <main className="flex-1 h-full overflow-y-auto p-8 text-white">
         <div className="flex items-center justify-between mb-8">

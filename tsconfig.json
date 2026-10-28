@@ -28,6 +28,6 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
-    "**/*.jsx" ],
+    "**/*.jsx", "src/hooks/useCollectionsModal.js" ],
   "exclude": ["node_modules"]
 }

@@ -66,3 +66,5 @@ export * from "./SimilarBooksSection";
 export * from "./ActiveSessionTimer"
 export * from "./FlippingBookCover";
 export * from "./SettingsSection"
+export * from "./CollectionDetailView"
+export * from "./CreateCollectionForm"

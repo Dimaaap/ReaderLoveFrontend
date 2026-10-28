@@ -7,11 +7,19 @@ const FALLBACK_IMAGE = "https://s4.vcdn.biz/static/f/11655154901/5dd09d53934a426
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8030";
 
 
-const getBookImageUrl = (imageLink) => {
-  if (!imageLink) return FALLBACK_IMAGE;
-  if (imageLink.startsWith("https://")) return imageLink;
-  if (imageLink.startsWith("/media")) return `${API_BASE_URL}${imageLink}`;
-  return FALLBACK_IMAGE;
+const getBookImageUrl = (book) => {
+    const imageLink = book?.custom_image_link || book?.image_link;
+
+    if (!imageLink) return FALLBACK_IMAGE;
+
+    if (imageLink.startsWith("http://") || imageLink.startsWith("https://")) {
+        return imageLink;
+    }
+    if (imageLink.startsWith("/media")) {
+        return `${API_BASE_URL}${imageLink}`;
+    }
+    
+    return FALLBACK_IMAGE;
 };
 
 
@@ -22,11 +30,12 @@ export const BookCard = memo(({ book, isOpen, onSelectBook, onToggleOptions }) =
 
     return (
         <div className={`group relative flex flex-col gap-3 transition-all ${isOpen ? "z-40" : "z-10"}`}>
+            { console.log(book) }
             <div className={`relative aspect-3/4 w-full rounded-2xl overflow-hidden bg-[#1c181b] 
                 border border-white/5 shadow-lg transition-transform duration-200 ${!isOpen ? "group-hover:-translate-y-1" : ""}`}>
                     <Link href={ bookLink }>
                         <img
-                            src={ getBookImageUrl(book.image_link) }
+                            src={ getBookImageUrl(book) }
                             alt={ book.title }
                             className="object-cover w-full h-full"
                             loading="lazy"
