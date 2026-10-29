@@ -12,6 +12,7 @@ import { AllLinks, fetcher } from "@/utils";
 import { useAuth } from "./useAuth";
 
 export const useBookPage = (bookSlug) => {
+    const [activeSession, setActiveSession] = useState(null);
     const [activeTab, setActiveTab] = useState("general");
     const [statusMenuOpen, setStatusMenuOpen] = useState(false);
 
@@ -85,6 +86,122 @@ export const useBookPage = (bookSlug) => {
             queryClient.invalidateQueries({ queryKey: ["books", user?.username] });
         },
     });
+
+    const { mutateAsync: resetBookProgress, isPending: isResettingProgress } = useMutation({
+        mutationFn: async(updateData) => {
+            const response = await fetch(
+                AllLinks.books.UPDATE_USER_BOOK_READING_STATUS(
+                    user.username,
+                    bookSlug
+                ),
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        status: book?.status || "READING",
+                        last_read_page: 0
+                    }),
+                }
+            );
+            
+            if(!response.ok) {
+                throw new Error("Не вдалось скинути прогрес читання книги")
+            }
+
+            return response.json();
+        },
+
+        onMutate: async() => {
+            await queryClient.cancelQueries({ queryKey });
+            const previousBook = queryClient.getQueryData(queryKey);
+
+            queryClient.setQueryData(queryKey, (oldData) => {
+                if (!oldData) return oldData;
+                return {
+                    ...oldData,
+                    last_read_page: 0
+                }
+            });
+
+            return { previousBook }
+        },
+
+        onError: (error, variables, context) => {
+            if (context?.previousBook) {
+                queryClient.setQueryData(queryKey, context.previousBook);
+            }
+        },
+
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey });
+            queryClient.invalidateQueries({ queryKey: ["books", user?.username] })
+        }
+    })
+
+    const { mutateAsync: startReadingSession, isPending: isStartingSession } = useMutation({
+        mutationFn: async () => {
+            const response = await fetch(
+                AllLinks.readingSessions.CREATE_READING_SESSION, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        username: user?.username,
+                        book_id: book?.id,
+                        start_page: book?.last_read_page ?? 0,
+                        is_tracked: true
+                    })
+                }
+            )
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                console.error("Backend error:", errorData);
+                throw new Error("Не вдалось створити сесію читання");
+            }
+
+            return response.json();
+        },
+
+        onSuccess: (sessionData) => {
+            setActiveSession(sessionData)
+        },
+
+        onError: (err) => {
+            console.error("Failed to start reading session:", err);
+        }
+    })
+
+    const { mutateAsync: stopReadingSession } = useMutation({
+        mutationFn: async () => {
+            if (!activeSession?.id) return;
+            const response = await fetch(
+                AllLinks.readingSessions.PATCH_READING_SESSION(activeSession.id),
+                {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        ended_at: new Date().toISOString(),
+                    }),
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error("Не вдалось завершити сесію читання");
+            }
+
+            return response.json();
+        },
+        onSuccess: () => {
+            setActiveSession(null); 
+        },
+        onError: (err) => {
+            console.error("Failed to stop reading session:", err);
+            setActiveSession(null);
+        },
+    });
+
 
     const { mutateAsync: deleteBookStatus, isPending: isDeletingStatus } = useMutation({
         mutationFn: async () => {
@@ -169,7 +286,7 @@ export const useBookPage = (bookSlug) => {
 
         setBookStatus: updateBookStatus,
         deleteBookStatus,
-        isStatusLoading: isUpdatingStatus || isDeletingStatus,
+        isStatusLoading: isUpdatingStatus || isDeletingStatus || isResettingProgress,
 
         authorNames,
         reviews,
@@ -177,5 +294,13 @@ export const useBookPage = (bookSlug) => {
         fetchNextPage,
         hasNextPage,
         isFetchingNextPage,
+
+        resetBookProgress,
+
+        activeSession,
+        startReadingSession,
+        stopReadingSession,
+        isStartingSession
+
     };
 };

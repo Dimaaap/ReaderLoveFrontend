@@ -35,6 +35,10 @@ export default function BookPage({ bookSlug }) {
             isStatusLoading={page.isStatusLoading}
             statusMenuOpen={page.statusMenuOpen}
             setStatusMenuOpen={page.setStatusMenuOpen}
+            activeSession={page.activeSession}
+            onStartSession={page.startReadingSession}
+            onStopSession={page.stopReadingSession}
+            isStartingSession={page.isStartingSession}
         />
 
         <BookTabs

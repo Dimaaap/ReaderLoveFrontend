@@ -79,7 +79,8 @@ export const ActiveSessionTimer = ({ sessionId, startedAt, initialNetDuration = 
     };
     
     return (
-        <div className="flex items-center gap-3 bg-[#1A1416] border border-[#FF4B6B]/30 p-1.5 pl-4 rounded-xl shadow-lg 
+        <div className="flex items-center gap-3 bg-[#1A1416] border border-[#FF4B6B]/30 p-1.5 pl-4 rounded-xl shadow-lg max-w-max 
+        mx-auto my-auto
         shadow-[#FF4B6B]/5">
             <div className="flex items-center gap-2.5">
                 <span className="relative flex h-3 w-3">

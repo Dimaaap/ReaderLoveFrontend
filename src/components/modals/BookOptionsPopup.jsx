@@ -1,21 +1,24 @@
 "use client";
 
-import { ArrowRight, ChevronRight, Copy, Eye, FolderPlus, ImageIcon, RefreshCcw, Search, Trash2 } from 'lucide-react'
+import { ArrowRight, ChevronRight, Copy, Eye, FolderPlus, ImageIcon, RefreshCcw, RotateCcw, Search, Trash2 } from 'lucide-react'
 import Link from 'next/link';
 import { useChangeCoverModalState, useCollectionModalState, useStartReadingSessionStore } from "@/states";
 import { useState } from 'react'
 import { ChangeBookStatusPopup } from './ChangeBookStatusPopup';
 import { useBookPage } from '@/hooks/useBookPage';
+import toast from 'react-hot-toast';
 
 export const BookOptionsPopup = ({ book, onOpenEditModal }) => {
 
     const isStarted = (book.last_read_page || 0) > 0;
 
+    const canReread = book.status === "finished" || book.status === "reading";
+
     const [showStatusMenu, setShowStatusMenu] = useState(false)
     const [showCoverModal, setShowCoverModal] = useState(false)
 
     const { openChangeCoverModal } = useChangeCoverModalState()
-    const { removeBook, isDeleting } = useBookPage(book.slug)
+    const { removeBook, isDeleting, resetBookProgress, isStatusLoading } = useBookPage(book.slug)
     const { setStartReadingSessionOpen } = useStartReadingSessionStore();
     const { setCollectionModalOpen } = useCollectionModalState();
      
@@ -27,9 +30,21 @@ export const BookOptionsPopup = ({ book, onOpenEditModal }) => {
         });
     };
 
+    const handleRereadBook = async () => {
+        try {
+            await resetBookProgress();
+            onOpenEditModal();
+        } catch (err) {
+            console.error("Failed to reset reading progress", err)
+        }
+    }
+
     const handleCopyTitle = (e) => {
         e.preventDefault();
         navigator.clipboard.writeText(book.title)
+
+        toast.success(`Назву книги ${ book.title } успішно скопійовано`)
+        onOpenEditModal();
     }
 
     return (
@@ -39,7 +54,7 @@ export const BookOptionsPopup = ({ book, onOpenEditModal }) => {
             onMouseLeave={(e) => e.stopPropagation()}
             className="absolute top-12 w-72 -right-10 bg-[#141113] border border-white/10 text-white rounded-xl
             shadow-2xl backdrop-blur-sm flex flex-col p-2 cursor-pointer gap-1.5 z-50 text-sm"
-        >
+        >   
             <div className="flex items-center gap-3 p-2 border-b border-white/10 pb-3">
                 {book.image_link && (
                     <img 
@@ -79,6 +94,18 @@ export const BookOptionsPopup = ({ book, onOpenEditModal }) => {
                     </div>
                 </div>
             </Link>
+
+            { canReread && (
+                <button
+                    disabled={ isStatusLoading }
+                    onClick={ handleRereadBook }
+                    className="w-full flex items-center gap-2.5 p-2 rounded-lg hover:bg-white/5 transition-colors 
+                    font-medium text-left cursor-pointer text-zinc-300 hover:text-white disabled:opacity-50"
+                >
+                    <RotateCcw className="w-4 h-4 text-zinc-400" />
+                    <span>{ isStatusLoading ? "Скидання..." : "Перечитати" }</span>
+                </button>
+            ) }
 
             <div className="relative">
                 <button 

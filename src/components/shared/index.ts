@@ -68,3 +68,5 @@ export * from "./FlippingBookCover";
 export * from "./SettingsSection"
 export * from "./CollectionDetailView"
 export * from "./CreateCollectionForm"
+export * from "./BookCollectionCard"
+export * from "./ModalFooter";
