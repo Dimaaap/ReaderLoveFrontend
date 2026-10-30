@@ -26,6 +26,7 @@ import { Toast } from "@/components/shared/Toast";
 import { useEffect, useState } from "react";
 import { calculateReadingTempo } from "@/utils/readingTempo";
 import { AddBookmarkModal } from "@/components/modals/AddBookmarkModal";
+import { useReadingSession } from "@/hooks/useReadingSession"
 
 function NowReadingContent() {
   const {
@@ -42,6 +43,10 @@ function NowReadingContent() {
     addManualReadingSessionOpen,
     editProgressModalOpen,
   } = useNowReadingPage();
+
+  const {isLoading: isSessionLoading, startSession, finishSession, pauseSession, resumeSession} = useReadingSession({
+    book: currentBook, bookSlug: currentBook?.slug
+  })
 
   const { shareModalOpen, setShareModalOpen } = useShareModalState();
   const [bookmarkModalOpen, setBookmarkModalOpen] = useState(false);
@@ -86,14 +91,20 @@ function NowReadingContent() {
 
   return (
     <div className="flex items-start gap-0 w-full bg-[#0D0B0C] overflow-y-auto text-white overflow-hidden">
-      { console.log(currentBook) }
       <Sidebar username={user?.username} />
 
-      {startReadingSessionOpen && (
+      {startReadingSessionOpen && currentBook && (
         <StartReadingSessionModal
+          key={`${currentBook.id}-${currentBook.active_session?.id ?? "new"}`}
           book={currentBook}
-          activeSessionId={currentBook?.active_session?.id}
-          start={currentBook?.active_session === null}
+          activeSessionId={currentBook.active_session?.id}
+          start={!currentBook.active_session}
+          isSubmitting={isSessionLoading}
+          onSubmit={(page) =>
+            currentBook.active_session
+              ? finishSession(currentBook.active_session.id, page)
+              : startSession(page)
+          }
         />
       )}
 
@@ -209,12 +220,16 @@ function NowReadingContent() {
                   <div className="relative flex gap-2 items-center mt-4">
                     
                     { currentBook.active_session ? (
-                      <ActiveSessionTimer
-                        sessionId={ currentBook?.active_session?.id }
-                        startedAt={ currentBook?.active_session?.started_at }
-                        initialNetDuration={ currentBook?.active_session?.net_duration_seconds || 0 }
-                        isPausedInitial={ currentBook?.active_session?.is_paused || false }
-                        onStop={() => setStartReadingSessionOpen(true)}
+                       <ActiveSessionTimer
+                          sessionId={currentBook.active_session.id}
+                          startedAt={currentBook.active_session.started_at}
+                          initialNetDuration={
+                            currentBook.active_session.net_duration_seconds || 0
+                          }
+                          isPausedInitial={currentBook.active_session.is_paused || false}
+                          onPause={pauseSession}
+                          onResume={resumeSession}
+                          onStop={() => setStartReadingSessionOpen(true)}
                       />
                     ) : (
                       <button

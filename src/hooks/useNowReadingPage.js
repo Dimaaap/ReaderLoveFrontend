@@ -8,7 +8,8 @@ export const useNowReadingPage = () => {
     const { user } = useAuth();
 
     const { readingBookDetailsOpen, setReadingBookDetailsOpen, toggleReadingBookDetailsOpen } = useReadingBookDetailsPopupStore();
-    const { startReadingSessionOpen, setStartReadingSessionOpen } = useStartReadingSessionStore();
+    const { startReadingSessionOpen, setStartReadingSessionOpen, 
+        toggleStartReadingSession, isStart, activeSessionId, openSessionModal } = useStartReadingSessionStore();
     const { addManualReadingSessionOpen, setAddManualReadingSessionOpen } = useAddManualReadingSessionModal();
     const { setEditProgressModalOpen, editProgressModalOpen } = useEditProgressModal();
 
@@ -19,11 +20,10 @@ export const useNowReadingPage = () => {
         staleTime: 1000 * 60 * 60
     })
 
-    const { data: currentBook } = useQuery({
+    const { data: currentBook, isLoading: isBookLoading, isError: isBookError } = useQuery({
         queryKey: ["last-reading-book", user?.username],
         queryFn: () => fetcher(AllLinks.books.USER_LAST_READING_BOOK(user?.username, 20)),
         enabled: !!user?.username,
-        refetchOnWindowFocus: false,
         staleTime: 1000 * 60 * 5
     })
 
@@ -35,11 +35,10 @@ export const useNowReadingPage = () => {
         staleTime: 1000 * 60 * 5
     })
 
-    const readingSessions = currentBook?.recent_sessions;
+    const readingSessions = currentBook?.recent_sessions ?? [];
 
-    const seenUserReadingSessions = readingSessions?.sort((a, b) => {
-        return new Date(b.ended_at) - new Date(a.ended_at)
-    }).filter((session) => !!session.ended_at).slice(0, 5)
+    const seenUserReadingSessions = [...readingSessions].filter((session) => session.end_page !== null)
+    .sort((a, b) => new Date(a.started_at) - new Date(b.started_at)).slice(5)
 
     const dailyPagesGoal = userGoals?.filter((goal) => goal.category === "Сторінки за день")[0];
 
@@ -49,6 +48,7 @@ export const useNowReadingPage = () => {
         quote, isLoading, isError, currentBook,
         readingSessions,
         seenUserReadingSessions, dailyPagesGoal, addManualReadingSessionOpen, setAddManualReadingSessionOpen,
-        editProgressModalOpen, setEditProgressModalOpen
+        editProgressModalOpen, setEditProgressModalOpen, toggleStartReadingSession, isStart, activeSessionId, openSessionModal,
+        isBookLoading, isBookError
     }
 }

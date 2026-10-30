@@ -17,9 +17,12 @@ export default function BookInfo({
     statusMenuOpen,
     setStatusMenuOpen,
     activeSession,
-    onStartSession,
-    onStopSession,
-    isStartingSession
+    isStartingSession,
+    onOpenStartModal,
+    onOpenFinishModal,
+    onPause,
+    onResume,
+    activeSessionId
 }) {
 
     const getImageLink = (link) => {
@@ -107,13 +110,16 @@ export default function BookInfo({
                         </div>
                     </div>
                     { activeSession ? (
-                        <ActiveSessionTimer
-                            sessionId={ activeSession.id }
-                            startedAt={ activeSession.started_at }
-                            initialNetDuration={ activeSession.net_duration_seconds || 0 }
-                            isPausedInitial={ activeSession.is_paused }
-                            onStop={ onStopSession }
-                            onStatusChange={ (updated) => console.log(updated) }
+                         <ActiveSessionTimer
+                            sessionId={activeSession.id}
+                            startedAt={activeSession.started_at}
+                            initialNetDuration={activeSession.net_duration_seconds || 0}
+                            isPausedInitial={
+                                activeSession.is_paused ?? Boolean(activeSession.paused_at)
+                            }
+                            onPause={() => onPause(activeSessionId)}
+                            onResume={() => onResume(activeSessionId)}
+                            onStop={onOpenFinishModal}
                         />
                     ) : (
                         <div className="flex flex-col gap-2">
@@ -122,7 +128,7 @@ export default function BookInfo({
                                     <div className="flex items-center justify-center p-1.5 rounded-full border-2 border-white/80 
                                     shadow-lg cursor-pointer">
                                         <button
-                                            onClick={ onStartSession }
+                                            onClick={ onOpenStartModal }
                                             disabled={ isStartingSession }
                                             title={ isStarted ? "Продовжити читати" : "Почати читати" }
                                             className="w-12 h-12 rounded-full bg-[#FF0000] hover:bg-[#e00000] flex items-center 

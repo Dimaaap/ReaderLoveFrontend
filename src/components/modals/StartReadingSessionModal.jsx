@@ -7,129 +7,82 @@ import Image from 'next/image';
 import { useEffect, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query';
 
-export const StartReadingSessionModal = ({ book, start=true, activeSessionId = null, firstSession=false }) => {
-    const initialPage = start ? String(book.read_pages || 0) : String(book.read_pages || 0);
-    const [startPage, setStartPage] = useState(initialPage);
+export const StartReadingSessionModal = ({ 
+    book, start = true, activeSessionId = null, onSubmit, isSubmitting = false, firstSession = false
+ }) => {
+    const initialPage = book?.last_read_page ?? 0;
+    
+    const [page, setPage] = useState(String(initialPage))
     const [error, setError] = useState(null);
-    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const { user } = useAuth();
     const { setStartReadingSessionOpen } = useStartReadingSessionStore();
 
-    const queryClient = useQueryClient();
-
     useEffect(() => {
-        setStartPage(start ? String(book.last_read_page || 0) : String(book.last_read_page || 0));
-        setError(null);
-    }, [start, book.read_pages])
+        setPage(String(book?.last_read_page ?? 0));
+        setError(null)
+    }, [book?.id, book?.last_read_page, start])
+
+    const validatePage = (value) => {
+        if (value === "") {
+            return "Вкажіть сторінку"
+        }
+
+        const pageNumber = Number(value);
+
+        if (!Number.isInteger(pageNumber) || pageNumber < 0) {
+            return "Введіть коректний номер сторінки"
+        }
+
+        if (book?.pages_count !== null && pageNumber > book.pages_count) {
+            return `Максимальна кількість сторінок: ${book.pages_count}`
+        }
+
+        if (!start && pageNumber < initialPage) {
+            return `Кінцева сторінка не може бути меншою за ${initialPage}`
+        }
+
+        return null;
+    }
 
     const handlePageChange = (e) => {
         const value = e.target.value;
-        setStartPage(value);
-
-        const pageNum = parseInt(value, 10);
-
-        if (value === "") {
-            setError("Вкажіть сторінку");
-            return;
-        } 
-        
-        if (isNaN(pageNum) || pageNum < 0) {
-            setError("Номер сторінки не може бути < 0");
-            return;
-        } 
-        
-        if (pageNum > book.pages_count) {
-            setError(`Значення не може бути більшим за кількість сторінок у книзі (${book.pages_count})`);
-            return;
-        }
-        if (!start && pageNum < book.read_pages) {
-            setError(`Кінцева сторінка не може бути меншою за початкову (${book.read_pages})`);
-            return;
-        }
-
-        setError(null);
+        setPage(value);
+        setError(validatePage(value));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const pageNum = parseInt(startPage, 10);
+        
+        const validationError = validatePage(page);
 
-        const isValid = !isNaN(pageNum) && pageNum >= 0 && pageNum <= book.pages_count;
-        const isValidEndPage = start || pageNum >= book.last_read_page;
-
-        if (isValid && isValidEndPage) {
-            try {
-                if (start) {
-                    await createNewReadingSession(pageNum);
-                } else {
-                    await finishReadingSession(pageNum);
-                }
-
-                await queryClient.invalidateQueries({
-                    queryKey: ["last-reading-book", user?.username]
-                });
-                await queryClient.invalidateQueries({
-                    queryKey: ["user-goals", user?.username]
-                })
-                setStartReadingSessionOpen(false);
-            } catch (err) {
-                setError(err.message || "Сталася помилка. Спробуйте ще раз.");
-            } finally {
-                setIsSubmitting(false)
-            }
-        }
-    };
-
-    const createNewReadingSession = async (pageNum) => {
-        console.log({
-            username: user?.username,
-            book_id: book.id,
-            start_page: pageNum
-        })
-        const response = await fetch(AllLinks.readingSessions.CREATE_READING_SESSION, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                username: user?.username,
-                book_id: book.id,
-                start_page: pageNum
-            })
-        })
-
-        if(!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.message || "Помилка при створенні сесії")
+        if (validationError) {
+            setError(validationError)
+            return;
         }
 
-        return response.json()
+        if (!start && !activeSessionId) {
+            setError("Не знайдено активну сесію")
+            return;
+        }
+
+        try {
+            await onSubmit(Number(page));
+            setStartReadingSessionOpen(false);
+        } catch (err) {
+            setError(err.message || "Сталась помилка. Спробуйте ще раз")
+        }
     }
 
-    const finishReadingSession = async (pageNum) => {
-        const response = await fetch(AllLinks.readingSessions.PATCH_READING_SESSION(activeSessionId), {
-            method: "PATCH", 
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                end_page: pageNum,
-                ended_at: new Date().toISOString()
-            })
-        });
+    const author = book?.authors?.[0];
 
-
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.message || "Помилка при завершенні сесії");
-        }
-
-        return response.json();
-    };
-    
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+
+            {console.log("MODAL PROPS:", {
+                start,
+                activeSessionId,
+                bookLastReadPage: book?.last_read_page,
+            })}
             <div className="relative w-full max-w-md rounded-2xl bg-[#1E1E1E] p-6 text-white shadow-2xl 
             border border-zinc-800 animate-in fade-in zoom-in-95 duration-200 flex flex-col gap-5">
                 <div className="flex items-center justify-between">
@@ -145,70 +98,89 @@ export const StartReadingSessionModal = ({ book, start=true, activeSessionId = n
                     </button>
                 </div> 
 
-                <div className="mb-6 flex gap-4 rounded-xl bg-zinc-900/50 p-3 border border-zinc-800/40">
-                    <Image
-                        src={ book.image_link }
-                        alt={ book.title }
+                <div className="mb-2 flex gap-4 rounded-xl bg-zinc-900/50 p-3">
+                    {book?.image_link && (
+                        <Image
+                        src={book.image_link}
+                        alt={book.title}
                         className="h-20 w-14 rounded-md object-cover shadow-md"
-                        width="14"
-                        height="20"
-                    />
+                        width={56}
+                        height={80}
+                        />
+                    )}
 
-                    <div className="flex flex-col justify-center">
-                        <h3 className="font-medium line-clamp-1 text-sm md:text-base">{ book.title }</h3>
-                        <p className="text-xs text-zinc-400 mt-0.5">{ book.authors[0].first_name } { book.authors[0].last_name }</p>
+                    <div className="flex min-w-0 flex-col justify-center">
+                         <h3 className="line-clamp-1 text-sm font-medium md:text-base">
+                            {book?.title}
+                        </h3>
+
+                         <p className="mt-0.5 text-xs text-zinc-400">
+                            {author
+                                ? `${author.first_name} ${author.last_name}`
+                                : "Невідомий автор"}
+                        </p>
                     </div>
                 </div>
 
                 <form className="space-y-6" onSubmit={ handleSubmit }>
                     <div>
                         <label className="block text-xs font-medium text-zinc-300 mb-2">
-                            { !firstSession ? (start 
-                            ? `Введіть номер початкової сторінки (остання прочитана: ${book.last_read_page})` 
-                            : `Введіть кінцеву сторінку (сесію розпочато з: ${book.last_read_page})`) : ("Введіть сторінку початку") }
+                            {firstSession
+                                ? "Введіть сторінку початку"
+                                : start
+                                ? `Початкова сторінка (остання прочитана: ${initialPage})`
+                                : `Кінцева сторінка (початкова: ${initialPage})`
+                            }
                         </label>
-                        <div className="relative flex items-center">
+                        <div className="gap-3 flex items-center">
                             <input
                             type="number"
-                            min={ start ? "0" : book.last_read_page }
-                            max={ book.pages_count }
-                            value={ startPage }
+                            min={ start ? 0 : initialPage }
+                            max={ book.pages_count ?? undefined }
+                            value={ page }
                             onChange={ handlePageChange }
-                            className={`w-full rounded-lg bg-zinc-900 border px-3 py-2.5 text-white placeholder-zinc-500 
-                                transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none 
-                                [&::-webkit-inner-spin-button]:appearance-none focus:outline-none focus:ring-1
-                                ${error 
-                                    ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
-                                    : 'border-zinc-700 focus:border-[#ff3b69] focus:ring-[#ff3b69]'
-                                }`}
-                            placehoder="0"
-                            required />
-                            <span className="text-center font-semibold text-xs text-zinc-500 pointer-events-none">
-                                з { book.pages_count } сторінок
+                            placeholder='0'
+                            required
+                            className={`w-full rounded-lg border bg-zinc-900 px-3 py-2.5 text-white 
+                                transition-colors [appearance:textfield] focus:outline-none focus:ring-1 
+                                [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none ${
+                                error
+                                    ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                                    : "border-zinc-700 focus:border-[#ff3b69] focus:ring-[#ff3b69]"
+                            }`}
+                            />
+                            <span className="shrink-0 text-xs font-semibold text-zinc-500">
+                                з {book?.pages_count ?? "—"} сторінок
                             </span>
                         </div>
                         {error && (
-                            <div className="flex items-center gap-1.5 mt-2 text-xs text-red-500 animate-in fade-in slide-in-from-top-1 duration-150">
-                                <span>{error}</span>
-                            </div>
+                            <p className="mt-2 text-xs text-red-500">
+                                {error}
+                            </p>
                         )}
                     </div>
 
                     <div className="flex gap-3 pt-2">
-                        <button
+                         <button
                             type="submit"
-                            disabled={!!error || isSubmitting}
-                            className={`flex-1 rounded-lg py-2.5 text-sm font-medium text-white transition-all active:scale-[0.98]
-                                ${error || isSubmitting
-                                ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed active:scale-100' 
-                                : 'bg-[#ff3b69] hover:bg-[#e0345c]'
-                                }`}
-                        >
-                            { isSubmitting ? "Збереження..." : !firstSession ? (start ? "Почати читати" : "Зупинити читання") : "Почати сесію" }
+                            disabled={!!error || isSubmitting || !page.trim()}
+                            className={`flex-1 rounded-lg py-2.5 text-sm font-medium text-white transition-all ${
+                                error || isSubmitting || !page.trim()
+                                ? "cursor-not-allowed bg-zinc-800 text-zinc-500"
+                                : "bg-[#ff3b69] hover:bg-[#e0345c] active:scale-[0.98]"
+                            }`}
+                            >
+                            {isSubmitting
+                                ? "Збереження..."
+                                : start
+                                ? "Почати читати"
+                                : "Зупинити читання"}
                         </button>
-                        <button type="button" className="flex-1 rounded-lg bg-zinc-700 py-2.5 text-sm font-medium text-zinc-200 
-                        hover:bg-zinc-600 active:scale-[0.98] transition-all"
+                        <button
+                        type="button"
                         onClick={() => setStartReadingSessionOpen(false)}
+                        className="flex-1 rounded-lg bg-zinc-700 py-2.5 text-sm font-medium text-zinc-200 transition-all 
+                        hover:bg-zinc-600 active:scale-[0.98]"
                         >
                             Скасувати
                         </button>

@@ -4,30 +4,23 @@ import { AllLinks } from '@/utils';
 import { Pause, Play, Square } from 'lucide-react';
 import { useState, useEffect } from 'react'
 
-export const ActiveSessionTimer = ({ sessionId, startedAt, initialNetDuration = 0, isPausedInitial = false, onStop, onStatusChange }) => {
+export const ActiveSessionTimer = ({ sessionId, 
+    startedAt, 
+    initialNetDuration = 0, 
+    isPausedInitial = false, 
+    onStop, 
+    onPause, 
+    onResume }) => {
+
     const [isPaused, setIsPaused] = useState(isPausedInitial);
     const [isLoading, setIsLoading] = useState(false);
     
-    const [elapsedSeconds, setElapsedSeconds] = useState(() => {
-        if (isPausedInitial || !startedAt) {
-            return initialNetDuration
-        }
-
-        const startTime = new Date(startedAt).getTime();
-        const now = new Date().getTime();
-
-        if (isNaN(startTime)) {
-            return initialNetDuration;
-        }
-
-        const secondPassed = Math.max(0, Math.floor((now - startTime) / 1000));
-
-        return initialNetDuration + secondPassed
-    });
+    const [elapsedSeconds, setElapsedSeconds] = useState(initialNetDuration);
 
     useEffect(() => {
         setIsPaused(isPausedInitial);
-    }, [isPausedInitial]);
+        setElapsedSeconds(initialNetDuration);
+    }, [sessionId, initialNetDuration, isPausedInitial]);
 
     useEffect(() => {
         if (isPaused) return;
@@ -37,51 +30,42 @@ export const ActiveSessionTimer = ({ sessionId, startedAt, initialNetDuration = 
         }, 1000);
 
         return () => clearInterval(interval);
-    }, [isPaused]);
+    }, [isPaused, sessionId]);
+
+    const formatTime = (seconds) => {
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        const remainingSeconds = seconds % 60;
+
+        return [
+            String(hours).padStart(2, "0"),
+            String(minutes).padStart(2, "0"),
+            String(remainingSeconds).padStart(2, "0"),
+        ].join(":");
+    };
     
-    const handleTogglePause = async () => {
+    const handlePauseResume = async () => {
+        if (isLoading) return;
+
+        setIsLoading(true);
+
         try {
-            setIsLoading(true);
-            const endpoint = isPaused 
-            ? AllLinks.readingSessions.RESUME_SESSION(sessionId) 
-            : AllLinks.readingSessions.PAUSE_SESSION(sessionId)
+            const session = isPaused
+            ? await onResume(sessionId)
+            : await onPause(sessionId);
 
-            const res = await fetch(endpoint, {
-                method: "POST"
-            })
-
-            if (!res.ok) throw new Error("Failed to toggle pause");
-
-            const updatedSession = await res.json();
-            setIsPaused(updatedSession.is_paused);
-            setElapsedSeconds(updatedSession.net_duration_seconds);
-
-            if (onStatusChange) {
-                onStatusChange(updatedSession);
-            }
+            setIsPaused(session.is_paused);
+            setElapsedSeconds(session.net_duration_seconds);
         } catch (error) {
-            console.error("Error loading session pause: ", error);
+            console.error("Reading session status error:", error);
         } finally {
             setIsLoading(false);
         }
-    }
-
-    const formatTime = (totalSeconds) => {
-        const hrs = Math.floor(totalSeconds / 3600);
-        const mins = Math.floor((totalSeconds % 3600) / 60);
-        const secs = totalSeconds % 60;
-
-        const pad = (num) => String(num).padStart(2, "0");
-
-        return hrs > 0
-        ? `${pad(hrs)}:${pad(mins)}:${pad(secs)}`
-        : `${pad(mins)}:${pad(secs)}`;
     };
     
     return (
         <div className="flex items-center gap-3 bg-[#1A1416] border border-[#FF4B6B]/30 p-1.5 pl-4 rounded-xl shadow-lg max-w-max 
-        mx-auto my-auto
-        shadow-[#FF4B6B]/5">
+        mx-auto my-auto shadow-[#FF4B6B]/5">
             <div className="flex items-center gap-2.5">
                 <span className="relative flex h-3 w-3">
                     { !isPaused && (
@@ -96,7 +80,7 @@ export const ActiveSessionTimer = ({ sessionId, startedAt, initialNetDuration = 
 
             <div className="flex items-center gap-1">
                 <button
-                    onClick={ handleTogglePause }
+                    onClick={ handlePauseResume }
                     disabled={ isLoading }
                     title={ isPaused ? "Відновити читання" : "Пауза" }
                     className="flex items-center justify-center w-9 h-9 bg-zinc-800 hover:bg-zinc-700 

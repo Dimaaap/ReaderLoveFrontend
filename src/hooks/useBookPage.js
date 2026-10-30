@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import {
     useInfiniteQuery,
     useMutation,
@@ -10,9 +10,9 @@ import {
 
 import { AllLinks, fetcher } from "@/utils";
 import { useAuth } from "./useAuth";
+import { useReadingSession } from "./useReadingSession";
 
 export const useBookPage = (bookSlug) => {
-    const [activeSession, setActiveSession] = useState(null);
     const [activeTab, setActiveTab] = useState("general");
     const [statusMenuOpen, setStatusMenuOpen] = useState(false);
 
@@ -37,6 +37,33 @@ export const useBookPage = (bookSlug) => {
             );
         },
     });
+
+    const {
+        isLoading: isSessionLoading,
+        startSession,
+        finishSession,
+        pauseSession,
+        resumeSession,
+        } = useReadingSession({
+        book,
+        bookSlug,
+    });
+
+    const activeSession = book?.active_session || null;
+
+    const activeSessionId =
+    typeof activeSession === "number"
+        ? activeSession
+        : activeSession?.id ?? book?.active_session_id ?? null;
+
+    useEffect(() => {
+        if (book) {
+            console.log(
+                "FULL BOOK RESPONSE:",
+                JSON.stringify(book, null, 2)
+            );
+        }
+    }, [book]);
 
     const { mutateAsync: updateBookStatus, isPending: isUpdatingStatus } = useMutation({
         mutationFn: async (newStatus) => {
@@ -140,69 +167,6 @@ export const useBookPage = (bookSlug) => {
         }
     })
 
-    const { mutateAsync: startReadingSession, isPending: isStartingSession } = useMutation({
-        mutationFn: async () => {
-            const response = await fetch(
-                AllLinks.readingSessions.CREATE_READING_SESSION, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        username: user?.username,
-                        book_id: book?.id,
-                        start_page: book?.last_read_page ?? 0,
-                        is_tracked: true
-                    })
-                }
-            )
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                console.error("Backend error:", errorData);
-                throw new Error("Не вдалось створити сесію читання");
-            }
-
-            return response.json();
-        },
-
-        onSuccess: (sessionData) => {
-            setActiveSession(sessionData)
-        },
-
-        onError: (err) => {
-            console.error("Failed to start reading session:", err);
-        }
-    })
-
-    const { mutateAsync: stopReadingSession } = useMutation({
-        mutationFn: async () => {
-            if (!activeSession?.id) return;
-            const response = await fetch(
-                AllLinks.readingSessions.PATCH_READING_SESSION(activeSession.id),
-                {
-                    method: "PATCH",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        ended_at: new Date().toISOString(),
-                    }),
-                }
-            );
-
-            if (!response.ok) {
-                throw new Error("Не вдалось завершити сесію читання");
-            }
-
-            return response.json();
-        },
-        onSuccess: () => {
-            setActiveSession(null); 
-        },
-        onError: (err) => {
-            console.error("Failed to stop reading session:", err);
-            setActiveSession(null);
-        },
-    });
-
-
     const { mutateAsync: deleteBookStatus, isPending: isDeletingStatus } = useMutation({
         mutationFn: async () => {
             const response = await fetch(
@@ -286,7 +250,8 @@ export const useBookPage = (bookSlug) => {
 
         setBookStatus: updateBookStatus,
         deleteBookStatus,
-        isStatusLoading: isUpdatingStatus || isDeletingStatus || isResettingProgress,
+        isStatusLoading:
+            isUpdatingStatus || isDeletingStatus || isResettingProgress,
 
         authorNames,
         reviews,
@@ -298,9 +263,13 @@ export const useBookPage = (bookSlug) => {
         resetBookProgress,
 
         activeSession,
-        startReadingSession,
-        stopReadingSession,
-        isStartingSession
+        activeSessionId,
+
+        isSessionLoading,
+        startSession,
+        finishSession,
+        pauseSession,
+        resumeSession,
 
     };
 };
