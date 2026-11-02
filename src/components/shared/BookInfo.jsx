@@ -6,6 +6,7 @@ import { ChevronDown, Play, ShoppingCart } from "lucide-react";
 import { BOOK_STATUSES, BookSelectPopup } from "../modals/BookSelectPopup";
 import { getDeclension } from "@/utils/declension";
 import { ActiveSessionTimer } from "./ActiveSessionTimer";
+import { FlippingBookCover } from "./FlippingBookCover";
 
 export default function BookInfo({
     book,
@@ -59,12 +60,11 @@ export default function BookInfo({
     return (
         <div className="flex flex-col gap-6 p-6">
             <div className="flex gap-5 items-start">
-                <div className="relative w-36 aspect-2/3 rounded-xl overflow-hidden border border-zinc-800 shadow-xl 
-                shrink-0">
-                    <img
-                        src={ getImageLink(book?.image_link) }
-                        alt={ book?.title }
-                        className="object-cover w-full h-full"
+                <div className="shrink-0">
+                    <FlippingBookCover
+                        imageSrc={ getImageLink(book?.image_link) }
+                        title={ book?.title }
+                        isOpen={ Boolean(activeSession) }
                     />
                 </div>
 

@@ -3,7 +3,7 @@ import Image from 'next/image'
 
 export const FlippingBookCover = ({ imageSrc, title, isOpen }) => {
     return (
-        <div className="w-32 aspect-2/3 relative shrink-0 perspective-1000 group">
+        <div className="w-36 aspect-2/3 relative shrink-0 perspective-1000 group">
             <div
                 className={`relative w-full h-full duration-700 ease-in-out transform-style-3d ${
                     isOpen ? "rotate-y-[-140deg]" : "rotate-y-0"

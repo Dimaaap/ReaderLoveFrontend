@@ -41,9 +41,6 @@ export default function BookPage({ bookSlug }) {
   return (
     <div className="flex flex-col w-full h-full bg-[#0D0B0C] text-zinc-300 overflow-auto">
       <div className="bg-[#141113] rounded-2xl flex flex-col w-200 max-w-full mx-auto border border-zinc-900 shadow-xl my-6">
-        {console.log("BOOK:", book)}
-        {console.log("ACTIVE SESSION:", activeSession)}
-        {console.log("ACTIVE SESSION ID:", activeSessionId)}
 
         {createReviewModalOpen && (
           <CreateReviewModal book={book} />

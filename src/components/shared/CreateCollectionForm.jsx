@@ -1,4 +1,4 @@
-export const CreateCollectionForm = ({ onSubmitForm, onCancelForm, formData, setTitle, setDescription, setIsPublic }) => {
+export const CreateCollectionForm = ({ onSubmitForm, onCancelForm, formData, setFormData }) => {
     return (
         <form
         onSubmit={ onSubmitForm }
@@ -19,7 +19,7 @@ export const CreateCollectionForm = ({ onSubmitForm, onCancelForm, formData, set
                 type="text"
                 placeholder="Назва колекції (напр. Улюблені детективи)..."
                 value={formData.title}
-                onChange={setTitle}
+                onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
                 className="bg-[#121111] border border-zinc-700 focus:border-[#F43F5E] outline-none 
                 text-white text-sm rounded-lg p-2.5"
                 autoFocus
@@ -29,7 +29,7 @@ export const CreateCollectionForm = ({ onSubmitForm, onCancelForm, formData, set
                 <textarea
                 placeholder="Короткий опис (необов'язково)..."
                 value={formData.description}
-                onChange={setDescription}
+                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                 className="bg-[#121111] border border-zinc-700 focus:border-[#F43F5E] outline-none 
                 text-white text-sm rounded-lg p-2.5 resize-none h-20"
                 />
@@ -38,7 +38,7 @@ export const CreateCollectionForm = ({ onSubmitForm, onCancelForm, formData, set
                         <input
                         type="checkbox"
                         checked={formData.is_public}
-                        onChange={setIsPublic}
+                        onChange={(e) => setFormData(prev => ({ ...prev, is_public: e.target.checked }))}
                         className="accent-[#F43F5E] rounded"
                         />
                         Публічна колекція

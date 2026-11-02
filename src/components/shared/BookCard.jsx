@@ -2,6 +2,7 @@ import { readPercent } from "@/utils";
 import Link from "next/link";
 import { memo } from "react";
 import { BookOptionsPopup } from "../modals/BookOptionsPopup";
+import { Pause, Play } from "lucide-react";
 
 const FALLBACK_IMAGE = "https://s4.vcdn.biz/static/f/11655154901/5dd09d53934a4268add21439ca6c03bf.jpeg";
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8030";
@@ -28,9 +29,12 @@ export const BookCard = memo(({ book, isOpen, onSelectBook, onToggleOptions }) =
     const readPercentage = readPercent(book.last_read_page || 0, book.pages_count);
     const author = book.authors?.[0];
 
+    const activeSession = book.active_session;
+    const isReading = activeSession && !activeSession.is_paused;
+    const isPaused = activeSession?.is_paused;
+
     return (
         <div className={`group relative flex flex-col gap-3 transition-all ${isOpen ? "z-40" : "z-10"}`}>
-            { console.log(book) }
             <div className={`relative aspect-3/4 w-full rounded-2xl overflow-hidden bg-[#1c181b] 
                 border border-white/5 shadow-lg transition-transform duration-200 ${!isOpen ? "group-hover:-translate-y-1" : ""}`}>
                     <Link href={ bookLink }>
@@ -41,6 +45,26 @@ export const BookCard = memo(({ book, isOpen, onSelectBook, onToggleOptions }) =
                             loading="lazy"
                         />
                     </Link>
+
+                    {(isReading || isPaused) && (
+                        <div className={`absolute top-3 left-3 z-20 flex items-center gap-1.5 px-2.5 py-1.5 
+                        rounded-lg backdrop-blur-md border text-xs font-semibold ${isReading
+                            ? "bg-emerald-500/20 border-emerald-400/30 text-emerald-300"
+                            : "bg-amber-500/20 border-amber-400/30 text-amber-300"
+                        }`}>
+                            { isReading ? (
+                                <>
+                                    <Play size={12} fill="currentColor" />
+                                    <span>Читається</span>
+                                </>
+                            ) : (
+                                <>
+                                    <Pause size={12} fill="currentColor" />
+                                    <span>На паузі</span>
+                                </>
+                            ) }
+                        </div>
+                    )}
 
                     <button
                         type="button"
