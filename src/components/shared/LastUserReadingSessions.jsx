@@ -13,6 +13,8 @@ export const LastUserReadingSessions = () => {
 
     const [activePopupId, setActivePopupId] = useState(null)
 
+    const recentSessions = [...(seenUserReadingSessions ?? [])].sort((a, b) => new Date(b.started_at) - new Date(a.started_at)).slice(0, 5);
+
     const tempoStats = calculateReadingTempo(seenUserReadingSessions)
 
     const handleTogglePopup = (sessionId) => {
@@ -65,9 +67,9 @@ export const LastUserReadingSessions = () => {
                 </div>
             </div>
            ) }
-           {seenUserReadingSessions && seenUserReadingSessions.length > 0 ? (
+           {recentSessions.length > 0 ? (
                 <div className="flex flex-col gap-3">
-                    {seenUserReadingSessions.map((session) => (
+                    {recentSessions.map((session) => (
                         <ReadingSession
                             key={session.id}
                             session={session}

@@ -1,8 +1,9 @@
 import Image from 'next/image'
 
-
 export const FlippingBookCover = ({ imageSrc, title, isOpen }) => {
+
     return (
+
         <div className="w-36 aspect-2/3 relative shrink-0 perspective-1000 group">
             <div
                 className={`relative w-full h-full duration-700 ease-in-out transform-style-3d ${
@@ -17,12 +18,17 @@ export const FlippingBookCover = ({ imageSrc, title, isOpen }) => {
                         fill
                         className="object-cover"
                         priority
+
                     />
                     <div className="absolute top-0 bottom-0 left-0 w-3 bg-linear-to-r from-black/40 to-transparent pointer-events-none" />
                 </div>
 
-                <div className="absolute inset-0 w-full h-full bg-[#181416] rounded-xl border border-zinc-800 rotate-y-180 
-                backface-hidden z-10 flex items-center justify-center p-2 text-center">
+
+
+                <div className={`absolute inset-0 w-full h-full bg-[#181416] rounded-xl border border-zinc-800 rotate-y-180
+                backface-hidden z-10 flex items-center justify-center p-2 text-center transition-opacity duration-300 ${
+                    isOpen ? "opacity-0 pointer-events-none" : "opacity-100"
+                }`}>
                     <div className="w-full h-full border border-dashed border-zinc-800 rounded-lg flex items-center justify-center">
                         <span className="text-zinc-600 font-serif italic text-[10px]">Приємного читання</span>
                     </div>

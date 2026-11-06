@@ -44,7 +44,7 @@ export const useBookPage = (bookSlug) => {
         finishSession,
         pauseSession,
         resumeSession,
-        } = useReadingSession({
+    } = useReadingSession({
         book,
         bookSlug,
     });
@@ -66,7 +66,11 @@ export const useBookPage = (bookSlug) => {
     }, [book]);
 
     const { mutateAsync: updateBookStatus, isPending: isUpdatingStatus } = useMutation({
-        mutationFn: async (newStatus) => {
+        mutationFn: async (payload) => {
+            const requestBody = typeof payload === "string" 
+                ? { status: payload } 
+                : payload;
+
             const response = await fetch(
                 AllLinks.books.UPDATE_USER_BOOK_READING_STATUS(
                     user.username,
@@ -77,33 +81,33 @@ export const useBookPage = (bookSlug) => {
                     headers: {
                         "Content-Type": "application/json",
                     },
-                    body: JSON.stringify({
-                        status: newStatus,
-                    }),
+                    body: JSON.stringify(requestBody),
                 }
             );
 
             if (!response.ok) {
-                throw new Error("Не вдалося оновити статус книги");
+                throw new Error("Не вдалося оновити статус або налаштування книги");
             }
 
             return response.json();
         },
-        onMutate: async (newStatus) => {
+        onMutate: async (payload) => {
             await queryClient.cancelQueries({ queryKey });
             const previousBook = queryClient.getQueryData(queryKey);
+
+            const patchData = typeof payload === "string" ? { status: payload } : payload;
 
             queryClient.setQueryData(queryKey, (oldData) => {
                 if (!oldData) return oldData;
                 return {
                     ...oldData,
-                    status: newStatus,
+                    ...patchData,
                 };
             });
 
             return { previousBook };
         },
-        onError: (error, newStatus, context) => {
+        onError: (error, payload, context) => {
             if (context?.previousBook) {
                 queryClient.setQueryData(queryKey, context.previousBook);
             }
@@ -128,7 +132,8 @@ export const useBookPage = (bookSlug) => {
                     },
                     body: JSON.stringify({
                         status: book?.status || "READING",
-                        last_read_page: 0
+                        last_read_page: 0,
+                        last_read_percent: 0.0
                     }),
                 }
             );
@@ -148,7 +153,8 @@ export const useBookPage = (bookSlug) => {
                 if (!oldData) return oldData;
                 return {
                     ...oldData,
-                    last_read_page: 0
+                    last_read_page: 0,
+                    last_read_percent: 0.0
                 }
             });
 
@@ -165,7 +171,7 @@ export const useBookPage = (bookSlug) => {
             queryClient.invalidateQueries({ queryKey });
             queryClient.invalidateQueries({ queryKey: ["books", user?.username] })
         }
-    })
+    });
 
     const { mutateAsync: deleteBookStatus, isPending: isDeletingStatus } = useMutation({
         mutationFn: async () => {
@@ -249,6 +255,7 @@ export const useBookPage = (bookSlug) => {
         setStatusMenuOpen,
 
         setBookStatus: updateBookStatus,
+        updateBookStatus,
         deleteBookStatus,
         isStatusLoading:
             isUpdatingStatus || isDeletingStatus || isResettingProgress,
@@ -270,6 +277,5 @@ export const useBookPage = (bookSlug) => {
         finishSession,
         pauseSession,
         resumeSession,
-
     };
 };
