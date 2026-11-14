@@ -38,7 +38,7 @@ export const useNowReadingPage = () => {
     const readingSessions = currentBook?.recent_sessions ?? [];
 
     const seenUserReadingSessions = [...readingSessions].filter((session) => session.end_page !== null)
-    .sort((a, b) => new Date(a.started_at) - new Date(b.started_at)).slice(5)
+    .sort((a, b) => new Date(a.started_at) - new Date(b.started_at)).slice(-5)
 
     const dailyPagesGoal = userGoals?.filter((goal) => goal.category === "Сторінки за день")[0];
 

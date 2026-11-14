@@ -27,6 +27,7 @@ export const LastUserReadingSessions = () => {
 
     return (
         <div className="flex flex-col gap-5 bg-[#141113] h-fit p-4 rounded-xl border border-zinc-900/60">
+            { console.log(seenUserReadingSessions) }
             <div className="flex items-center justify-between gap-2 mb-1">
                 <h4 className="text-base font-bold text-white whitespace-nowrap">
                     Недавні сесії

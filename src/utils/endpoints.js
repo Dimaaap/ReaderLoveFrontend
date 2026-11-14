@@ -126,6 +126,12 @@ const BookCollections = {
     REMOVE_BOOK_FROM_USER_COLLECTION: (collectionId, bookId, username) => `${BASE_BACKEND_URL}/book-collections/${collectionId}/books/${bookId}/${username}`
 }
 
+const ReadingCycles = {
+    CREATE_READING_CYCLE: (username, bookId) => `${BASE_BACKEND_URL}/reading_cycles/${username}/books/${bookId}`,
+    DELETE_READING_CYCLE: (username, cycleId) => `${BASE_BACKEND_URL}/reading_cycles/${username}/${cycleId}`,
+    REREAD_BOOK: (username, cycleId) => `${BASE_BACKEND_URL}/reading_cycles/${username}/books/${cycleId}/reread`
+}
+
 export const AllLinks = {
     socialLinks: SocialLinks,
     reviews: Reviews,
@@ -144,5 +150,6 @@ export const AllLinks = {
     bookSelections: BookSelections,
     statistics: Statistics,
     changelog: Changelog,
-    bookCollections: BookCollections
+    bookCollections: BookCollections,
+    readingCycles: ReadingCycles
 }

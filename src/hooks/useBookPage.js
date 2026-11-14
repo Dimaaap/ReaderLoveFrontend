@@ -173,6 +173,39 @@ export const useBookPage = (bookSlug) => {
         }
     });
 
+    const { mutateAsync: createReadingCycle, isPending: isCreatingCycle } = useMutation({
+        mutationFn: async () => {
+            const response = await fetch(AllLinks.readingCycles.CREATE_READING_CYCLE(user.username, book.id), 
+            { method: "POST" })
+
+            if (!response.ok) {
+                throw new Error("Не вдалось створити новий цикл читання")
+            }
+
+            return response.json();
+        },
+
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey })
+        }
+    });
+
+    const { mutateAsync: deleteReadingCycle, isPending: isDeletingCycle } = useMutation({
+        mutationFn: async (cycleId) => {
+            const response = await fetch(AllLinks.readingCycles.DELETE_READING_CYCLE(user.username, cycleId), 
+            { method: "DELETE" }
+        )
+
+        if (!response.ok) {
+            throw new Error("Не вдалось видалити цикл читання")
+        }
+        },
+
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey })
+        }
+    })
+
     const { mutateAsync: deleteBookStatus, isPending: isDeletingStatus } = useMutation({
         mutationFn: async () => {
             const response = await fetch(
@@ -277,5 +310,10 @@ export const useBookPage = (bookSlug) => {
         finishSession,
         pauseSession,
         resumeSession,
+
+        createReadingCycle,
+        deleteReadingCycle,
+        isCreatingCycle,
+        isDeletingCycle
     };
 };

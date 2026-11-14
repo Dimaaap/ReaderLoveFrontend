@@ -1,11 +1,13 @@
 "use client";
 
-import { ArrowRight, ChevronRight, Copy, Eye, FolderPlus, ImageIcon, RefreshCcw, RotateCcw, Search, SlidersHorizontal, Trash2 } from 'lucide-react'
+import { ArrowRight, ChevronRight, Copy, Eye, FolderPlus, ImageIcon, RefreshCcw, 
+    RotateCcw, Search, SlidersHorizontal, Trash2 } from 'lucide-react'
 import Link from 'next/link';
 import { useChangeCoverModalState, useCollectionModalState, useStartReadingSessionStore } from "@/states";
 import { useState } from 'react'
 import { ChangeBookStatusPopup } from './ChangeBookStatusPopup';
 import { useBookPage } from '@/hooks/useBookPage';
+import { useRereadBook } from "@/hooks/useRereadBook"
 import toast from 'react-hot-toast';
 import { TrackingTypeModal } from './TrackingTypeModal';
 
@@ -20,9 +22,11 @@ export const BookOptionsPopup = ({ book, onOpenEditModal }) => {
     const [showTrackingModal, setShowTrackingModal] = useState(false);
 
     const { openChangeCoverModal } = useChangeCoverModalState()
-    const { deleteBookStatus, isDeletingStatus, resetBookProgress, isStatusLoading } = useBookPage(book.slug)
+    const { isDeletingStatus } = useBookPage(book.slug)
     const { setStartReadingSessionOpen } = useStartReadingSessionStore();
     const { setCollectionModalOpen } = useCollectionModalState();
+
+    const { rereadBook, isRereading } = useRereadBook(book)
      
     const handleDeleteBook = () => {
         removeBook(undefined, {
@@ -34,10 +38,13 @@ export const BookOptionsPopup = ({ book, onOpenEditModal }) => {
 
     const handleRereadBook = async () => {
         try {
-            await resetBookProgress();
+            await rereadBook();
+
+            toast.success("Новий цикл читання успішно створено")
             onOpenEditModal();
         } catch (err) {
-            console.error("Failed to reset reading progress", err)
+            console.error("Failed to create rereading cycle", err);
+            toast.error("Не вдалось розпочати новий цикл читання")
         }
     }
 
@@ -58,6 +65,7 @@ export const BookOptionsPopup = ({ book, onOpenEditModal }) => {
                 className="absolute top-12 w-72 -right-10 bg-[#141113] border border-white/10 text-white rounded-xl
                 shadow-2xl backdrop-blur-sm flex flex-col p-2 cursor-pointer gap-1.5 z-50 text-sm"
             >   
+                { console.log(book) }
                 <div className="flex items-center gap-3 p-2 border-b border-white/10 pb-3">
                     {book.image_link && (
                         <img 
@@ -119,13 +127,13 @@ export const BookOptionsPopup = ({ book, onOpenEditModal }) => {
 
                 { canReread && (
                     <button
-                        disabled={ isStatusLoading }
+                        disabled={ isRereading }
                         onClick={ handleRereadBook }
                         className="w-full flex items-center gap-2.5 p-2 rounded-lg hover:bg-white/5 transition-colors 
                         font-medium text-left cursor-pointer text-zinc-300 hover:text-white disabled:opacity-50"
                     >
                         <RotateCcw className="w-4 h-4 text-zinc-400" />
-                        <span>{ isStatusLoading ? "Скидання..." : "Перечитати" }</span>
+                        <span>{ isRereading ? "Скидання..." : "Перечитати" }</span>
                     </button>
                 ) }
 

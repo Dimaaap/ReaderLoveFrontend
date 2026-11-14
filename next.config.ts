@@ -70,9 +70,15 @@ const nextConfig: NextConfig = {
         port: "",
         pathname: "/**"
       },
-       {
+      {
         protocol: "https",
         hostname: "s8.vcdn.biz",
+        port: "",
+        pathname: "/**"
+      },
+      {
+        protocol: "https",
+        hostname: "s9.vcdn.biz",
         port: "",
         pathname: "/**"
       },

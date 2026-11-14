@@ -90,7 +90,7 @@ function NowReadingContent() {
     : "—";
 
   return (
-    <div className="flex items-start gap-0 w-full bg-[#0D0B0C] overflow-y-auto text-white overflow-hidden">
+    <div className="flex items-start gap-0 w-full bg-[#0D0B0C] min-h-[calc(100dvh-73px)] overflow-y-auto text-white overflow-hidden">
       <Sidebar username={user?.username} />
 
       {startReadingSessionOpen && currentBook && (

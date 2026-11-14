@@ -36,3 +36,4 @@ export * from "./WhatsNewModal"
 export * from "./SupportModal";
 export * from "./CollectionModal"
 export * from "./ChangeBookCoverModal";
+export * from "./ReadingCyclesModal";

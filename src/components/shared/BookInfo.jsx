@@ -23,7 +23,8 @@ export default function BookInfo({
     onOpenFinishModal,
     onPause,
     onResume,
-    activeSessionId
+    activeSessionId,
+    onOpenCyclesModal
 }) {
 
     const getImageLink = (link) => {
@@ -57,8 +58,26 @@ export default function BookInfo({
     const isInLibrary = bookStatus !== null && bookStatus !== undefined;
     const isStarted = (book?.last_read_page || 0) > 0;
 
+    const cycleHistory = book?.reading_cycle_history;
+    const totalCycles = cycleHistory?.total_reads ?? 1;
+    const activeCycle = cycleHistory?.cycles?.find(c => c.status === "in_progress") || cycleHistory?.cycles?.[0];
+    const currentReadNumber = activeCycle?.read_number ?? 1;
+
     return (
         <div className="flex flex-col gap-6 p-6">
+            { totalCycles > 1 && (
+                <div className="flex justify-center -mb-2">
+                    <button
+                        onClick={ onOpenCyclesModal }
+                        className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-zinc-800/80 hover:bg-zinc-800 border
+                        border-zinc-700/60 text-xs font-medium text-zinc-300 transition-all cursor-pointer shadow-sm"
+                    >
+                        <span>Читання { currentReadNumber } з { totalCycles }</span>
+                        <ChevronDown className="w-3.5 h-3.5 text-zinc-400" />
+                    </button>
+                </div>
+            ) }
+
             <div className="flex gap-5 items-start">
                 <div className="shrink-0">
                     <FlippingBookCover

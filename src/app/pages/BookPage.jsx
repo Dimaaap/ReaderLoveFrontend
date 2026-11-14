@@ -13,9 +13,13 @@ import BookInfo from "@/components/shared/BookInfo";
 import BookReviewsTab from "@/components/shared/BookReviewTab";
 import BookTabs from "@/components/shared/BookTabs";
 import { StartReadingSessionModal } from "@/components/modals/StartReadingSessionModal";
+import { ReadingCyclesModal } from "@/components/modals/ReadingCyclesModal";
+import { useState } from "react";
 
 export default function BookPage({ bookSlug }) {
   const page = useBookPage(bookSlug);
+
+  const [isCyclesModalOpen, setIsCyclesModalOpen] = useState(false);
 
   const {
     startReadingSessionOpen,
@@ -33,10 +37,13 @@ export default function BookPage({ bookSlug }) {
     finishSession,
     pauseSession,
     resumeSession,
+    deleteReadingCycle
   } = page;
 
   if (page.isLoading) return <div>Loading...</div>;
   if (page.isError) return <div>Error</div>;
+
+  const cycles = book?.reading_cycle_history?.cycles || [];
 
   return (
     <div className="flex flex-col w-full h-full bg-[#0D0B0C] text-zinc-300 overflow-auto">
@@ -68,6 +75,7 @@ export default function BookPage({ bookSlug }) {
           onPause={pauseSession}
           onResume={resumeSession}
           activeSessionId={ activeSessionId }
+          onOpenCyclesModal={ () => setIsCyclesModalOpen(true) }
         />
 
         <BookTabs
@@ -85,6 +93,19 @@ export default function BookPage({ bookSlug }) {
             isFetchingNextPage={page.isFetchingNextPage}
           />
         )}
+
+        <ReadingCyclesModal
+          isOpen={ isCyclesModalOpen }
+          onClose={ () => setIsCyclesModalOpen(false) }
+          cycles={ cycles }
+          onSelectCycle={(cycleId) => {
+            console.log("Обрано цикл: ", cycleId);
+            setIsCyclesModalOpen(false);
+          }}
+          onDeleteCycle={async (cycleId) => {
+            await deleteReadingCycle(cycleId)
+          }}
+        />
 
         {startReadingSessionOpen && book && (
           <StartReadingSessionModal
