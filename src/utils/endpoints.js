@@ -132,6 +132,10 @@ const ReadingCycles = {
     REREAD_BOOK: (username, cycleId) => `${BASE_BACKEND_URL}/reading_cycles/${username}/books/${cycleId}/reread`
 }
 
+const Geography = {
+    GET_GEOGRAPHY_STATS: (username, bookStatus="all") => `${BASE_BACKEND_URL}/countries/geography/${username}?book_status=${bookStatus}`
+}
+
 export const AllLinks = {
     socialLinks: SocialLinks,
     reviews: Reviews,
@@ -151,5 +155,6 @@ export const AllLinks = {
     statistics: Statistics,
     changelog: Changelog,
     bookCollections: BookCollections,
-    readingCycles: ReadingCycles
+    readingCycles: ReadingCycles,
+    geography: Geography
 }

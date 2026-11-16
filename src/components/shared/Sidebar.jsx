@@ -10,6 +10,7 @@ const sidebarLinks = [
     { name: "Бібліотека", icon: "library.svg", link: "library" },
     { name: "Зараз читаю", icon: "book.svg", link: "now-reading" },
     { name: "Статистика", icon: "stats.svg", link: "stats" },
+    { name: "Географія", icon: "globe.svg", link: "geography" },
     { name: "Цілі", icon: "target.svg", link: "aims" },
     { name: "Замітки", icon: "notes.svg", link: "notes" },
     { name: "Друзі", icon: "friends.svg", link: "friends" }

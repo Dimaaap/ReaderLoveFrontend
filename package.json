@@ -18,9 +18,11 @@
     "postcss": "^8.5.15",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "react-globe.gl": "^2.38.0",
     "react-hook-form": "^7.81.0",
     "react-hot-toast": "^2.6.0",
     "recharts": "^3.9.1",
+    "three": "^0.187.0",
     "zod": "^4.4.3",
     "zustand": "^5.0.14"
   },
