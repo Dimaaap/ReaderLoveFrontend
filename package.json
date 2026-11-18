@@ -21,6 +21,7 @@
     "react-globe.gl": "^2.38.0",
     "react-hook-form": "^7.81.0",
     "react-hot-toast": "^2.6.0",
+    "react-simple-maps": "^5.0.5",
     "recharts": "^3.9.1",
     "three": "^0.187.0",
     "zod": "^4.4.3",
