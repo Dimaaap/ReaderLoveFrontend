@@ -1,210 +1,241 @@
+
 "use client";
 
+import { memo, useMemo, useState } from "react";
 import {
     ComposableMap,
     Geographies,
     Geography,
-    ZoomableGroup
+    ZoomableGroup,
 } from "react-simple-maps";
-import { useMemo, useState } from "react";
+import { scaleSqrt } from "d3-scale";
+import { Minus, Plus, RotateCcw } from "lucide-react";
 
-const GEO_URL = "/geo/countries.geojson";
-
-const INITIAL_CENTER = [15, 20];
-const INITIAL_ZOOM = 1;
-
-const COUNTRY_NAME_ALIASES = {
-    "united states": "united states of america",
-    "uk": "united kingdom",
-    "great britain": "united kingdom",
-    "czech republic": "czechia",
-    "south korea": "korea",
-    "russia": "russian federation",
+export const MAP_COLORS = {
+    empty: "#2A2527",
+    stroke: "#0D0B0C",
+    min: "#E9C99B",
+    max: "#6B1F0A",
+    hover: "#F59E0B",
 };
 
-const getCountryColor = (booksCount = 0) => {
-    if (booksCount === 0) return "#1E1A1B";
-    if (booksCount >= 50) return "#F47732";
-    if (booksCount >= 26) return "#FF963E";
-    if (booksCount >= 6) return "#FFC66D";
-    return "#FFE0A3";
-};
+const GEO_URL = "/maps/world-ukr.json";
 
-export default function ReadingMap({
-    countries = [],
-    onCountryClick
-}) {
-    const [zoom, setZoom] = useState(INITIAL_ZOOM);
-    const [center, setCenter] = useState(INITIAL_CENTER);
-    const [hoveredCountry, setHoveredCountry] = useState(null);
+const DEFAULT_CENTER = [0, 5];
+const DEFAULT_ZOOM = 1;
 
-    const countriesMap = useMemo(() => {
+const MIN_ZOOM = 1;
+const MAX_ZOOM = 8;
+const ZOOM_STEP = 0.5;
+
+function ReadingMap({ countries = [], onCountryClick }) {
+    const [tooltip, setTooltip] = useState(null);
+
+    const [zoom, setZoom] = useState(DEFAULT_ZOOM);
+    const [center, setCenter] = useState(DEFAULT_CENTER);
+
+
+    const countryByCode = useMemo(() => {
         const map = new Map();
 
-        countries.forEach((country) => {
-            if (!country.name) return;
-            const normalizedName = country.name.trim().toLowerCase();
-            map.set(normalizedName, country);
+        for (const country of countries) {
+            const code = country.code?.toUpperCase();
 
-            if (COUNTRY_NAME_ALIASES[normalizedName]) {
-                map.set(COUNTRY_NAME_ALIASES[normalizedName], country);
-            }
-        });
+            if (code) map.set(code, country);
+        }
 
         return map;
     }, [countries]);
 
-    const resetMap = () => {
-        setZoom(INITIAL_ZOOM);
-        setCenter(INITIAL_CENTER);
-    };
+    const colorScale = useMemo(() => {
+        const max = Math.max(
+            2,
+            ...countries.map((c) => Number(c.books_count) || 0)
+        );
 
-    const changeZoom = (direction) => {
-        setZoom((previous) => {
-            if (direction === "in") {
-                return Math.min(previous + 0.4, 8);
-            }
-            return Math.max(previous - 0.4, 1);
-        });
+        return scaleSqrt()
+            .domain([1, max])
+            .range([MAP_COLORS.min, MAP_COLORS.max]);
+    }, [countries]);
+
+    const handleZoomIn = () => {
+        setZoom((prev) => Math.min(MAX_ZOOM, prev + ZOOM_STEP))
+    }
+
+    const handleZoomOut = () => {
+        setZoom((prev) => Math.max(MIN_ZOOM, prev - ZOOM_STEP))
+    }
+
+    const handleReset = () => {
+        setZoom(DEFAULT_ZOOM);
+        setCenter(DEFAULT_CENTER);
+        setTooltip(null)
+    }
+
+    const handleMoveEnd = (position) => {
+        if (position?.coordinates) {
+            setCenter(position.coordinates);
+        }
+
+        if (typeof position?.zoom === "number") {
+            setZoom(position.zoom);
+        }
     };
 
     return (
-        <div className="relative w-full overflow-hidden rounded-2xl border border-[#45413E] bg-[#141113]">
-            <div className="flex items-center justify-between border-b border-[#302D2A] px-5 py-4">
-                <div>
-                    <h2 className="text-base font-semibold text-white">
-                        Карта читання
-                    </h2>
-                    <p className="mt-1 text-xs text-[#99918B]">
-                        Географія авторів вашої бібліотеки
-                    </p>
-                </div>
+        <div className="relative mx-auto w-full min-w-0 overflow-hidden rounded-xl border border-white/10 bg-[#141113]">
+            
+            <div className="absolute right-4 top-4 z-20 flex flex-col overflow-hidden rounded-lg border border-white/10 bg-[#1C191B]
+            shadow-lg">
+                <button
+                    type="button"
+                    onClick={ handleZoomIn }
+                    disabled={ zoom >= MAX_ZOOM }
+                    aria-label="Наблизити карту"
+                    title="Наблизити"
+                    className="flex h-10 w-10 items-center justify-center text-[#E9C99B] transition-colors 
+                    hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-30"
+                >
+                    <Plus size={ 19 } />
+                </button>
 
-                <span className="rounded-full border border-[#45413E] bg-[#292725] px-3 py-1 text-xs text-[#D5D0CC]">
-                    {countries.length} країн
-                </span>
+                <div className="h-px bg-white/10" />
+
+                <button
+                    type="button"
+                    onClick={ handleZoomOut }
+                    disabled={ zoom <= MIN_ZOOM }
+                    aria-label="Віддалити карту"
+                    title="Віддалити"
+                    className="flex h-10 w-10 items-center justify-center text-[#E9C99B] transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-30"
+                >
+                    <Minus size={ 19 } />
+                </button>
+
+                <div className="h-px bg-white/10" />
+
+                <button
+                    type="button"
+                    onClick={ handleReset }
+                    aria-label="Скинути масштаб карти"
+                    title="Скинути масштаб"
+                    className="flex h-10 w-10 items-center justify-center text-[#E9C99B] transition-colors hover:bg-white/10"
+                >
+                    <RotateCcw size={ 17 } />
+                </button>
             </div>
 
-            <div className="relative flex min-h-112.5 items-center justify-center px-2 py-4 sm:px-5">
-                <ComposableMap
-                    projection="geoMercator"
-                    projectionConfig={{
-                        scale: 120,
-                        center: [0, 35]
-                    }}
-                    width={800}
-                    height={400}
-                    className="h-auto w-full"
-                >
-                    <ZoomableGroup
-                        center={center}
-                        zoom={zoom}
-                        minZoom={1}
-                        maxZoom={8}
-                        onMoveEnd={({ coordinates, zoom }) => {
-                            setCenter(coordinates);
-                            setZoom(zoom);
-                        }}
-                    >
-                        <Geographies geography={GEO_URL}>
-                            {({ geographies }) =>
-                                geographies.map((geo) => {
-                                    const rawGeoName = geo.properties?.name || "";
-                                    const geoName = rawGeoName.trim().toLowerCase();
+            <div className="absolute bottom-4 right-4 z-20 rounded-md border border-white/10 bg-[#1C191B]/90 
+            px-2.5 py-1.5 text-xs text-[#A69A9F]">
+                { Math.round(zoom * 100) }%
+            </div>
+            
+            <ComposableMap
+                width={1200}
+                height={550}
+                projection="geoEqualEarth"
+                projectionConfig={{
+                    scale: 190,
+                    center: [0, 5],
+                }}
+                style={{
+                    width: "100%",
+                    height: "auto",
+                    display: "block",
+                }}
+            >
+                <ZoomableGroup minZoom={1} maxZoom={8} center={ center } zoom={ zoom } onMoveEnd={ handleMoveEnd }>
+                    <Geographies geography={GEO_URL}>
+                        {({ geographies }) =>
+                            geographies.map((geo) => {
+                                const code =
+                                    geo.properties.ISO_A2_EH ||
+                                    geo.properties.ISO_A2;
 
-                                    const country = countriesMap.get(geoName);
-                                    const booksCount = country?.books_count || 0;
-                                    const resolvedName =
-                                        country?.name_uk || rawGeoName || "Невідома країна";
+                                const country = countryByCode.get(
+                                    code?.toUpperCase()
+                                );
 
-                                    return (
-                                        <Geography
-                                            key={geo.rsmKey}
-                                            geography={geo}
-                                            onMouseEnter={() => {
-                                                setHoveredCountry({
-                                                    name: resolvedName,
-                                                    booksCount,
-                                                    authorsCount: country?.authors_count || 0
-                                                });
-                                            }}
-                                            onMouseLeave={() => {
-                                                setHoveredCountry(null);
-                                            }}
-                                            onClick={() => {
-                                                if (country) {
-                                                    onCountryClick?.(country);
-                                                }
-                                            }}
-                                            style={{
+                                const hasBooks = Boolean(country);
+
+                                const fill = hasBooks
+                                    ? colorScale(
+                                        Number(country.books_count) || 1
+                                    )
+                                    : MAP_COLORS.empty;
+
+                                return (
+                                    <Geography
+                                        key={geo.rsmKey}
+                                        geography={geo}
+                                        fill={fill}
+                                        stroke={MAP_COLORS.stroke}
+                                        strokeWidth={0.4}
+                                        onMouseMove={(e) =>
+                                            setTooltip({
+                                                x: e.clientX,
+                                                y: e.clientY,
+                                                name:
+                                                    country?.name_uk ||
+                                                    country?.name ||
+                                                    geo.properties.NAME,
+                                                books:
+                                                    country?.books_count || 0,
+                                            })
+                                        }
+                                        onMouseLeave={() =>
+                                            setTooltip(null)
+                                        }
+                                        onClick={() =>
+                                            hasBooks &&
+                                            onCountryClick?.(country)
+                                        }
+                                        style={{
                                             default: {
-                                                fill: getCountryColor(booksCount),
-                                                stroke: "#383431",
-                                                strokeWidth: 0.7, 
                                                 outline: "none",
-                                                transition: "fill 150ms"
                                             },
                                             hover: {
-                                                fill: "#FFAA55",
-                                                stroke: "#FFFFFF",
-                                                strokeWidth: 1,
                                                 outline: "none",
-                                                cursor: country ? "pointer" : "default"
+                                                fill: hasBooks
+                                                    ? MAP_COLORS.hover
+                                                    : "#3A3437",
+                                                cursor: hasBooks
+                                                    ? "pointer"
+                                                    : "default",
                                             },
                                             pressed: {
-                                                fill: "#F47732",
-                                                outline: "none"
-                                            }
+                                                outline: "none",
+                                            },
                                         }}
-                                        />
-                                    );
-                                })
-                            }
-                        </Geographies>
-                    </ZoomableGroup>
-                </ComposableMap>
+                                    />
+                                );
+                            })
+                        }
+                    </Geographies>
+                </ZoomableGroup>
+            </ComposableMap>
 
-                {hoveredCountry && (
-                    <div className="pointer-events-none absolute left-4 top-4 z-10 rounded-xl border border-[#514A43] bg-[#292725]/95 px-4 py-3 shadow-xl backdrop-blur-sm">
-                        <p className="text-sm font-semibold text-white">
-                            {hoveredCountry.name}
-                        </p>
-                        <p className="mt-1 text-xs text-[#FFAA55]">
-                            {hoveredCountry.booksCount} книг
-                        </p>
-                        <p className="mt-1 text-xs text-[#BDB8B2]">
-                            {hoveredCountry.authorsCount} авторів
-                        </p>
+            {tooltip && (
+                <div
+                    className="pointer-events-none fixed z-50 rounded-md bg-black/90 px-3 py-2 text-xs text-white shadow-lg"
+                    style={{
+                        left: tooltip.x + 12,
+                        top: tooltip.y + 12,
+                    }}
+                >
+                    <div className="font-medium">
+                        {tooltip.name}
                     </div>
-                )}
-            </div>
 
-            <div className="absolute bottom-5 right-5 z-10 flex items-center gap-2">
-                <button
-                    type="button"
-                    onClick={() => changeZoom("in")}
-                    aria-label="Збільшити карту"
-                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#494542] bg-[#383634] text-xl text-white transition hover:bg-[#4A4642]"
-                >
-                    +
-                </button>
-                <button
-                    type="button"
-                    onClick={() => changeZoom("out")}
-                    aria-label="Зменшити карту"
-                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#494542] bg-[#383634] text-xl text-white transition hover:bg-[#4A4642]"
-                >
-                    −
-                </button>
-                <button
-                    type="button"
-                    onClick={resetMap}
-                    aria-label="Скинути карту"
-                    className="flex h-9 items-center justify-center rounded-lg border border-[#494542] bg-[#383634] px-3 text-xs text-white transition hover:bg-[#4A4642]"
-                >
-                    Скинути
-                </button>
-            </div>
+                    <div className="text-[#99918B]">
+                        {tooltip.books > 0
+                            ? `Книг: ${tooltip.books}`
+                            : "Немає книг"}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
+
+export default memo(ReadingMap);
