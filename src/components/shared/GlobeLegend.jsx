@@ -28,7 +28,7 @@ export default function GlobeLegend() {
                     className="flex h-9 items-center gap-2 rounded-full border border-[#484441] bg-[#353331] px-3"
                 >
                     <span
-                        className="h-3 w-3 rounded-[4px]"
+                        className="h-3 w-3 rounded-sm"
                         style={{ backgroundColor: item.color }}
                     />
 

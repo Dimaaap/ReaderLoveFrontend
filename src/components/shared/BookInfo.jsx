@@ -1,8 +1,6 @@
 "use client";
 
-import Link from "next/link";
-
-import { ChevronDown, Play, ShoppingCart } from "lucide-react";
+import { ChevronDown, ShoppingCart, Star } from "lucide-react";
 import { BOOK_STATUSES, BookSelectPopup } from "../modals/BookSelectPopup";
 import { getDeclension } from "@/utils/declension";
 import { ActiveSessionTimer } from "./ActiveSessionTimer";
@@ -24,7 +22,8 @@ export default function BookInfo({
     onPause,
     onResume,
     activeSessionId,
-    onOpenCyclesModal
+    onOpenCyclesModal,
+    onOpenRating
 }) {
 
     const getImageLink = (link) => {
@@ -143,19 +142,47 @@ export default function BookInfo({
                     ) : (
                         <div className="flex flex-col gap-2">
                             { isInLibrary ? (
-                                <div className="flex justify-center my-2">
-                                    <div className="flex items-center justify-center p-1.5 rounded-full border-2 border-white/80 
-                                    shadow-lg cursor-pointer">
+                                bookStatus === "finished" ? (
+                                    <div className="flex flex-col gap-3 my-2">
                                         <button
+                                            type="button"
+                                            onClick={ onOpenRating }
+                                            className="flex items-center justify-center gap-2 w-full
+                                            rounded-xl bg-[#F43F5E] py-3 text-sm font-semibold text-white
+                                            transition-all hover:bg-[#E03455] active:scale-[0.98]"
+                                        >
+                                            <Star size={ 18 } />
+                                            { book?.user_rating ? "Змінити оцінку": "Оцінити книгу" }
+                                        </button>
+
+                                        <button
+                                            type="button"
                                             onClick={ onOpenStartModal }
                                             disabled={ isStartingSession }
-                                            title={ isStarted ? "Продовжити читати" : "Почати читати" }
-                                            className="w-12 h-12 rounded-full bg-[#FF0000] hover:bg-[#e00000] flex items-center 
-                                            justify-center transition-all cursor-pointer disabled:opacity-50 active:scale-95 shadow-inner"
+                                            className="w-full rounded-xl border border-zinc-700
+                                            bg-zinc-800/60 py-2.5 text-sm font-medium
+                                            text-zinc-300 transition hover:bg-zinc-800
+                                            disabled:opacity-50"
                                         >
+                                            Перечитати
                                         </button>
                                     </div>
-                                </div>
+                                ) : (
+                                    <div className="flex justify-center my-2">
+                                        <div className="flex items-center justify-center p-1.5 rounded-full border-2 border-white/80 
+                                        shadow-lg cursor-pointer">
+                                            <button
+                                                onClick={ onOpenStartModal }
+                                                disabled={ isStartingSession }
+                                                title={ isStarted ? "Продовжити читати" : "Почати читати" }
+                                                className="w-12 h-12 rounded-full bg-[#FF0000] hover:bg-[#e00000] flex items-center 
+                                                justify-center transition-all cursor-pointer disabled:opacity-50 active:scale-95 shadow-inner"
+                                            >
+                                            </button>
+                                        </div>
+                                    </div>    
+                                )
+                                
                             ) : (
                                 <div className="inline-flex w-[50%] rounded-xl bg-zinc-100 text-zinc-900 font-medium 
                                 shadow-md transition-all hover:bg-zinc-200">

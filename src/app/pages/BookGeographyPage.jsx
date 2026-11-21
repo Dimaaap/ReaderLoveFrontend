@@ -29,7 +29,6 @@ function GeographyContent() {
 
     const [selectedCountry, setSelectedCountry] = useState(null);
 
-    console.log("1. GeographyContent rendered");
 
     const {
         data: countries = [],

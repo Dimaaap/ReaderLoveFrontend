@@ -1,6 +1,7 @@
 "use client"
 
 import { Flag, BookOpen } from "lucide-react"
+import { getDeclension } from "@/utils/declension"
 
 
 function StatCard({ icon: Icon, value, title, description }) {
@@ -36,14 +37,14 @@ export default function GeographyStats({
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <StatCard
                 icon={ Flag }
-                value={ `${ countries.length } країн` }
+                value={ `${ countries.length } ${getDeclension(countries.length, ["країн", "країни", "країна"])}` }
                 title="Географія авторів"
                 description="Країни походження авторів твоєї бібліотеки"
             />
 
             <StatCard
                 icon={ BookOpen }
-                value={ `${totalBooks} книг` }
+                value={ `${totalBooks} ${getDeclension(totalBooks, ["книг", "книги", "книга"])}` }
                 title="Книги"
                 description="Унікальні книги в бібліотеці"
             />

@@ -26,12 +26,12 @@ export function getDeclension(count, wordsList) {
         return wordsList[0]
     }
 
-    if (lastDigit > 1 && lastDigit < 5) {
-        return wordsList[1]
+    if (lastDigit === 1) {
+        return wordsList[2];
     }
 
-    if (lastDigit === 1) {
-        return wordsList[2]
+    if (lastDigit >= 2 && lastDigit <= 4) {
+        return wordsList[1]
     }
 
     return wordsList[0]

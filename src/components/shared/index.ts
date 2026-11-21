@@ -79,3 +79,4 @@ export * from "./MapContainer";
 export * from "./ReadingMap"
 export * from "./MapContainer"
 export * from "./GeographyHeader"
+export * from "./BookCompletionCelebration"

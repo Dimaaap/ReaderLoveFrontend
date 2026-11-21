@@ -15,11 +15,15 @@ import BookTabs from "@/components/shared/BookTabs";
 import { StartReadingSessionModal } from "@/components/modals/StartReadingSessionModal";
 import { ReadingCyclesModal } from "@/components/modals/ReadingCyclesModal";
 import { useState } from "react";
+import BookCompletionCelebration from "@/components/shared/BookCompletionCelebration";
+import RatingModal from "@/components/modals/RatingModal";
 
 export default function BookPage({ bookSlug }) {
   const page = useBookPage(bookSlug);
 
+  const [isBookCompleted, setIsBookCompleted] = useState(false);
   const [isCyclesModalOpen, setIsCyclesModalOpen] = useState(false);
+  const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
 
   const {
     startReadingSessionOpen,
@@ -45,9 +49,19 @@ export default function BookPage({ bookSlug }) {
 
   const cycles = book?.reading_cycle_history?.cycles || [];
 
+  const handleFinishSession = async (pageNumber) => {
+    await finishSession(activeSessionId, pageNumber);
+
+    if (book?.page_count && pageNumber >= book.pages_count){
+      setIsBookCompleted(true);
+    }
+  }
+
   return (
     <div className="flex flex-col w-full h-full bg-[#0D0B0C] text-zinc-300 overflow-auto">
       <div className="bg-[#141113] rounded-2xl flex flex-col w-200 max-w-full mx-auto border border-zinc-900 shadow-xl my-6">
+
+        <BookCompletionCelebration active={ isBookCompleted } />
 
         {createReviewModalOpen && (
           <CreateReviewModal book={book} />
@@ -76,6 +90,7 @@ export default function BookPage({ bookSlug }) {
           onResume={resumeSession}
           activeSessionId={ activeSessionId }
           onOpenCyclesModal={ () => setIsCyclesModalOpen(true) }
+          onOpenRating={() => setIsRatingModalOpen(true)}
         />
 
         <BookTabs
@@ -99,7 +114,6 @@ export default function BookPage({ bookSlug }) {
           onClose={ () => setIsCyclesModalOpen(false) }
           cycles={ cycles }
           onSelectCycle={(cycleId) => {
-            console.log("Обрано цикл: ", cycleId);
             setIsCyclesModalOpen(false);
           }}
           onDeleteCycle={async (cycleId) => {
@@ -119,9 +133,19 @@ export default function BookPage({ bookSlug }) {
                         ? finishSession(activeSessionId, pageNumber)
                         : startSession(pageNumber)
                 }
+                onBookCompleted={ () => setIsBookCompleted(true) }
             />
         )}
       </div>
+      { isRatingModalOpen && (
+        <RatingModal
+          inintialRating={ book?.user_rating ?? 0 }
+          onClose={() => setIsRatingModalOpen(false)}
+          onSubmit={async (rating) => {
+            console.log(rating)
+          }}
+        />
+      ) }
 
       <SimilarBooksSection bookSlug={bookSlug} />
     </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { getDeclension } from "@/utils/declension";
 import { BookOpen, MapPin, Users, X } from "lucide-react";
 
 
@@ -16,7 +17,10 @@ export default function CountryDetails({
                     <div>
                         <div className="flex items-center gap-2">
                             { country.flag && (
-                                <span className="text-2xl">
+                                <span className="text-2xl"
+                                style={{
+                                    filter: "grayscale(1) brightness(0) invert(1)"
+                                }}>
                                     { country.flag }
                                 </span>
                             ) }
@@ -50,7 +54,7 @@ export default function CountryDetails({
                         </p>
 
                         <p className="text-sm text-[#A9A29D]">
-                            Авторів
+                            { getDeclension(country.authors_count, ["авторів", "автори", "автор"]) }
                         </p>
                     </div>
 
@@ -62,7 +66,7 @@ export default function CountryDetails({
                         </p>
 
                         <p className="text-sm text-[#A9A29D]">
-                            Книг
+                            { getDeclension(country.books_count, ["книг", "книги", "книга"]) }
                         </p>
                     </div>
                 </div>

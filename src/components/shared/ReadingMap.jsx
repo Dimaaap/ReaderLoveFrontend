@@ -9,6 +9,7 @@ import {
     ZoomableGroup,
 } from "react-simple-maps";
 import { scaleSqrt } from "d3-scale";
+import { getDeclension } from "@/utils/declension";
 import { Minus, Plus, RotateCcw } from "lucide-react";
 
 export const MAP_COLORS = {
@@ -229,8 +230,8 @@ function ReadingMap({ countries = [], onCountryClick }) {
 
                     <div className="text-[#99918B]">
                         {tooltip.books > 0
-                            ? `Книг: ${tooltip.books}`
-                            : "Немає книг"}
+                            ? `${getDeclension(tooltip.books, ["книжок", "книжки", "книжка"])}: ${ tooltip.books }`
+                            : "Немає книжок"}
                     </div>
                 </div>
             )}

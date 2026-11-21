@@ -1,6 +1,5 @@
 "use client";
 
-import { useAuth } from "@/hooks/useAuth";
 import ReadingMap from "./ReadingMap";
 
 export default function MapContainer({ countries, onCountryClick }) {
