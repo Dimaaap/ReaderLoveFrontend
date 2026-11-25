@@ -87,7 +87,8 @@ const WebSockets = {
 
 const BookReviews = {
     bookReview: `${BASE_BACKEND_URL}/book-reviews/`,
-    bookReviewsByBookId: (bookId, limit, offset) => `${BASE_BACKEND_URL}/book-reviews/by-book-id?book_id=${bookId}&limit=${limit}&offset=${offset}`
+    bookReviewsByBookId: (bookId, limit, offset) => `${BASE_BACKEND_URL}/book-reviews/by-book-id?book_id=${bookId}&limit=${limit}&offset=${offset}`,
+    setBookRating: (bookId, username) => `${BASE_BACKEND_URL}/book-reviews/by-book-id/${bookId}/rating/${username}`
 }
 
 const BookPublishers = {

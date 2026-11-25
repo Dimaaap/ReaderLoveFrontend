@@ -53,7 +53,11 @@ export default function RatingModal({
     }
 
     const handleSubmit = async () => {
-        await onSubmit(rating);
+        try {
+            await onSubmit(rating);
+        } catch (error) {
+            console.error("Rating submission failed: ", error);
+        }
     }
 
     return (

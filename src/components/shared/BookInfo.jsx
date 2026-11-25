@@ -56,11 +56,17 @@ export default function BookInfo({
 
     const isInLibrary = bookStatus !== null && bookStatus !== undefined;
     const isStarted = (book?.last_read_page || 0) > 0;
+    const showRatingUnderCover = !activeSession && isInLibrary && bookStatus === "finished";
+    const hasUserRating = typeof book?.user_rating === "number" && book.user_rating > 0;
 
     const cycleHistory = book?.reading_cycle_history;
     const totalCycles = cycleHistory?.total_reads ?? 1;
     const activeCycle = cycleHistory?.cycles?.find(c => c.status === "in_progress") || cycleHistory?.cycles?.[0];
     const currentReadNumber = activeCycle?.read_number ?? 1;
+
+    const showFinishedBadge = bookStatus === "finished";
+    const finishedCount = Math.max(1, Number(totalCycles) || 1);
+    const readWord = getDeclension(finishedCount, ["разів", "рази", "раз"])
 
     return (
         <div className="flex flex-col gap-6 p-6">
@@ -78,12 +84,40 @@ export default function BookInfo({
             ) }
 
             <div className="flex gap-5 items-start">
-                <div className="shrink-0">
-                    <FlippingBookCover
-                        imageSrc={ getImageLink(book?.image_link) }
-                        title={ book?.title }
-                        isOpen={ Boolean(activeSession) }
-                    />
+                <div className="shrink-0 flex flex-col items-center gap-3">
+                    <div className="relative">
+                        <FlippingBookCover
+                            imageSrc={ getImageLink(book?.image_link) }
+                            title={ book?.title }
+                            isOpen={ Boolean(activeSession) }
+                        />    
+
+                        { showFinishedBadge && (
+                            <div
+                                className="pointer-events-none absolute top-2 left-1/2 -translate-x-1/2 z-10
+                                px-2.5 rounded-full bg-zinc-950/85 backdrop-blur-sm border border-white/15
+                                text-[11px] font-semibold text-white whitespace-nowrap shadow-md"
+                            >
+                                прочитано: { finishedCount } { readWord }
+                            </div>
+                        ) }
+                    </div>
+                    
+
+                    { showRatingUnderCover && (
+                        <button
+                            type="button"
+                            onClick={ onOpenRating }
+                            className="flex items-center justify-center gap-1.5 w-full rounded-xl bg-white py-2.5 px-3
+                            text-sm font-semibold text-zinc-950 shadow-sm transition-all hover:bg-zinc-200 
+                            active:scale-[0.98] cursor-pointer"
+                        >
+                            <Star size={ 16 } className="fill-zinc-950 text-zinc-950" />
+                            <span>
+                                { hasUserRating ? `${ book.user_rating }/5` : "Оцінити" }
+                            </span>
+                        </button>
+                    ) }
                 </div>
 
                 <div className="flex flex-col flex-1 gap-4">
@@ -144,17 +178,6 @@ export default function BookInfo({
                             { isInLibrary ? (
                                 bookStatus === "finished" ? (
                                     <div className="flex flex-col gap-3 my-2">
-                                        <button
-                                            type="button"
-                                            onClick={ onOpenRating }
-                                            className="flex items-center justify-center gap-2 w-full
-                                            rounded-xl bg-[#F43F5E] py-3 text-sm font-semibold text-white
-                                            transition-all hover:bg-[#E03455] active:scale-[0.98]"
-                                        >
-                                            <Star size={ 18 } />
-                                            { book?.user_rating ? "Змінити оцінку": "Оцінити книгу" }
-                                        </button>
-
                                         <button
                                             type="button"
                                             onClick={ onOpenStartModal }

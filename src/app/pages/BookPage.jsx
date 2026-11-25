@@ -17,8 +17,12 @@ import { ReadingCyclesModal } from "@/components/modals/ReadingCyclesModal";
 import { useState } from "react";
 import BookCompletionCelebration from "@/components/shared/BookCompletionCelebration";
 import RatingModal from "@/components/modals/RatingModal";
+import { useRateBook } from "@/hooks/useRateBook"
+import { useAuth } from "@/hooks/useAuth";
 
 export default function BookPage({ bookSlug }) {
+  const { user } = useAuth();
+
   const page = useBookPage(bookSlug);
 
   const [isBookCompleted, setIsBookCompleted] = useState(false);
@@ -44,10 +48,15 @@ export default function BookPage({ bookSlug }) {
     deleteReadingCycle
   } = page;
 
+  const rateBookMutation = useRateBook(
+    book?.id, bookSlug, user?.username
+  )
+
   if (page.isLoading) return <div>Loading...</div>;
   if (page.isError) return <div>Error</div>;
 
   const cycles = book?.reading_cycle_history?.cycles || [];
+
 
   const handleFinishSession = async (pageNumber) => {
     await finishSession(activeSessionId, pageNumber);
@@ -139,10 +148,16 @@ export default function BookPage({ bookSlug }) {
       </div>
       { isRatingModalOpen && (
         <RatingModal
-          inintialRating={ book?.user_rating ?? 0 }
+          initialRating={ book?.user_rating ?? 0 }
+          isSubmitting={ rateBookMutation.isPending }
           onClose={() => setIsRatingModalOpen(false)}
           onSubmit={async (rating) => {
-            console.log(rating)
+            try {
+              await rateBookMutation.mutateAsync(rating);
+              setIsRatingModalOpen(false);
+            } catch (error) {
+              console.log("error")
+            }
           }}
         />
       ) }

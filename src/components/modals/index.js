@@ -37,3 +37,5 @@ export * from "./SupportModal";
 export * from "./CollectionModal"
 export * from "./ChangeBookCoverModal";
 export * from "./ReadingCyclesModal";
+export * from "./HowToReadCalendarModal"
+export * from "./DaysBookModal"
